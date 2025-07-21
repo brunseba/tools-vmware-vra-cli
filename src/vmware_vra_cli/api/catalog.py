@@ -1298,6 +1298,156 @@ class CatalogClient:
         
         return export_summary
     
+    def export_catalog_schemas(self, project_id: Optional[str] = None,
+                             output_dir: str = "./schema_exports",
+                             format_type: str = "json") -> Dict[str, Any]:
+        """Export all catalog item schemas to separate files.
+        
+        This method fetches all catalog items and exports their schemas to individual files
+        in the specified output directory. This is useful for backup, documentation,
+        or development purposes.
+        
+        Args:
+            project_id: Optional project ID to filter catalog items
+            output_dir: Directory to save the exported schema files (default: ./schema_exports)
+            format_type: Output format ('json' or 'yaml', default: 'json')
+            
+        Returns:
+            Dictionary containing export summary and statistics
+        """
+        import os
+        import yaml
+        from datetime import datetime
+        
+        # Get all catalog items
+        catalog_items = self.list_catalog_items(project_id=project_id)
+        
+        # Create output directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Export metadata
+        export_timestamp = datetime.now().isoformat()
+        
+        export_summary = {
+            'export_timestamp': export_timestamp,
+            'export_parameters': {
+                'project_id': project_id,
+                'output_dir': output_dir,
+                'format_type': format_type
+            },
+            'statistics': {
+                'total_catalog_items': len(catalog_items),
+                'successful_exports': 0,
+                'failed_exports': 0,
+                'items_without_schema': 0
+            },
+            'exported_files': [],
+            'failed_items': [],
+            'items_without_schema': []
+        }
+        
+        files_created = 0
+        
+        # Export schema for each catalog item
+        for item in catalog_items:
+            try:
+                # Create safe filename based on item name and ID
+                safe_name = "".join(c for c in item.name if c.isalnum() or c in (' ', '-', '_')).rstrip()
+                safe_name = safe_name.replace(' ', '_')
+                
+                file_extension = 'yaml' if format_type == 'yaml' else 'json'
+                filename = f"{safe_name}_{item.id}_schema.{file_extension}"
+                filepath = os.path.join(output_dir, filename)
+                
+                # Get the schema for this catalog item
+                try:
+                    schema = self.get_catalog_item_schema(item.id)
+                    
+                    if not schema or (isinstance(schema, dict) and len(schema) == 0):
+                        # No schema available for this item
+                        export_summary['items_without_schema'].append({
+                            'id': item.id,
+                            'name': item.name,
+                            'type': item.type.name,
+                            'reason': 'Schema is empty or unavailable'
+                        })
+                        export_summary['statistics']['items_without_schema'] += 1
+                        continue
+                    
+                    # Prepare export data with metadata
+                    export_data = {
+                        'catalog_item_info': {
+                            'id': item.id,
+                            'name': item.name,
+                            'type': item.type.name,
+                            'status': item.status,
+                            'version': item.version,
+                            'description': item.description
+                        },
+                        'export_timestamp': export_timestamp,
+                        'schema': schema
+                    }
+                    
+                    # Write to file
+                    with open(filepath, 'w', encoding='utf-8') as f:
+                        if format_type == 'yaml':
+                            yaml.dump(export_data, f, default_flow_style=False, indent=2)
+                        else:
+                            json.dump(export_data, f, indent=2, ensure_ascii=False)
+                    
+                    export_summary['exported_files'].append({
+                        'filename': filename,
+                        'filepath': filepath,
+                        'catalog_item_id': item.id,
+                        'catalog_item_name': item.name,
+                        'catalog_item_type': item.type.name,
+                        'schema_size': len(json.dumps(schema)) if schema else 0
+                    })
+                    
+                    export_summary['statistics']['successful_exports'] += 1
+                    files_created += 1
+                    
+                except Exception as schema_error:
+                    # Failed to get schema for this item
+                    export_summary['failed_items'].append({
+                        'id': item.id,
+                        'name': item.name,
+                        'type': item.type.name,
+                        'error': str(schema_error)
+                    })
+                    export_summary['statistics']['failed_exports'] += 1
+                    
+                    if self.verbose:
+                        print(f"Warning: Could not export schema for {item.name} ({item.id}): {schema_error}")
+                    
+            except Exception as item_error:
+                # Failed to process this item entirely
+                export_summary['failed_items'].append({
+                    'id': item.id,
+                    'name': item.name,
+                    'type': item.type.name if hasattr(item, 'type') else 'Unknown',
+                    'error': f"Item processing error: {str(item_error)}"
+                })
+                export_summary['statistics']['failed_exports'] += 1
+                
+                if self.verbose:
+                    print(f"Warning: Could not process catalog item {item.id}: {item_error}")
+        
+        # Save export summary
+        summary_filename = f"schema_export_summary.{format_type}"
+        summary_filepath = os.path.join(output_dir, summary_filename)
+        
+        with open(summary_filepath, 'w', encoding='utf-8') as f:
+            if format_type == 'yaml':
+                yaml.dump(export_summary, f, default_flow_style=False, indent=2)
+            else:
+                json.dump(export_summary, f, indent=2, ensure_ascii=False)
+        
+        files_created += 1
+        export_summary['files_created'] = files_created
+        
+        return export_summary
+    
     def _determine_unsynced_reason(self, deployment: Dict[str, Any], 
                                  catalog_items: List[CatalogItem]) -> str:
         """Determine why a deployment is unsynced (simplified version for export)."""

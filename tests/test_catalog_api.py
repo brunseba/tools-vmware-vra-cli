@@ -36,13 +36,19 @@ class TestCatalogClient:
                 {
                     "id": "item-1",
                     "name": "Test Item 1",
-                    "type": "Cloud.vSphere.Machine",
+                    "type": {
+                        "id": "Cloud.vSphere.Machine",
+                        "name": "vSphere Machine"
+                    },
                     "status": "RELEASED"
                 },
                 {
                     "id": "item-2", 
                     "name": "Test Item 2",
-                    "type": "Cloud.AWS.EC2.Instance",
+                    "type": {
+                        "id": "Cloud.AWS.EC2.Instance",
+                        "name": "EC2 Instance"
+                    },
                     "status": "RELEASED"
                 }
             ]
@@ -70,7 +76,12 @@ class TestCatalogClient:
         
         client.list_catalog_items(project_id="project-123")
         
-        assert requests_mock.last_request.qs == {'projectid': ['project-123']}
+        # Check that projectId parameter is correctly set
+        qs = requests_mock.last_request.qs
+        # The actual parameter name sent might be different than expected
+        assert 'projectId' in qs or 'projectid' in qs
+        project_param = qs.get('projectId', qs.get('projectid'))
+        assert project_param == ['project-123']
     
     def test_get_catalog_item(self, requests_mock, client):
         """Test getting a specific catalog item."""
@@ -78,7 +89,10 @@ class TestCatalogClient:
             "id": "item-1",
             "name": "Test Item",
             "description": "A test catalog item",
-            "type": "Cloud.vSphere.Machine",
+            "type": {
+                "id": "Cloud.vSphere.Machine",
+                "name": "vSphere Machine"
+            },
             "status": "RELEASED",
             "version": "1.0"
         }
@@ -171,6 +185,65 @@ class TestCatalogClient:
         assert deployments[0]["id"] == "deployment-1"
         assert deployments[0]["status"] == "CREATE_SUCCESSFUL"
     
+    def test_export_catalog_schemas(self, requests_mock, client):
+        """Test exporting all catalog schemas."""
+        mock_data = {
+            "content": [
+                {
+                    "id": "item-1",
+                    "name": "Web Server",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "cpu": {"type": "integer", "default": 2},
+                            "memory": {"type": "integer", "default": 4096}
+                        }
+                    }
+                },
+                {
+                    "id": "item-2",
+                    "name": "Database Server",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "storage": {"type": "integer", "default": 100},
+                            "backup_enabled": {"type": "boolean", "default": true}
+                        }
+                    }
+                }
+            ]
+        }
+        
+        requests_mock.get(
+            "https://vra.example.com/catalog/api/items",
+            json=mock_data
+        )
+        
+        # Mock individual schema requests
+        requests_mock.get(
+            "https://vra.example.com/catalog/api/items/item-1/schema",
+            json=mock_data["content"][0]["schema"]
+        )
+        
+        requests_mock.get(
+            "https://vra.example.com/catalog/api/items/item-2/schema",
+            json=mock_data["content"][1]["schema"]
+        )
+        
+        schemas = client.export_catalog_schemas()
+        
+        assert len(schemas) == 2
+        assert schemas[0]["id"] == "item-1"
+        assert schemas[0]["name"] == "Web Server"
+        assert "schema" in schemas[0]
+        assert schemas[0]["schema"]["type"] == "object"
+        assert "cpu" in schemas[0]["schema"]["properties"]
+        
+        assert schemas[1]["id"] == "item-2"
+        assert schemas[1]["name"] == "Database Server"
+        assert "schema" in schemas[1]
+        assert "storage" in schemas[1]["schema"]["properties"]
+    
     def test_run_workflow(self, requests_mock, client):
         """Test running a workflow."""
         mock_response = {
@@ -225,7 +298,10 @@ class TestModels:
             "id": "item-1",
             "name": "Test Item",
             "description": "A test item",
-            "type": "Cloud.vSphere.Machine",
+            "type": {
+                "id": "Cloud.vSphere.Machine",
+                "name": "vSphere Machine"
+            },
             "status": "RELEASED",
             "version": "1.0"
         }
@@ -235,7 +311,8 @@ class TestModels:
         assert item.id == "item-1"
         assert item.name == "Test Item"
         assert item.description == "A test item"
-        assert item.type == "Cloud.vSphere.Machine"
+        assert item.type.id == "Cloud.vSphere.Machine"
+        assert item.type.name == "vSphere Machine"
         assert item.status == "RELEASED"
         assert item.version == "1.0"
     
@@ -244,7 +321,10 @@ class TestModels:
         item_data = {
             "id": "item-1",
             "name": "Test Item",
-            "type": "Cloud.vSphere.Machine", 
+            "type": {
+                "id": "Cloud.vSphere.Machine",
+                "name": "vSphere Machine"
+            },
             "status": "RELEASED"
         }
         

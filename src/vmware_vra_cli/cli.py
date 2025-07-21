@@ -360,6 +360,43 @@ def show_catalog_item_schema(ctx, item_id):
     else:
         console.print(json.dumps(schema, indent=2))
 
+@catalog.command('schema-export-all')
+@click.option('--project', help='Filter by project ID')
+@click.option('--output-dir', default='./schema_exports', help='Directory to save schema files (default: ./schema_exports)')
+@click.option('--format', 'format_type', type=click.Choice(['json', 'yaml']), default='json', help='Output format')
+@click.pass_context
+def export_all_schemas(ctx, project, output_dir, format_type):
+    """Export all catalog item schemas to files."""
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
+    
+    status_msg = "[bold blue]Exporting all catalog item schemas..."
+    if project:
+        status_msg += f" (project: {project})"
+    
+    with console.status(status_msg):
+        export_summary = client.export_catalog_schemas(project_id=project, output_dir=output_dir, format_type=format_type)
+    
+    # Display summary
+    console.print("\n[green]✅ Schema export completed successfully![/green]")
+    console.print(f"[cyan]Output directory: {output_dir}[/cyan]")
+    console.print(f"[cyan]Files created: {export_summary['files_created']}[/cyan]")
+    
+    console.print(f"\n[bold]Export Statistics:[/bold]")
+    console.print(f"  Total catalog items: {export_summary['statistics']['total_catalog_items']}")
+    console.print(f"  Items with schemas exported: {export_summary['statistics']['successful_exports']}")
+    console.print(f"  Items failed to export: {export_summary['statistics']['failed_exports']}")
+    console.print(f"  Items without schemas: {export_summary['statistics']['items_without_schema']}")
+    
+    if export_summary['statistics']['failed_exports']  3e 0:
+        console.print("\n[red]Failed export details:[/red]")
+        for failure in export_summary['failed_items']:
+            console.print(f"  - {failure['name']} (ID: {failure['id']}): {failure['error']}")
+
+    if export_summary['statistics']['items_without_schema']  3e 0:
+        console.print("\n[yellow]Items without schema details:[/yellow]")
+        for item in export_summary['items_without_schema']:
+            console.print(f"  - {item['name']} (ID: {item['id']}): {item['reason']}")
+
 @catalog.command('request')
 @click.argument('item_id')
 @click.option('--inputs', help='Input parameters as JSON string')

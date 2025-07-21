@@ -107,6 +107,15 @@ nav:
     - Contributing: developer-guide/contributing.md
     - Architecture: developer-guide/architecture.md
     - Testing: developer-guide/testing.md
+  - Architecture and Design:
+    - Overview: architecture-design/index.md
+    - Context Diagram: architecture-design/context-diagram.md
+    - Architecture Overview: architecture-design/architecture-overview.md
+    - Components Model: architecture-design/components-model.md
+    - Data Models: architecture-design/data-models.md
+    - Functional Requirements: architecture-design/functional-requirements.md
+    - Non-Functional Requirements: architecture-design/non-functional-requirements.md
+    - Security and Compliance: architecture-design/security-compliance.md
   - References: references.md
   - Changelog: changelog.md
 

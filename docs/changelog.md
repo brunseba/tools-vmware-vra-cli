@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2025-01-21
+
+### Added
+- **Deployment Export Functionality**: New `deployment export-all` command for bulk deployment export
+- **Enhanced Deployment Management**: Export multiple deployments in JSON, YAML, or CSV formats
+- **Flexible Export Options**: 
+  - Export by deployment names, tags, or all deployments
+  - Support for multiple output formats with configurable formatting
+  - Optional resource details inclusion for comprehensive export data
+- **Comprehensive Documentation Suite**:
+  - **Deployment Export Guide**: Complete user guide for the new export-all command
+  - **CLI Reference Guide**: Full reference documentation for all commands and options
+  - **Troubleshooting Guide**: Comprehensive troubleshooting and diagnostic information
+  - **Practical Examples Guide**: Real-world automation scenarios and usage patterns
+- **Enhanced Navigation**: Updated MkDocs configuration with improved documentation structure
+- **Export Filtering**: Advanced deployment matching with name patterns and tag-based filtering
+- **Batch Operations**: Support for exporting large numbers of deployments efficiently
+
+### Changed
+- **Improved CLI Help**: Enhanced help text and documentation for all deployment commands
+- **Better Error Handling**: More informative error messages for export operations
+- **Enhanced Service Catalog Documentation**: Updated with export functionality integration
+
+### Fixed
+- **Export Performance**: Optimized deployment data retrieval for large-scale exports
+- **Output Formatting**: Improved consistency across different export formats
+- **Documentation Links**: Fixed cross-references between documentation sections
+
 ## [0.7.0] - 2025-01-21
 
 ### Added
