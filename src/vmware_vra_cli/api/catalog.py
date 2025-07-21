@@ -766,3 +766,92 @@ class CatalogClient:
             tags.append(Tag(**tag_data))
             
         return tags
+    
+    def get_catalog_usage_stats(self, project_id: Optional[str] = None, 
+                              fetch_resource_counts: bool = False) -> List[Dict[str, Any]]:
+        """Get comprehensive usage statistics for catalog items.
+        
+        This method provides detailed analytics including deployment counts,
+        resource counts, and success rates for each catalog item.
+        
+        Args:
+            project_id: Optional project ID to filter items and deployments
+            fetch_resource_counts: Whether to fetch actual resource counts (slower but accurate)
+            
+        Returns:
+            List of usage statistics for each catalog item
+        """
+        # Get all catalog items and deployments
+        catalog_items = self.list_catalog_items(project_id=project_id)
+        deployments = self.list_deployments(project_id=project_id)
+        
+        usage_stats = []
+        
+        for item in catalog_items:
+            # Find deployments for this catalog item
+            # Match by catalogItemId, blueprintId, or catalogItemName
+            item_deployments = [
+                d for d in deployments 
+                if (d.get('catalogItemId') == item.id or 
+                    d.get('blueprintId') == item.id or
+                    d.get('catalogItemName') == item.name or
+                    # Also check if the deployment name contains the catalog item name
+                    (item.name.lower() in d.get('name', '').lower()))
+            ]
+            
+            # Count deployment statuses
+            status_counts = {}
+            total_resources = 0
+            
+            for deployment in item_deployments:
+                status = deployment.get('status', 'UNKNOWN')
+                status_counts[status] = status_counts.get(status, 0) + 1
+                
+                if fetch_resource_counts:
+                    # Fetch actual resource count for this deployment (expensive operation)
+                    try:
+                        resources = self.get_deployment_resources(deployment.get('id'))
+                        total_resources += len(resources)
+                    except Exception:
+                        # If we can't get resources, estimate conservatively
+                        total_resources += 1
+                else:
+                    # Use simple estimation for better performance
+                    if 'resourceCount' in deployment:
+                        total_resources += deployment.get('resourceCount', 1)
+                    else:
+                        # Conservative estimate: at least 1 resource per deployment
+                        total_resources += 1
+            
+            deployment_count = len(item_deployments)
+            
+            # Calculate success metrics
+            success_statuses = ['CREATE_SUCCESSFUL', 'UPDATE_SUCCESSFUL', 'SUCCESSFUL']
+            failed_statuses = ['CREATE_FAILED', 'UPDATE_FAILED', 'FAILED']
+            progress_statuses = ['CREATE_INPROGRESS', 'UPDATE_INPROGRESS', 'INPROGRESS']
+            
+            success_count = sum(status_counts.get(status, 0) for status in success_statuses)
+            failed_count = sum(status_counts.get(status, 0) for status in failed_statuses)
+            in_progress_count = sum(status_counts.get(status, 0) for status in progress_statuses)
+            
+            success_rate = (success_count / deployment_count * 100) if deployment_count > 0 else 0
+            
+            stats = {
+                'catalog_item': item,
+                'deployment_count': deployment_count,
+                'resource_count': total_resources,
+                'success_count': success_count,
+                'failed_count': failed_count,
+                'in_progress_count': in_progress_count,
+                'success_rate': success_rate,
+                'status_counts': status_counts,
+                'recent_deployments': sorted(
+                    item_deployments, 
+                    key=lambda x: x.get('createdAt', ''), 
+                    reverse=True
+                )[:5]  # Keep last 5 deployments for reference
+            }
+            
+            usage_stats.append(stats)
+        
+        return usage_stats

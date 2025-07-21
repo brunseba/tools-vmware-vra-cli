@@ -756,6 +756,165 @@ def show_resource_tags(ctx, resource_id, resource_type):
     elif ctx.obj['format'] == 'yaml':
         console.print(yaml.dump([tag.dict() for tag in tags], default_flow_style=False))
 
+# Report commands
+@main.group()
+def report():
+    """Generate reports and analytics."""
+    pass
+
+@report.command('catalog-usage')
+@click.option('--project', help='Filter by project ID')
+@click.option('--include-zero', is_flag=True, help='Include catalog items with zero deployments')
+@click.option('--sort-by', type=click.Choice(['deployments', 'resources', 'name']), 
+              default='deployments', help='Sort results by field')
+@click.option('--detailed-resources', is_flag=True, 
+              help='Fetch exact resource counts (slower but more accurate)')
+@click.pass_context
+def catalog_usage_report(ctx, project, include_zero, sort_by, detailed_resources):
+    """Generate a usage report for service catalog items.
+    
+    This report shows:
+    - All catalog items in the specified project (or all projects)
+    - Number of deployments created from each catalog item
+    - Total number of resources created from each catalog item
+    - Success rate and other deployment statistics
+    
+    By default, only catalog items with at least one deployment are shown.
+    Use --include-zero to show all catalog items.
+    Use --detailed-resources to fetch exact resource counts (slower).
+    """
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
+    
+    console.print("[bold blue]📊 Generating Service Catalog Usage Report...[/bold blue]")
+    
+    if detailed_resources:
+        console.print("[yellow]⚠️  Detailed resource counting enabled - this may take longer[/yellow]")
+    
+    with console.status("[bold green]Analyzing catalog usage statistics..."):
+        usage_stats = client.get_catalog_usage_stats(
+            project_id=project, 
+            fetch_resource_counts=detailed_resources
+        )
+    
+    # Filter out zero deployments unless requested
+    if not include_zero:
+        usage_stats = [stats for stats in usage_stats if stats['deployment_count'] > 0]
+    
+    # Sort results
+    if sort_by == 'deployments':
+        usage_stats.sort(key=lambda x: x['deployment_count'], reverse=True)
+    elif sort_by == 'resources':
+        usage_stats.sort(key=lambda x: x['resource_count'], reverse=True)
+    elif sort_by == 'name':
+        usage_stats.sort(key=lambda x: x['catalog_item'].name.lower())
+    
+    # Display results
+    if ctx.obj['format'] == 'table':
+        # Summary statistics
+        total_deployments = sum(stat['deployment_count'] for stat in usage_stats)
+        total_resources = sum(stat['resource_count'] for stat in usage_stats)
+        total_items = len(usage_stats)
+        active_items = len([s for s in usage_stats if s['deployment_count'] > 0])
+        
+        console.print("\n[bold green]📈 Summary Statistics[/bold green]")
+        summary_table = Table(show_header=False, box=None)
+        summary_table.add_column("Metric", style="cyan")
+        summary_table.add_column("Value", style="green")
+        
+        summary_table.add_row("Total Catalog Items", str(total_items))
+        summary_table.add_row("Active Items (with deployments)", str(active_items))
+        summary_table.add_row("Total Deployments", str(total_deployments))
+        summary_table.add_row("Total Resources (estimated)", str(total_resources))
+        if active_items > 0:
+            avg_deployments = total_deployments / active_items
+            summary_table.add_row("Avg Deployments per Active Item", f"{avg_deployments:.1f}")
+        
+        console.print(summary_table)
+        
+        # Detailed table
+        console.print("\n[bold green]📋 Detailed Usage Report[/bold green]")
+        
+        table = Table(title="Service Catalog Usage Report")
+        table.add_column("Catalog Item", style="green", width=30)
+        table.add_column("Type", style="yellow", width=15)
+        table.add_column("Deployments", style="cyan", justify="right")
+        table.add_column("Resources", style="magenta", justify="right")
+        table.add_column("Success", style="green", justify="right")
+        table.add_column("Failed", style="red", justify="right")
+        table.add_column("In Progress", style="yellow", justify="right")
+        table.add_column("Success Rate", style="blue", justify="right")
+        
+        for stat in usage_stats:
+            item = stat['catalog_item']
+            success_rate_str = f"{stat['success_rate']:.1f}%" if stat['deployment_count'] > 0 else "N/A"
+            
+            table.add_row(
+                item.name[:30] + "..." if len(item.name) > 30 else item.name,
+                item.type.name.replace("com.vmw.", "").replace("vro.workflow", "Workflow").replace("blueprint", "Blueprint"),
+                str(stat['deployment_count']),
+                str(stat['resource_count']),
+                str(stat['success_count']),
+                str(stat['failed_count']),
+                str(stat['in_progress_count']),
+                success_rate_str
+            )
+        
+        console.print(table)
+        
+    elif ctx.obj['format'] == 'json':
+        # Convert to JSON-serializable format
+        json_data = {
+            'summary': {
+                'total_catalog_items': len(usage_stats),
+                'active_items': len([s for s in usage_stats if s['deployment_count'] > 0]),
+                'total_deployments': sum(stat['deployment_count'] for stat in usage_stats),
+                'total_resources': sum(stat['resource_count'] for stat in usage_stats)
+            },
+            'catalog_items': [
+                {
+                    'id': stat['catalog_item'].id,
+                    'name': stat['catalog_item'].name,
+                    'type': stat['catalog_item'].type.name,
+                    'deployment_count': stat['deployment_count'],
+                    'resource_count': stat['resource_count'],
+                    'success_count': stat['success_count'],
+                    'failed_count': stat['failed_count'],
+                    'in_progress_count': stat['in_progress_count'],
+                    'success_rate': stat['success_rate'],
+                    'status_breakdown': stat['status_counts']
+                }
+                for stat in usage_stats
+            ]
+        }
+        console.print(json.dumps(json_data, indent=2))
+    
+    elif ctx.obj['format'] == 'yaml':
+        # Convert to YAML format
+        yaml_data = {
+            'summary': {
+                'total_catalog_items': len(usage_stats),
+                'active_items': len([s for s in usage_stats if s['deployment_count'] > 0]),
+                'total_deployments': sum(stat['deployment_count'] for stat in usage_stats),
+                'total_resources': sum(stat['resource_count'] for stat in usage_stats)
+            },
+            'catalog_items': [
+                {
+                    'id': stat['catalog_item'].id,
+                    'name': stat['catalog_item'].name,
+                    'type': stat['catalog_item'].type.name,
+                    'deployment_count': stat['deployment_count'],
+                    'resource_count': stat['resource_count'],
+                    'success_count': stat['success_count'],
+                    'failed_count': stat['failed_count'],
+                    'in_progress_count': stat['in_progress_count'],
+                    'success_rate': round(stat['success_rate'], 1),
+                    'status_breakdown': stat['status_counts']
+                }
+                for stat in usage_stats
+            ]
+        }
+        console.print(yaml.dump(yaml_data, default_flow_style=False))
+
 # Workflow commands
 @main.group()
 def workflow():
