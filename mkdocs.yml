@@ -3,8 +3,8 @@ site_description: A Python CLI tool to interact with VMware vRealize Automation 
 site_author: Sebastien Brun
 site_url: https://brun_s.github.io/vmware-vra-cli
 
-repo_name: brun_s/vmware-vra-cli
-repo_url: https://github.com/brun_s/vmware-vra-cli
+repo_name: brunseba/tools-vmware-vra-cli
+repo_url: https://github.com/brunseba/tools-vmware-vra-cli/ 
 edit_uri: edit/main/docs/
 
 theme:
