@@ -137,10 +137,51 @@ class CatalogClient:
         Returns:
             Schema definition for the catalog item
         """
+        # First try the standard catalog schema endpoint
         url = f"{self.base_url}/catalog/api/items/{item_id}/schema"
         response = self.session.get(url)
-        response.raise_for_status()
         
+        if response.status_code == 404:
+            # If not found, try to get the item details to determine the type
+            try:
+                item = self.get_catalog_item(item_id)
+                item_type = item.type.id
+                
+                if item_type == "com.vmw.vro.workflow":
+                    # For workflows, try the workflow schema endpoint
+                    workflow_url = f"{self.base_url}/vco/api/workflows/{item_id}"
+                    workflow_response = self.session.get(workflow_url)
+                    if workflow_response.status_code == 200:
+                        return workflow_response.json()
+                    else:
+                        # If workflow endpoint also fails, return a helpful message
+                        return {
+                            "error": "Schema not available",
+                            "message": f"Schema endpoint not found for workflow item {item_id}",
+                            "item_type": item_type,
+                            "suggestion": "Workflows may not expose their schema through the catalog API. Try using the workflow-specific commands."
+                        }
+                elif item_type == "com.vmw.blueprint":
+                    # For blueprints, the schema should be available but might be at a different endpoint
+                    return {
+                        "error": "Schema not available", 
+                        "message": f"Schema endpoint returned 404 for blueprint item {item_id}",
+                        "item_type": item_type,
+                        "suggestion": "This blueprint may not have a publicly accessible schema or may require different permissions."
+                    }
+                else:
+                    return {
+                        "error": "Schema not available",
+                        "message": f"Schema endpoint returned 404 for item {item_id} of type {item_type}",
+                        "item_type": item_type
+                    }
+            except Exception as e:
+                return {
+                    "error": "Schema not available",
+                    "message": f"Failed to retrieve schema for item {item_id}: {str(e)}"
+                }
+        
+        response.raise_for_status()
         return response.json()
     
     def request_catalog_item(self, item_id: str, inputs: Dict[str, Any], 
