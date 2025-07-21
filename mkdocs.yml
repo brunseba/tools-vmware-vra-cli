@@ -104,6 +104,7 @@ nav:
     - Contributing: developer-guide/contributing.md
     - Architecture: developer-guide/architecture.md
     - Testing: developer-guide/testing.md
+  - References: references.md
   - Changelog: changelog.md
 
 extra:
