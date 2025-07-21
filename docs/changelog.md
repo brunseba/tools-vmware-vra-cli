@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2025-01-21
+
+### Added
+- Proper two-step VMware vRA authentication procedure following official documentation
+- VRAAuthenticator class implementing Identity Service API + IaaS API flow
+- TokenManager class for secure token storage and management
+- Domain support for multiple identity sources authentication
+- Automatic access token refresh functionality (90-day refresh tokens, 8-hour access tokens)
+- Enhanced authentication status command showing detailed token information
+- Manual token refresh command for better token management
+
+### Changed
+- Complete authentication system overhaul to follow VMware official standards
+- Improved CLI authentication commands with better user experience
+- Enhanced error handling and status reporting for authentication operations
+
+### Security
+- Implemented secure token lifecycle management
+- Added automatic token renewal to minimize credential exposure
+- Enhanced keyring integration for secure credential storage
+
 ## [0.5.0] - 2025-01-21
 
 ### Added
