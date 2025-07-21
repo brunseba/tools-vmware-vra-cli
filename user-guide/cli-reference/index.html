@@ -1,0 +1,3269 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Python CLI tool to interact with VMware vRealize Automation 8 via REST API">
+      
+      
+        <meta name="author" content="Sebastien Brun">
+      
+      
+        <link rel="canonical" href="https://brun_s.github.io/vmware-vra-cli/user-guide/cli-reference/">
+      
+      
+        <link rel="prev" href="../deployment-export/">
+      
+      
+        <link rel="next" href="../examples/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>CLI Reference - VMware vRA CLI</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../css/timeago.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#vmware-vra-cli-reference-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="VMware vRA CLI" class="md-header__button md-logo" aria-label="VMware vRA CLI" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            VMware vRA CLI
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CLI Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/brun_s/vmware-vra-cli" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    brun_s/vmware-vra-cli
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../authentication/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../developer-guide/contributing/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Developer Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture-design/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Architecture and Design
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../references/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  References
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../changelog/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="VMware vRA CLI" class="md-nav__button md-logo" aria-label="VMware vRA CLI" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    VMware vRA CLI
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/brun_s/vmware-vra-cli" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    brun_s/vmware-vra-cli
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    User Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Authentication
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../service-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Service Catalog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tag-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tag Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment-export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Deployment Export
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    CLI Reference
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    CLI Reference
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Global Options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#global-option-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Global Option Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication-commands-auth" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authentication Commands (auth)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication Commands (auth)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#auth-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      auth login
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auth-logout" class="md-nav__link">
+    <span class="md-ellipsis">
+      auth logout
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auth-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      auth status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auth-refresh" class="md-nav__link">
+    <span class="md-ellipsis">
+      auth refresh
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-commands-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Commands (config)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Commands (config)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#config-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      config show
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      config set
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config-reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      config reset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config-edit" class="md-nav__link">
+    <span class="md-ellipsis">
+      config edit
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-catalog-commands-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      Service Catalog Commands (catalog)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Service Catalog Commands (catalog)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#catalog-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      catalog list
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#catalog-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      catalog show
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#catalog-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      catalog schema
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#catalog-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      catalog request
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-commands-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment Commands (deployment)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment Commands (deployment)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      deployment list
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      deployment show
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      deployment delete
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      deployment resources
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-export-all" class="md-nav__link">
+    <span class="md-ellipsis">
+      deployment export-all
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tag-management-commands-tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tag Management Commands (tag)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tag Management Commands (tag)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tag-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag list
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag show
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag create
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag update
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag delete
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-assign" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag assign
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-remove" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag remove
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-resource-tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag resource-tags
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#report-commands-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      Report Commands (report)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Report Commands (report)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#report-activity-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      report activity-timeline
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#report-catalog-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      report catalog-usage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#report-unsync" class="md-nav__link">
+    <span class="md-ellipsis">
+      report unsync
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-commands-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workflow Commands (workflow)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Workflow Commands (workflow)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#workflow-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      workflow list
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflow-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      workflow run
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Output Formats
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Output Formats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#table-format-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      Table Format (Default)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      JSON Format
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#yaml-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      YAML Format
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-usage-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Usage Patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Usage Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Scripts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Batch Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-export-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Export Pipeline
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Practical Examples
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Developer Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Developer Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer-guide/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer-guide/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer-guide/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../architecture-design/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Architecture and Design
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture and Design
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture-design/context-diagram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Context Diagram
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture-design/architecture-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Architecture Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture-design/components-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Components Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture-design/data-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture-design/functional-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Functional Requirements
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture-design/non-functional-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Non-Functional Requirements
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture-design/security-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Security and Compliance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    References
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Global Options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#global-option-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Global Option Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication-commands-auth" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authentication Commands (auth)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication Commands (auth)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#auth-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      auth login
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auth-logout" class="md-nav__link">
+    <span class="md-ellipsis">
+      auth logout
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auth-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      auth status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auth-refresh" class="md-nav__link">
+    <span class="md-ellipsis">
+      auth refresh
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-commands-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Commands (config)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Commands (config)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#config-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      config show
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      config set
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config-reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      config reset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config-edit" class="md-nav__link">
+    <span class="md-ellipsis">
+      config edit
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-catalog-commands-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      Service Catalog Commands (catalog)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Service Catalog Commands (catalog)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#catalog-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      catalog list
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#catalog-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      catalog show
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#catalog-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      catalog schema
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#catalog-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      catalog request
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-commands-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment Commands (deployment)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment Commands (deployment)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      deployment list
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      deployment show
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      deployment delete
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      deployment resources
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-export-all" class="md-nav__link">
+    <span class="md-ellipsis">
+      deployment export-all
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tag-management-commands-tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tag Management Commands (tag)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tag Management Commands (tag)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tag-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag list
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag show
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag create
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag update
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag delete
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-assign" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag assign
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-remove" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag remove
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-resource-tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      tag resource-tags
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#report-commands-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      Report Commands (report)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Report Commands (report)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#report-activity-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      report activity-timeline
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#report-catalog-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      report catalog-usage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#report-unsync" class="md-nav__link">
+    <span class="md-ellipsis">
+      report unsync
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-commands-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workflow Commands (workflow)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Workflow Commands (workflow)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#workflow-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      workflow list
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflow-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      workflow run
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Output Formats
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Output Formats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#table-format-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      Table Format (Default)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      JSON Format
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#yaml-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      YAML Format
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-usage-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Usage Patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Usage Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Scripts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Batch Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-export-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Export Pipeline
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/brun_s/vmware-vra-cli/edit/main/docs/user-guide/cli-reference.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/brun_s/vmware-vra-cli/raw/main/docs/user-guide/cli-reference.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="vmware-vra-cli-reference-guide">VMware vRA CLI Reference Guide</h1>
+<p>This comprehensive reference guide covers all available commands, options, and usage patterns for the VMware vRA CLI tool.</p>
+<h2 id="global-options">Global Options</h2>
+<p>All commands support these global options:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--verbose</code>, <code>-v</code></td>
+<td>Enable verbose output with HTTP request/response details</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--format</code></td>
+<td>Output format: <code>table</code>, <code>json</code>, <code>yaml</code></td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--version</code></td>
+<td>Show CLI version and exit</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show help message and exit</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-option-examples">Global Option Examples</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Enable verbose logging for troubleshooting</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>vmware-vra<span class="w"> </span>--verbose<span class="w"> </span>catalog<span class="w"> </span>list
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Get JSON output instead of table</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>vmware-vra<span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span>deployment<span class="w"> </span>list
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Show version information</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>vmware-vra<span class="w"> </span>--version
+</span></code></pre></div>
+<h2 id="authentication-commands-auth">Authentication Commands (<code>auth</code>)</h2>
+<p>Manage authentication tokens and credentials.</p>
+<h3 id="auth-login"><code>auth login</code></h3>
+<p>Authenticate to vRA using username and password.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>vmware-vra<span class="w"> </span>auth<span class="w"> </span>login<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Description | Required |
+|--------|------|-------------|----------|
+| <code>--username</code> | TEXT | Username for vRA access | Yes<em> |
+| <code>--password</code> | TEXT | Password for vRA access | Yes</em> |
+| <code>--url</code> | TEXT | vRA server URL | No<strong> |
+| <code>--tenant</code> | TEXT | vRA tenant | No</strong> |
+| <code>--domain</code> | TEXT | Domain for multiple identity sources | No |</p>
+<p><em>Prompted if not provided<br />
+</em>*Uses configured default if available</p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Interactive login (prompts for credentials)</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>vmware-vra<span class="w"> </span>auth<span class="w"> </span>login
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Login with specific parameters</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>vmware-vra<span class="w"> </span>auth<span class="w"> </span>login<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span>--username<span class="w"> </span>john.doe@company.com<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span>--url<span class="w"> </span>https://vra.company.com<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span>--tenant<span class="w"> </span>company.local
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c1"># Login with specific domain for multiple identity sources</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>vmware-vra<span class="w"> </span>auth<span class="w"> </span>login<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span>--username<span class="w"> </span>administrator<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span>--domain<span class="w"> </span>vsphere.local<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span>--url<span class="w"> </span>https://vra.company.com
+</span></code></pre></div></p>
+<p><strong>Sample Output:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>✅ Authentication successful!
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>🔑 Tokens saved securely
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>💾 Configuration saved: https://vra.company.com
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>🏢 Tenant: company.local
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>🌐 Domain: vsphere.local
+</span></code></pre></div></p>
+<h3 id="auth-logout"><code>auth logout</code></h3>
+<p>Clear stored authentication tokens.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>vmware-vra<span class="w"> </span>auth<span class="w"> </span><span class="nb">logout</span>
+</span></code></pre></div></p>
+<p><strong>Example:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>vmware-vra<span class="w"> </span>auth<span class="w"> </span><span class="nb">logout</span>
+</span></code></pre></div></p>
+<p><strong>Sample Output:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>✅ Logged out successfully
+</span></code></pre></div></p>
+<h3 id="auth-status"><code>auth status</code></h3>
+<p>Check current authentication status.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>vmware-vra<span class="w"> </span>auth<span class="w"> </span>status
+</span></code></pre></div></p>
+<p><strong>Example:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>vmware-vra<span class="w"> </span>auth<span class="w"> </span>status
+</span></code></pre></div></p>
+<p><strong>Sample Outputs:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a># Fully authenticated
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>✅ Authenticated (Access token available)
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>🔄 Refresh token available for automatic renewal
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a># Refresh token only
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>⚠️ Only refresh token available - will obtain new access token on next use
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a># Not authenticated
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>❌ Not authenticated
+</span></code></pre></div></p>
+<h3 id="auth-refresh"><code>auth refresh</code></h3>
+<p>Manually refresh the access token.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>vmware-vra<span class="w"> </span>auth<span class="w"> </span>refresh
+</span></code></pre></div></p>
+<p><strong>Example:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>vmware-vra<span class="w"> </span>auth<span class="w"> </span>refresh
+</span></code></pre></div></p>
+<p><strong>Sample Output:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>✅ Access token refreshed successfully
+</span></code></pre></div></p>
+<h2 id="configuration-commands-config">Configuration Commands (<code>config</code>)</h2>
+<p>Manage CLI configuration settings.</p>
+<h3 id="config-show"><code>config show</code></h3>
+<p>Display current configuration values.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>vmware-vra<span class="w"> </span>config<span class="w"> </span>show
+</span></code></pre></div></p>
+<p><strong>Example:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>vmware-vra<span class="w"> </span>config<span class="w"> </span>show
+</span></code></pre></div></p>
+<p><strong>Sample Output (Table Format):</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>                   VMware vRA CLI Configuration
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>┏━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>┃ Setting       ┃ Value                                   ┃ Source                          ┃
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>┡━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>│ Api Url       │ https://vra.company.com                 │ Config file                     │
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>│ Tenant        │ company.local                           │ Config file                     │
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>│ Domain        │ vsphere.local                           │ Config file                     │
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>│ Verify Ssl    │ True                                    │ Default                         │
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>│ Timeout       │ 30                                      │ Default                         │
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>└───────────────┴─────────────────────────────────────────┴─────────────────────────────────┘
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>Config file: /Users/username/.config/vmware-vra-cli/config.json
+</span></code></pre></div></p>
+<h3 id="config-set"><code>config set</code></h3>
+<p>Set a configuration value.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>vmware-vra<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>KEY<span class="w"> </span>VALUE
+</span></code></pre></div></p>
+<p><strong>Available Keys:</strong>
+- <code>api_url</code>: vRA server URL
+- <code>tenant</code>: vRA tenant identifier
+- <code>domain</code>: Authentication domain
+- <code>verify_ssl</code>: SSL verification (true/false)
+- <code>timeout</code>: Request timeout in seconds</p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Set vRA server URL</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>vmware-vra<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>api_url<span class="w"> </span>https://vra.company.com
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># Set tenant</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>vmware-vra<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>tenant<span class="w"> </span>company.local
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="c1"># Disable SSL verification (not recommended for production)</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>vmware-vra<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>verify_ssl<span class="w"> </span><span class="nb">false</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="c1"># Set timeout</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>vmware-vra<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>timeout<span class="w"> </span><span class="m">60</span>
+</span></code></pre></div></p>
+<p><strong>Sample Output:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>✅ Configuration updated: api_url = https://vra.company.com
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>Saved to: /Users/username/.config/vmware-vra-cli/config.json
+</span></code></pre></div></p>
+<h3 id="config-reset"><code>config reset</code></h3>
+<p>Reset configuration to defaults.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>vmware-vra<span class="w"> </span>config<span class="w"> </span>reset<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Description |
+|--------|-------------|
+| <code>--confirm</code> | Skip confirmation prompt |</p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># Reset with confirmation prompt</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>vmware-vra<span class="w"> </span>config<span class="w"> </span>reset
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># Reset without confirmation</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>vmware-vra<span class="w"> </span>config<span class="w"> </span>reset<span class="w"> </span>--confirm
+</span></code></pre></div></p>
+<h3 id="config-edit"><code>config edit</code></h3>
+<p>Edit configuration file in default editor.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>vmware-vra<span class="w"> </span>config<span class="w"> </span>edit
+</span></code></pre></div></p>
+<p><strong>Example:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>vmware-vra<span class="w"> </span>config<span class="w"> </span>edit
+</span></code></pre></div></p>
+<h2 id="service-catalog-commands-catalog">Service Catalog Commands (<code>catalog</code>)</h2>
+<p>Manage catalog items and requests.</p>
+<h3 id="catalog-list"><code>catalog list</code></h3>
+<p>List available catalog items.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| <code>--project</code> | TEXT | None | Filter by project ID |
+| <code>--page-size</code> | INT | 100 | Items per page (max: 2000) |
+| <code>--first-page-only</code> | FLAG | False | Fetch only first page |</p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># List all catalog items</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>list
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="c1"># List items for specific project</span>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>list<span class="w"> </span>--project<span class="w"> </span>dev-project-123
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="c1"># List first page only (faster for large catalogs)</span>
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>list<span class="w"> </span>--first-page-only
+</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>
+</span><span id="__span-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a><span class="c1"># Get JSON output</span>
+</span><span id="__span-24-11"><a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>vmware-vra<span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span>catalog<span class="w"> </span>list
+</span></code></pre></div></p>
+<p><strong>Sample Output (Table):</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>                     Service Catalog Items (156 items)
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┓
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>┃ ID                                     ┃ Name                     ┃ Type                ┃ Status    ┃ Version   ┃
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━┩
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>│ blueprint-ubuntu-server-01             │ Ubuntu Server Template  │ blueprint           │ PUBLISHED │ 1.2       │
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>│ blueprint-windows-server-2019          │ Windows Server 2019     │ blueprint           │ PUBLISHED │ 2.1       │
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>│ workflow-create-user-account           │ Create User Account     │ workflow            │ PUBLISHED │ 1.0       │
+</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>│ blueprint-docker-container             │ Docker Container        │ blueprint           │ PUBLISHED │ 3.0       │
+</span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>└────────────────────────────────────────┴──────────────────────────┴─────────────────────┴───────────┴───────────┘
+</span></code></pre></div></p>
+<h3 id="catalog-show"><code>catalog show</code></h3>
+<p>Show details of a specific catalog item.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>show<span class="w"> </span>ITEM_ID
+</span></code></pre></div></p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="c1"># Show catalog item details</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>show<span class="w"> </span>blueprint-ubuntu-server-01
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>
+</span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="c1"># Get JSON output</span>
+</span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>vmware-vra<span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span>catalog<span class="w"> </span>show<span class="w"> </span>blueprint-ubuntu-server-01
+</span></code></pre></div></p>
+<p><strong>Sample Output (Table):</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>                        Catalog Item: Ubuntu Server Template
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>┏━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>┃ Property    ┃ Value                                                                                   ┃
+</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>┡━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+</span><span id="__span-28-5"><a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>│ ID          │ blueprint-ubuntu-server-01                                                              │
+</span><span id="__span-28-6"><a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>│ Name        │ Ubuntu Server Template                                                                  │
+</span><span id="__span-28-7"><a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a>│ Type        │ blueprint                                                                               │
+</span><span id="__span-28-8"><a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a>│ Status      │ PUBLISHED                                                                               │
+</span><span id="__span-28-9"><a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a>│ Version     │ 1.2                                                                                     │
+</span><span id="__span-28-10"><a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a>│ Description │ Standard Ubuntu 20.04 server template with common configurations                       │
+</span><span id="__span-28-11"><a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a>└─────────────┴─────────────────────────────────────────────────────────────────────────────────────────┘
+</span></code></pre></div></p>
+<h3 id="catalog-schema"><code>catalog schema</code></h3>
+<p>Show request schema for a catalog item.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>schema<span class="w"> </span>ITEM_ID
+</span></code></pre></div></p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="c1"># Show schema for catalog item</span>
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>schema<span class="w"> </span>blueprint-ubuntu-server-01
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>
+</span><span id="__span-30-4"><a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="c1"># Always outputs JSON regardless of --format setting</span>
+</span><span id="__span-30-5"><a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>schema<span class="w"> </span>blueprint-ubuntu-server-01
+</span></code></pre></div></p>
+<p><strong>Sample Output:</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="p">{</span>
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+</span><span id="__span-31-3"><a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="w">  </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-31-4"><a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="w">    </span><span class="nt">&quot;hostname&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-31-5"><a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a><span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+</span><span id="__span-31-6"><a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a><span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hostname&quot;</span><span class="p">,</span>
+</span><span id="__span-31-7"><a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a><span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Server hostname&quot;</span>
+</span><span id="__span-31-8"><a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-31-9"><a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a><span class="w">    </span><span class="nt">&quot;cpu&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-31-10"><a id="__codelineno-31-10" name="__codelineno-31-10" href="#__codelineno-31-10"></a><span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span><span class="p">,</span>
+</span><span id="__span-31-11"><a id="__codelineno-31-11" name="__codelineno-31-11" href="#__codelineno-31-11"></a><span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CPU Count&quot;</span><span class="p">,</span>
+</span><span id="__span-31-12"><a id="__codelineno-31-12" name="__codelineno-31-12" href="#__codelineno-31-12"></a><span class="w">      </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-31-13"><a id="__codelineno-31-13" name="__codelineno-31-13" href="#__codelineno-31-13"></a><span class="w">      </span><span class="nt">&quot;minimum&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-31-14"><a id="__codelineno-31-14" name="__codelineno-31-14" href="#__codelineno-31-14"></a><span class="w">      </span><span class="nt">&quot;maximum&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span>
+</span><span id="__span-31-15"><a id="__codelineno-31-15" name="__codelineno-31-15" href="#__codelineno-31-15"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-31-16"><a id="__codelineno-31-16" name="__codelineno-31-16" href="#__codelineno-31-16"></a><span class="w">    </span><span class="nt">&quot;memory&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-31-17"><a id="__codelineno-31-17" name="__codelineno-31-17" href="#__codelineno-31-17"></a><span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+</span><span id="__span-31-18"><a id="__codelineno-31-18" name="__codelineno-31-18" href="#__codelineno-31-18"></a><span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Memory Size&quot;</span><span class="p">,</span>
+</span><span id="__span-31-19"><a id="__codelineno-31-19" name="__codelineno-31-19" href="#__codelineno-31-19"></a><span class="w">      </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4GB&quot;</span><span class="p">,</span>
+</span><span id="__span-31-20"><a id="__codelineno-31-20" name="__codelineno-31-20" href="#__codelineno-31-20"></a><span class="w">      </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;2GB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;4GB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;8GB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;16GB&quot;</span><span class="p">]</span>
+</span><span id="__span-31-21"><a id="__codelineno-31-21" name="__codelineno-31-21" href="#__codelineno-31-21"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-31-22"><a id="__codelineno-31-22" name="__codelineno-31-22" href="#__codelineno-31-22"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-31-23"><a id="__codelineno-31-23" name="__codelineno-31-23" href="#__codelineno-31-23"></a><span class="w">  </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;hostname&quot;</span><span class="p">]</span>
+</span><span id="__span-31-24"><a id="__codelineno-31-24" name="__codelineno-31-24" href="#__codelineno-31-24"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h3 id="catalog-request"><code>catalog request</code></h3>
+<p>Request a catalog item deployment.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>request<span class="w"> </span>ITEM_ID<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Description | Required |
+|--------|------|-------------|----------|
+| <code>--inputs</code> | TEXT | Input parameters as JSON string | No |
+| <code>--inputs-file</code> | PATH | Input parameters from YAML/JSON file | No |
+| <code>--project</code> | TEXT | Project ID for the request | Yes |
+| <code>--reason</code> | TEXT | Reason for the request | No |
+| <code>--name</code> | TEXT | Deployment name | No |</p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="c1"># Request with inline JSON inputs</span>
+</span><span id="__span-33-2"><a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>request<span class="w"> </span>blueprint-ubuntu-server-01<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-33-3"><a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a><span class="w">    </span>--inputs<span class="w"> </span><span class="s1">&#39;{&quot;hostname&quot;: &quot;web-server-01&quot;, &quot;cpu&quot;: 4, &quot;memory&quot;: &quot;8GB&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-33-4"><a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a><span class="w">    </span>--project<span class="w"> </span>dev-project-123<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-33-5"><a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a><span class="w">    </span>--reason<span class="w"> </span><span class="s2">&quot;Development web server&quot;</span>
+</span><span id="__span-33-6"><a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a>
+</span><span id="__span-33-7"><a id="__codelineno-33-7" name="__codelineno-33-7" href="#__codelineno-33-7"></a><span class="c1"># Request with inputs from file</span>
+</span><span id="__span-33-8"><a id="__codelineno-33-8" name="__codelineno-33-8" href="#__codelineno-33-8"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>request<span class="w"> </span>blueprint-ubuntu-server-01<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-33-9"><a id="__codelineno-33-9" name="__codelineno-33-9" href="#__codelineno-33-9"></a><span class="w">    </span>--inputs-file<span class="w"> </span>server-config.yaml<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-33-10"><a id="__codelineno-33-10" name="__codelineno-33-10" href="#__codelineno-33-10"></a><span class="w">    </span>--project<span class="w"> </span>dev-project-123<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-33-11"><a id="__codelineno-33-11" name="__codelineno-33-11" href="#__codelineno-33-11"></a><span class="w">    </span>--name<span class="w"> </span><span class="s2">&quot;web-server-01&quot;</span>
+</span><span id="__span-33-12"><a id="__codelineno-33-12" name="__codelineno-33-12" href="#__codelineno-33-12"></a>
+</span><span id="__span-33-13"><a id="__codelineno-33-13" name="__codelineno-33-13" href="#__codelineno-33-13"></a><span class="c1"># Simple request with minimal parameters</span>
+</span><span id="__span-33-14"><a id="__codelineno-33-14" name="__codelineno-33-14" href="#__codelineno-33-14"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>request<span class="w"> </span>blueprint-ubuntu-server-01<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-33-15"><a id="__codelineno-33-15" name="__codelineno-33-15" href="#__codelineno-33-15"></a><span class="w">    </span>--project<span class="w"> </span>dev-project-123
+</span></code></pre></div></p>
+<p><strong>Sample inputs-file (server-config.yaml):</strong>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">web-server-01</span>
+</span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+</span><span id="__span-34-3"><a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;8GB&quot;</span>
+</span><span id="__span-34-4"><a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="nt">disk_size</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;100GB&quot;</span>
+</span><span id="__span-34-5"><a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a><span class="nt">network</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;corporate-dmz&quot;</span>
+</span><span id="__span-34-6"><a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a><span class="nt">install_packages</span><span class="p">:</span>
+</span><span id="__span-34-7"><a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nginx</span>
+</span><span id="__span-34-8"><a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker</span>
+</span><span id="__span-34-9"><a id="__codelineno-34-9" name="__codelineno-34-9" href="#__codelineno-34-9"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">git</span>
+</span></code></pre></div></p>
+<p><strong>Sample Output:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>✅ Request submitted successfully!
+</span><span id="__span-35-2"><a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>Deployment ID: deployment-12345-abcdef
+</span><span id="__span-35-3"><a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>Request ID: request-67890-ghijkl
+</span></code></pre></div></p>
+<h2 id="deployment-commands-deployment">Deployment Commands (<code>deployment</code>)</h2>
+<p>Manage and export deployments.</p>
+<h3 id="deployment-list"><code>deployment list</code></h3>
+<p>List deployments.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| <code>--project</code> | TEXT | None | Filter by project ID |
+| <code>--status</code> | TEXT | None | Filter by status |
+| <code>--page-size</code> | INT | 100 | Items per page (max: 2000) |
+| <code>--first-page-only</code> | FLAG | False | Fetch only first page |</p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="c1"># List all deployments</span>
+</span><span id="__span-37-2"><a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>list
+</span><span id="__span-37-3"><a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a>
+</span><span id="__span-37-4"><a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a><span class="c1"># List deployments for specific project</span>
+</span><span id="__span-37-5"><a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>list<span class="w"> </span>--project<span class="w"> </span>dev-project-123
+</span><span id="__span-37-6"><a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a>
+</span><span id="__span-37-7"><a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a><span class="c1"># List only successful deployments</span>
+</span><span id="__span-37-8"><a id="__codelineno-37-8" name="__codelineno-37-8" href="#__codelineno-37-8"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>list<span class="w"> </span>--status<span class="w"> </span>CREATE_SUCCESSFUL
+</span><span id="__span-37-9"><a id="__codelineno-37-9" name="__codelineno-37-9" href="#__codelineno-37-9"></a>
+</span><span id="__span-37-10"><a id="__codelineno-37-10" name="__codelineno-37-10" href="#__codelineno-37-10"></a><span class="c1"># First page only for large environments</span>
+</span><span id="__span-37-11"><a id="__codelineno-37-11" name="__codelineno-37-11" href="#__codelineno-37-11"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>list<span class="w"> </span>--first-page-only
+</span></code></pre></div></p>
+<p><strong>Sample Output:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>                               Deployments (89 items)
+</span><span id="__span-38-2"><a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+</span><span id="__span-38-3"><a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>┃ ID                                     ┃ Name                   ┃ Status              ┃ Project           ┃ Created                       ┃
+</span><span id="__span-38-4"><a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a>┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+</span><span id="__span-38-5"><a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a>│ deployment-12345-abcdef                │ web-server-01          │ CREATE_SUCCESSFUL   │ dev-project-123   │ 2024-01-15T09:30:00.000Z      │
+</span><span id="__span-38-6"><a id="__codelineno-38-6" name="__codelineno-38-6" href="#__codelineno-38-6"></a>│ deployment-67890-ghijkl                │ database-server-01     │ CREATE_SUCCESSFUL   │ dev-project-123   │ 2024-01-15T10:15:00.000Z      │
+</span><span id="__span-38-7"><a id="__codelineno-38-7" name="__codelineno-38-7" href="#__codelineno-38-7"></a>│ deployment-13579-mnopqr                │ load-balancer-01       │ CREATE_INPROGRESS   │ prod-project-456  │ 2024-01-15T11:00:00.000Z      │
+</span><span id="__span-38-8"><a id="__codelineno-38-8" name="__codelineno-38-8" href="#__codelineno-38-8"></a>└────────────────────────────────────────┴────────────────────────┴─────────────────────┴───────────────────┴───────────────────────────────┘
+</span></code></pre></div></p>
+<h3 id="deployment-show"><code>deployment show</code></h3>
+<p>Show deployment details.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>show<span class="w"> </span>DEPLOYMENT_ID
+</span></code></pre></div></p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="c1"># Show deployment details</span>
+</span><span id="__span-40-2"><a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>show<span class="w"> </span>deployment-12345-abcdef
+</span><span id="__span-40-3"><a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a>
+</span><span id="__span-40-4"><a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a><span class="c1"># Get YAML output</span>
+</span><span id="__span-40-5"><a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a>vmware-vra<span class="w"> </span>--format<span class="w"> </span>yaml<span class="w"> </span>deployment<span class="w"> </span>show<span class="w"> </span>deployment-12345-abcdef
+</span></code></pre></div></p>
+<p><strong>Sample Output (Table):</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>                            Deployment: web-server-01
+</span><span id="__span-41-2"><a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+</span><span id="__span-41-3"><a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>┃ Property           ┃ Value                                                                   ┃
+</span><span id="__span-41-4"><a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a>┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+</span><span id="__span-41-5"><a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a>│ id                 │ deployment-12345-abcdef                                                 │
+</span><span id="__span-41-6"><a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a>│ name               │ web-server-01                                                           │
+</span><span id="__span-41-7"><a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a>│ status             │ CREATE_SUCCESSFUL                                                       │
+</span><span id="__span-41-8"><a id="__codelineno-41-8" name="__codelineno-41-8" href="#__codelineno-41-8"></a>│ projectId          │ dev-project-123                                                         │
+</span><span id="__span-41-9"><a id="__codelineno-41-9" name="__codelineno-41-9" href="#__codelineno-41-9"></a>│ catalogItemId      │ blueprint-ubuntu-server-01                                              │
+</span><span id="__span-41-10"><a id="__codelineno-41-10" name="__codelineno-41-10" href="#__codelineno-41-10"></a>│ createdAt          │ 2024-01-15T09:30:00.000Z                                                │
+</span><span id="__span-41-11"><a id="__codelineno-41-11" name="__codelineno-41-11" href="#__codelineno-41-11"></a>│ completedAt        │ 2024-01-15T09:45:00.000Z                                                │
+</span><span id="__span-41-12"><a id="__codelineno-41-12" name="__codelineno-41-12" href="#__codelineno-41-12"></a>│ inputs             │ {&quot;hostname&quot;: &quot;web-server-01&quot;, &quot;cpu&quot;: 4, &quot;memory&quot;: &quot;8GB&quot;}               │
+</span><span id="__span-41-13"><a id="__codelineno-41-13" name="__codelineno-41-13" href="#__codelineno-41-13"></a>└────────────────────┴─────────────────────────────────────────────────────────────────────────┘
+</span></code></pre></div></p>
+<h3 id="deployment-delete"><code>deployment delete</code></h3>
+<p>Delete a deployment.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>delete<span class="w"> </span>DEPLOYMENT_ID<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Description |
+|--------|-------------|
+| <code>--confirm</code> | Skip confirmation prompt |</p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="c1"># Delete with confirmation prompt</span>
+</span><span id="__span-43-2"><a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>delete<span class="w"> </span>deployment-12345-abcdef
+</span><span id="__span-43-3"><a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a>
+</span><span id="__span-43-4"><a id="__codelineno-43-4" name="__codelineno-43-4" href="#__codelineno-43-4"></a><span class="c1"># Delete without confirmation</span>
+</span><span id="__span-43-5"><a id="__codelineno-43-5" name="__codelineno-43-5" href="#__codelineno-43-5"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>delete<span class="w"> </span>deployment-12345-abcdef<span class="w"> </span>--confirm
+</span></code></pre></div></p>
+<p><strong>Sample Output:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>✅ Deployment deployment-12345-abcdef deletion initiated
+</span></code></pre></div></p>
+<h3 id="deployment-resources"><code>deployment resources</code></h3>
+<p>Show deployment resources.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>resources<span class="w"> </span>DEPLOYMENT_ID
+</span></code></pre></div></p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="c1"># Show deployment resources</span>
+</span><span id="__span-46-2"><a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>resources<span class="w"> </span>deployment-12345-abcdef
+</span><span id="__span-46-3"><a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a>
+</span><span id="__span-46-4"><a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a><span class="c1"># Get JSON output</span>
+</span><span id="__span-46-5"><a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a>vmware-vra<span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span>deployment<span class="w"> </span>resources<span class="w"> </span>deployment-12345-abcdef
+</span></code></pre></div></p>
+<p><strong>Sample Output:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>                      Resources for Deployment deployment-12345-abcdef
+</span><span id="__span-47-2"><a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a>┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┓
+</span><span id="__span-47-3"><a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a>┃ ID                                     ┃ Name                   ┃ Type                     ┃ Status            ┃
+</span><span id="__span-47-4"><a id="__codelineno-47-4" name="__codelineno-47-4" href="#__codelineno-47-4"></a>┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━┩
+</span><span id="__span-47-5"><a id="__codelineno-47-5" name="__codelineno-47-5" href="#__codelineno-47-5"></a>│ vm-12345-abcdef                        │ web-server-01          │ Cloud.vSphere.Machine    │ SUCCESS           │
+</span><span id="__span-47-6"><a id="__codelineno-47-6" name="__codelineno-47-6" href="#__codelineno-47-6"></a>│ disk-67890-ghijkl                      │ web-server-01-disk1    │ Cloud.vSphere.Disk       │ SUCCESS           │
+</span><span id="__span-47-7"><a id="__codelineno-47-7" name="__codelineno-47-7" href="#__codelineno-47-7"></a>│ nic-13579-mnopqr                       │ web-server-01-nic0     │ Cloud.vSphere.Network    │ SUCCESS           │
+</span><span id="__span-47-8"><a id="__codelineno-47-8" name="__codelineno-47-8" href="#__codelineno-47-8"></a>└────────────────────────────────────────┴────────────────────────┴──────────────────────────┴───────────────────┘
+</span></code></pre></div></p>
+<h3 id="deployment-export-all"><code>deployment export-all</code></h3>
+<p>Export all deployments grouped by catalog item.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>export-all<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| <code>--project</code> | TEXT | None | Filter deployments by project ID |
+| <code>--output-dir</code> | TEXT | <code>./exports</code> | Directory to save export files |
+| <code>--include-resources</code> | FLAG | False | Include resource details (slower) |
+| <code>--no-unsynced</code> | FLAG | False | Exclude unsynced deployments |</p>
+<p>For comprehensive details and examples, see the <a href="../deployment-export/">Deployment Export Guide</a>.</p>
+<p><strong>Quick Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-49-1"><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a><span class="c1"># Basic export</span>
+</span><span id="__span-49-2"><a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>export-all
+</span><span id="__span-49-3"><a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a>
+</span><span id="__span-49-4"><a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a><span class="c1"># Export with resource details</span>
+</span><span id="__span-49-5"><a id="__codelineno-49-5" name="__codelineno-49-5" href="#__codelineno-49-5"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>export-all<span class="w"> </span>--include-resources
+</span><span id="__span-49-6"><a id="__codelineno-49-6" name="__codelineno-49-6" href="#__codelineno-49-6"></a>
+</span><span id="__span-49-7"><a id="__codelineno-49-7" name="__codelineno-49-7" href="#__codelineno-49-7"></a><span class="c1"># Export specific project</span>
+</span><span id="__span-49-8"><a id="__codelineno-49-8" name="__codelineno-49-8" href="#__codelineno-49-8"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>export-all<span class="w"> </span>--project<span class="w"> </span>dev-project-123
+</span><span id="__span-49-9"><a id="__codelineno-49-9" name="__codelineno-49-9" href="#__codelineno-49-9"></a>
+</span><span id="__span-49-10"><a id="__codelineno-49-10" name="__codelineno-49-10" href="#__codelineno-49-10"></a><span class="c1"># Export to custom directory</span>
+</span><span id="__span-49-11"><a id="__codelineno-49-11" name="__codelineno-49-11" href="#__codelineno-49-11"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>export-all<span class="w"> </span>--output-dir<span class="w"> </span>/backup/vra-exports
+</span></code></pre></div></p>
+<h2 id="tag-management-commands-tag">Tag Management Commands (<code>tag</code>)</h2>
+<p>Manage tags and resource tagging.</p>
+<h3 id="tag-list"><code>tag list</code></h3>
+<p>List available tags.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-50-1"><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| <code>--search</code> | TEXT | None | Search term to filter tags |
+| <code>--page-size</code> | INT | 100 | Items per page (max: 2000) |
+| <code>--first-page-only</code> | FLAG | False | Fetch only first page |</p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-51-1"><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a><span class="c1"># List all tags</span>
+</span><span id="__span-51-2"><a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>list
+</span><span id="__span-51-3"><a id="__codelineno-51-3" name="__codelineno-51-3" href="#__codelineno-51-3"></a>
+</span><span id="__span-51-4"><a id="__codelineno-51-4" name="__codelineno-51-4" href="#__codelineno-51-4"></a><span class="c1"># Search for specific tags</span>
+</span><span id="__span-51-5"><a id="__codelineno-51-5" name="__codelineno-51-5" href="#__codelineno-51-5"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>list<span class="w"> </span>--search<span class="w"> </span>environment
+</span><span id="__span-51-6"><a id="__codelineno-51-6" name="__codelineno-51-6" href="#__codelineno-51-6"></a>
+</span><span id="__span-51-7"><a id="__codelineno-51-7" name="__codelineno-51-7" href="#__codelineno-51-7"></a><span class="c1"># First page only</span>
+</span><span id="__span-51-8"><a id="__codelineno-51-8" name="__codelineno-51-8" href="#__codelineno-51-8"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>list<span class="w"> </span>--first-page-only
+</span></code></pre></div></p>
+<h3 id="tag-show"><code>tag show</code></h3>
+<p>Show details of a specific tag.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-52-1"><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>show<span class="w"> </span>TAG_ID
+</span></code></pre></div></p>
+<p><strong>Example:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-53-1"><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>show<span class="w"> </span>tag-12345-abcdef
+</span></code></pre></div></p>
+<h3 id="tag-create"><code>tag create</code></h3>
+<p>Create a new tag.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-54-1"><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>create<span class="w"> </span>KEY<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Description |
+|--------|------|-------------|
+| <code>--value</code> | TEXT | Tag value (optional) |
+| <code>--description</code> | TEXT | Tag description (optional) |</p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-55-1"><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a><span class="c1"># Create simple tag</span>
+</span><span id="__span-55-2"><a id="__codelineno-55-2" name="__codelineno-55-2" href="#__codelineno-55-2"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>create<span class="w"> </span>environment<span class="w"> </span>--value<span class="w"> </span>production
+</span><span id="__span-55-3"><a id="__codelineno-55-3" name="__codelineno-55-3" href="#__codelineno-55-3"></a>
+</span><span id="__span-55-4"><a id="__codelineno-55-4" name="__codelineno-55-4" href="#__codelineno-55-4"></a><span class="c1"># Create tag with description</span>
+</span><span id="__span-55-5"><a id="__codelineno-55-5" name="__codelineno-55-5" href="#__codelineno-55-5"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>create<span class="w"> </span>cost-center<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-55-6"><a id="__codelineno-55-6" name="__codelineno-55-6" href="#__codelineno-55-6"></a><span class="w">    </span>--value<span class="w"> </span><span class="s2">&quot;IT-Infrastructure&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-55-7"><a id="__codelineno-55-7" name="__codelineno-55-7" href="#__codelineno-55-7"></a><span class="w">    </span>--description<span class="w"> </span><span class="s2">&quot;Cost center for IT infrastructure resources&quot;</span>
+</span></code></pre></div></p>
+<h3 id="tag-update"><code>tag update</code></h3>
+<p>Update an existing tag.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-56-1"><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>update<span class="w"> </span>TAG_ID<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Description |
+|--------|------|-------------|
+| <code>--key</code> | TEXT | New tag key |
+| <code>--value</code> | TEXT | New tag value |
+| <code>--description</code> | TEXT | New tag description |</p>
+<p><strong>Example:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-57-1"><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>update<span class="w"> </span>tag-12345-abcdef<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-57-2"><a id="__codelineno-57-2" name="__codelineno-57-2" href="#__codelineno-57-2"></a><span class="w">    </span>--value<span class="w"> </span><span class="s2">&quot;development&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-57-3"><a id="__codelineno-57-3" name="__codelineno-57-3" href="#__codelineno-57-3"></a><span class="w">    </span>--description<span class="w"> </span><span class="s2">&quot;Development environment resources&quot;</span>
+</span></code></pre></div></p>
+<h3 id="tag-delete"><code>tag delete</code></h3>
+<p>Delete a tag.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-58-1"><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>delete<span class="w"> </span>TAG_ID<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Description |
+|--------|-------------|
+| <code>--confirm</code> | Skip confirmation prompt |</p>
+<p><strong>Example:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-59-1"><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>delete<span class="w"> </span>tag-12345-abcdef<span class="w"> </span>--confirm
+</span></code></pre></div></p>
+<h3 id="tag-assign"><code>tag assign</code></h3>
+<p>Assign a tag to a resource.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-60-1"><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>assign<span class="w"> </span>RESOURCE_ID<span class="w"> </span>TAG_ID<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| <code>--resource-type</code> | CHOICE | <code>deployment</code> | Resource type: <code>deployment</code> or <code>catalog-item</code> |</p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-61-1"><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a><span class="c1"># Assign tag to deployment</span>
+</span><span id="__span-61-2"><a id="__codelineno-61-2" name="__codelineno-61-2" href="#__codelineno-61-2"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>assign<span class="w"> </span>deployment-12345-abcdef<span class="w"> </span>tag-67890-ghijkl
+</span><span id="__span-61-3"><a id="__codelineno-61-3" name="__codelineno-61-3" href="#__codelineno-61-3"></a>
+</span><span id="__span-61-4"><a id="__codelineno-61-4" name="__codelineno-61-4" href="#__codelineno-61-4"></a><span class="c1"># Assign tag to catalog item</span>
+</span><span id="__span-61-5"><a id="__codelineno-61-5" name="__codelineno-61-5" href="#__codelineno-61-5"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>assign<span class="w"> </span>blueprint-ubuntu-server-01<span class="w"> </span>tag-environment-prod<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-61-6"><a id="__codelineno-61-6" name="__codelineno-61-6" href="#__codelineno-61-6"></a><span class="w">    </span>--resource-type<span class="w"> </span>catalog-item
+</span></code></pre></div></p>
+<h3 id="tag-remove"><code>tag remove</code></h3>
+<p>Remove a tag from a resource.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-62-1"><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>remove<span class="w"> </span>RESOURCE_ID<span class="w"> </span>TAG_ID<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| <code>--resource-type</code> | CHOICE | <code>deployment</code> | Resource type: <code>deployment</code> or <code>catalog-item</code> |
+| <code>--confirm</code> | FLAG | False | Skip confirmation prompt |</p>
+<p><strong>Example:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-63-1"><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>remove<span class="w"> </span>deployment-12345-abcdef<span class="w"> </span>tag-67890-ghijkl<span class="w"> </span>--confirm
+</span></code></pre></div></p>
+<h3 id="tag-resource-tags"><code>tag resource-tags</code></h3>
+<p>Show tags assigned to a resource.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-64-1"><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>resource-tags<span class="w"> </span>RESOURCE_ID<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| <code>--resource-type</code> | CHOICE | <code>deployment</code> | Resource type: <code>deployment</code> or <code>catalog-item</code> |</p>
+<p><strong>Example:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-65-1"><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a>vmware-vra<span class="w"> </span>tag<span class="w"> </span>resource-tags<span class="w"> </span>deployment-12345-abcdef
+</span></code></pre></div></p>
+<h2 id="report-commands-report">Report Commands (<code>report</code>)</h2>
+<p>Generate analytics and reports.</p>
+<h3 id="report-activity-timeline"><code>report activity-timeline</code></h3>
+<p>Generate deployment activity timeline.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-66-1"><a id="__codelineno-66-1" name="__codelineno-66-1" href="#__codelineno-66-1"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>activity-timeline<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| <code>--project</code> | TEXT | None | Filter by project ID |
+| <code>--days-back</code> | INT | 30 | Days back for timeline |
+| <code>--group-by</code> | CHOICE | <code>day</code> | Group by: <code>day</code>, <code>week</code>, <code>month</code>, <code>year</code> |
+| <code>--statuses</code> | TEXT | All | Comma-separated status list |</p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-67-1"><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a><span class="c1"># 30-day activity timeline</span>
+</span><span id="__span-67-2"><a id="__codelineno-67-2" name="__codelineno-67-2" href="#__codelineno-67-2"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>activity-timeline
+</span><span id="__span-67-3"><a id="__codelineno-67-3" name="__codelineno-67-3" href="#__codelineno-67-3"></a>
+</span><span id="__span-67-4"><a id="__codelineno-67-4" name="__codelineno-67-4" href="#__codelineno-67-4"></a><span class="c1"># Weekly activity for 90 days</span>
+</span><span id="__span-67-5"><a id="__codelineno-67-5" name="__codelineno-67-5" href="#__codelineno-67-5"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>activity-timeline<span class="w"> </span>--days-back<span class="w"> </span><span class="m">90</span><span class="w"> </span>--group-by<span class="w"> </span>week
+</span><span id="__span-67-6"><a id="__codelineno-67-6" name="__codelineno-67-6" href="#__codelineno-67-6"></a>
+</span><span id="__span-67-7"><a id="__codelineno-67-7" name="__codelineno-67-7" href="#__codelineno-67-7"></a><span class="c1"># Only successful deployments</span>
+</span><span id="__span-67-8"><a id="__codelineno-67-8" name="__codelineno-67-8" href="#__codelineno-67-8"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>activity-timeline<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-67-9"><a id="__codelineno-67-9" name="__codelineno-67-9" href="#__codelineno-67-9"></a><span class="w">    </span>--statuses<span class="w"> </span><span class="s2">&quot;CREATE_SUCCESSFUL,UPDATE_SUCCESSFUL&quot;</span>
+</span></code></pre></div></p>
+<h3 id="report-catalog-usage"><code>report catalog-usage</code></h3>
+<p>Generate catalog usage report.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-68-1"><a id="__codelineno-68-1" name="__codelineno-68-1" href="#__codelineno-68-1"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>catalog-usage<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| <code>--project</code> | TEXT | None | Filter by project ID |
+| <code>--include-zero</code> | FLAG | False | Include items with zero deployments |
+| <code>--sort-by</code> | CHOICE | <code>deployments</code> | Sort by: <code>deployments</code>, <code>resources</code>, <code>name</code> |
+| <code>--detailed-resources</code> | FLAG | False | Fetch exact resource counts |</p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-69-1"><a id="__codelineno-69-1" name="__codelineno-69-1" href="#__codelineno-69-1"></a><span class="c1"># Basic usage report</span>
+</span><span id="__span-69-2"><a id="__codelineno-69-2" name="__codelineno-69-2" href="#__codelineno-69-2"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>catalog-usage
+</span><span id="__span-69-3"><a id="__codelineno-69-3" name="__codelineno-69-3" href="#__codelineno-69-3"></a>
+</span><span id="__span-69-4"><a id="__codelineno-69-4" name="__codelineno-69-4" href="#__codelineno-69-4"></a><span class="c1"># Include all catalog items</span>
+</span><span id="__span-69-5"><a id="__codelineno-69-5" name="__codelineno-69-5" href="#__codelineno-69-5"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>catalog-usage<span class="w"> </span>--include-zero<span class="w"> </span>--sort-by<span class="w"> </span>name
+</span><span id="__span-69-6"><a id="__codelineno-69-6" name="__codelineno-69-6" href="#__codelineno-69-6"></a>
+</span><span id="__span-69-7"><a id="__codelineno-69-7" name="__codelineno-69-7" href="#__codelineno-69-7"></a><span class="c1"># Detailed resource counting</span>
+</span><span id="__span-69-8"><a id="__codelineno-69-8" name="__codelineno-69-8" href="#__codelineno-69-8"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>catalog-usage<span class="w"> </span>--detailed-resources
+</span></code></pre></div></p>
+<h3 id="report-unsync"><code>report unsync</code></h3>
+<p>Generate unsynced deployments report.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-70-1"><a id="__codelineno-70-1" name="__codelineno-70-1" href="#__codelineno-70-1"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>unsync<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| <code>--project</code> | TEXT | None | Filter by project ID |
+| <code>--detailed-resources</code> | FLAG | False | Fetch exact resource counts |
+| <code>--show-details</code> | FLAG | False | Show detailed analysis |
+| <code>--reason-filter</code> | TEXT | None | Filter by specific reason |</p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-71-1"><a id="__codelineno-71-1" name="__codelineno-71-1" href="#__codelineno-71-1"></a><span class="c1"># Basic unsync report</span>
+</span><span id="__span-71-2"><a id="__codelineno-71-2" name="__codelineno-71-2" href="#__codelineno-71-2"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>unsync
+</span><span id="__span-71-3"><a id="__codelineno-71-3" name="__codelineno-71-3" href="#__codelineno-71-3"></a>
+</span><span id="__span-71-4"><a id="__codelineno-71-4" name="__codelineno-71-4" href="#__codelineno-71-4"></a><span class="c1"># Detailed analysis</span>
+</span><span id="__span-71-5"><a id="__codelineno-71-5" name="__codelineno-71-5" href="#__codelineno-71-5"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>unsync<span class="w"> </span>--show-details
+</span><span id="__span-71-6"><a id="__codelineno-71-6" name="__codelineno-71-6" href="#__codelineno-71-6"></a>
+</span><span id="__span-71-7"><a id="__codelineno-71-7" name="__codelineno-71-7" href="#__codelineno-71-7"></a><span class="c1"># Filter by specific reason</span>
+</span><span id="__span-71-8"><a id="__codelineno-71-8" name="__codelineno-71-8" href="#__codelineno-71-8"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>unsync<span class="w"> </span>--reason-filter<span class="w"> </span>catalog_item_deleted
+</span></code></pre></div></p>
+<h2 id="workflow-commands-workflow">Workflow Commands (<code>workflow</code>)</h2>
+<p>Manage and execute workflows.</p>
+<h3 id="workflow-list"><code>workflow list</code></h3>
+<p>List available workflows.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-72-1"><a id="__codelineno-72-1" name="__codelineno-72-1" href="#__codelineno-72-1"></a>vmware-vra<span class="w"> </span>workflow<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| <code>--page-size</code> | INT | 100 | Items per page (max: 2000) |
+| <code>--first-page-only</code> | FLAG | False | Fetch only first page |</p>
+<p><strong>Example:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-73-1"><a id="__codelineno-73-1" name="__codelineno-73-1" href="#__codelineno-73-1"></a>vmware-vra<span class="w"> </span>workflow<span class="w"> </span>list
+</span></code></pre></div></p>
+<h3 id="workflow-run"><code>workflow run</code></h3>
+<p>Execute a workflow.</p>
+<p><strong>Syntax:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-74-1"><a id="__codelineno-74-1" name="__codelineno-74-1" href="#__codelineno-74-1"></a>vmware-vra<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>WORKFLOW_ID<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div></p>
+<p><strong>Options:</strong>
+| Option | Type | Description |
+|--------|------|-------------|
+| <code>--inputs</code> | TEXT | Input parameters as JSON string |
+| <code>--inputs-file</code> | PATH | Input parameters from YAML/JSON file |</p>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-75-1"><a id="__codelineno-75-1" name="__codelineno-75-1" href="#__codelineno-75-1"></a><span class="c1"># Run workflow with inline inputs</span>
+</span><span id="__span-75-2"><a id="__codelineno-75-2" name="__codelineno-75-2" href="#__codelineno-75-2"></a>vmware-vra<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>create-user-workflow<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-75-3"><a id="__codelineno-75-3" name="__codelineno-75-3" href="#__codelineno-75-3"></a><span class="w">    </span>--inputs<span class="w"> </span><span class="s1">&#39;{&quot;username&quot;: &quot;john.doe&quot;, &quot;department&quot;: &quot;IT&quot;}&#39;</span>
+</span><span id="__span-75-4"><a id="__codelineno-75-4" name="__codelineno-75-4" href="#__codelineno-75-4"></a>
+</span><span id="__span-75-5"><a id="__codelineno-75-5" name="__codelineno-75-5" href="#__codelineno-75-5"></a><span class="c1"># Run workflow with inputs file</span>
+</span><span id="__span-75-6"><a id="__codelineno-75-6" name="__codelineno-75-6" href="#__codelineno-75-6"></a>vmware-vra<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>create-user-workflow<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-75-7"><a id="__codelineno-75-7" name="__codelineno-75-7" href="#__codelineno-75-7"></a><span class="w">    </span>--inputs-file<span class="w"> </span>user-inputs.yaml
+</span></code></pre></div></p>
+<h2 id="output-formats">Output Formats</h2>
+<p>All list and show commands support three output formats:</p>
+<h3 id="table-format-default">Table Format (Default)</h3>
+<p>Human-readable tables with aligned columns and formatting.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-76-1"><a id="__codelineno-76-1" name="__codelineno-76-1" href="#__codelineno-76-1"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>list
+</span></code></pre></div>
+<h3 id="json-format">JSON Format</h3>
+<p>Machine-readable JSON for scripting and automation.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-77-1"><a id="__codelineno-77-1" name="__codelineno-77-1" href="#__codelineno-77-1"></a>vmware-vra<span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span>catalog<span class="w"> </span>list
+</span></code></pre></div>
+<h3 id="yaml-format">YAML Format</h3>
+<p>Human-readable YAML format.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-78-1"><a id="__codelineno-78-1" name="__codelineno-78-1" href="#__codelineno-78-1"></a>vmware-vra<span class="w"> </span>--format<span class="w"> </span>yaml<span class="w"> </span>catalog<span class="w"> </span>list
+</span></code></pre></div>
+<h2 id="environment-variables">Environment Variables</h2>
+<p>Override configuration using environment variables:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VRA_URL</code></td>
+<td>vRA server URL</td>
+<td><code>https://vra.company.com</code></td>
+</tr>
+<tr>
+<td><code>VRA_TENANT</code></td>
+<td>vRA tenant</td>
+<td><code>company.local</code></td>
+</tr>
+<tr>
+<td><code>VRA_DOMAIN</code></td>
+<td>Authentication domain</td>
+<td><code>vsphere.local</code></td>
+</tr>
+<tr>
+<td><code>VRA_VERIFY_SSL</code></td>
+<td>SSL verification</td>
+<td><code>true</code> or <code>false</code></td>
+</tr>
+<tr>
+<td><code>VRA_TIMEOUT</code></td>
+<td>Request timeout</td>
+<td><code>60</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-79-1"><a id="__codelineno-79-1" name="__codelineno-79-1" href="#__codelineno-79-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">VRA_URL</span><span class="o">=</span><span class="s2">&quot;https://vra-dev.company.com&quot;</span>
+</span><span id="__span-79-2"><a id="__codelineno-79-2" name="__codelineno-79-2" href="#__codelineno-79-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">VRA_TENANT</span><span class="o">=</span><span class="s2">&quot;dev.company.local&quot;</span>
+</span><span id="__span-79-3"><a id="__codelineno-79-3" name="__codelineno-79-3" href="#__codelineno-79-3"></a>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>list
+</span></code></pre></div></p>
+<h2 id="common-usage-patterns">Common Usage Patterns</h2>
+<h3 id="automation-scripts">Automation Scripts</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-80-1"><a id="__codelineno-80-1" name="__codelineno-80-1" href="#__codelineno-80-1"></a><span class="ch">#!/bin/bash</span>
+</span><span id="__span-80-2"><a id="__codelineno-80-2" name="__codelineno-80-2" href="#__codelineno-80-2"></a><span class="nb">set</span><span class="w"> </span>-e
+</span><span id="__span-80-3"><a id="__codelineno-80-3" name="__codelineno-80-3" href="#__codelineno-80-3"></a>
+</span><span id="__span-80-4"><a id="__codelineno-80-4" name="__codelineno-80-4" href="#__codelineno-80-4"></a><span class="c1"># Authenticate</span>
+</span><span id="__span-80-5"><a id="__codelineno-80-5" name="__codelineno-80-5" href="#__codelineno-80-5"></a>vmware-vra<span class="w"> </span>auth<span class="w"> </span>login<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-80-6"><a id="__codelineno-80-6" name="__codelineno-80-6" href="#__codelineno-80-6"></a><span class="w">    </span>--username<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$VRA_USERNAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-80-7"><a id="__codelineno-80-7" name="__codelineno-80-7" href="#__codelineno-80-7"></a><span class="w">    </span>--password<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$VRA_PASSWORD</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-80-8"><a id="__codelineno-80-8" name="__codelineno-80-8" href="#__codelineno-80-8"></a><span class="w">    </span>--url<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$VRA_URL</span><span class="s2">&quot;</span>
+</span><span id="__span-80-9"><a id="__codelineno-80-9" name="__codelineno-80-9" href="#__codelineno-80-9"></a>
+</span><span id="__span-80-10"><a id="__codelineno-80-10" name="__codelineno-80-10" href="#__codelineno-80-10"></a><span class="c1"># Deploy infrastructure</span>
+</span><span id="__span-80-11"><a id="__codelineno-80-11" name="__codelineno-80-11" href="#__codelineno-80-11"></a><span class="nv">DEPLOYMENT_ID</span><span class="o">=</span><span class="k">$(</span>vmware-vra<span class="w"> </span>catalog<span class="w"> </span>request<span class="w"> </span>blueprint-web-app<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-80-12"><a id="__codelineno-80-12" name="__codelineno-80-12" href="#__codelineno-80-12"></a><span class="w">    </span>--project<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PROJECT_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-80-13"><a id="__codelineno-80-13" name="__codelineno-80-13" href="#__codelineno-80-13"></a><span class="w">    </span>--inputs-file<span class="w"> </span>webapp-config.yaml<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-80-14"><a id="__codelineno-80-14" name="__codelineno-80-14" href="#__codelineno-80-14"></a><span class="w">    </span>--format<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.deploymentId&#39;</span><span class="k">)</span>
+</span><span id="__span-80-15"><a id="__codelineno-80-15" name="__codelineno-80-15" href="#__codelineno-80-15"></a>
+</span><span id="__span-80-16"><a id="__codelineno-80-16" name="__codelineno-80-16" href="#__codelineno-80-16"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Deployment created: </span><span class="nv">$DEPLOYMENT_ID</span><span class="s2">&quot;</span>
+</span><span id="__span-80-17"><a id="__codelineno-80-17" name="__codelineno-80-17" href="#__codelineno-80-17"></a>
+</span><span id="__span-80-18"><a id="__codelineno-80-18" name="__codelineno-80-18" href="#__codelineno-80-18"></a><span class="c1"># Wait for deployment completion (custom logic)</span>
+</span><span id="__span-80-19"><a id="__codelineno-80-19" name="__codelineno-80-19" href="#__codelineno-80-19"></a><span class="k">while</span><span class="w"> </span>true<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-80-20"><a id="__codelineno-80-20" name="__codelineno-80-20" href="#__codelineno-80-20"></a><span class="w">    </span><span class="nv">STATUS</span><span class="o">=</span><span class="k">$(</span>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>show<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DEPLOYMENT_ID</span><span class="s2">&quot;</span><span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.status&#39;</span><span class="k">)</span>
+</span><span id="__span-80-21"><a id="__codelineno-80-21" name="__codelineno-80-21" href="#__codelineno-80-21"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$STATUS</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;CREATE_SUCCESSFUL&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+</span><span id="__span-80-22"><a id="__codelineno-80-22" name="__codelineno-80-22" href="#__codelineno-80-22"></a><span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Deployment completed successfully&quot;</span>
+</span><span id="__span-80-23"><a id="__codelineno-80-23" name="__codelineno-80-23" href="#__codelineno-80-23"></a><span class="w">        </span><span class="k">break</span>
+</span><span id="__span-80-24"><a id="__codelineno-80-24" name="__codelineno-80-24" href="#__codelineno-80-24"></a><span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$STATUS</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;CREATE_FAILED&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+</span><span id="__span-80-25"><a id="__codelineno-80-25" name="__codelineno-80-25" href="#__codelineno-80-25"></a><span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Deployment failed&quot;</span>
+</span><span id="__span-80-26"><a id="__codelineno-80-26" name="__codelineno-80-26" href="#__codelineno-80-26"></a><span class="w">        </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-80-27"><a id="__codelineno-80-27" name="__codelineno-80-27" href="#__codelineno-80-27"></a><span class="w">    </span><span class="k">fi</span>
+</span><span id="__span-80-28"><a id="__codelineno-80-28" name="__codelineno-80-28" href="#__codelineno-80-28"></a><span class="w">    </span>sleep<span class="w"> </span><span class="m">30</span>
+</span><span id="__span-80-29"><a id="__codelineno-80-29" name="__codelineno-80-29" href="#__codelineno-80-29"></a><span class="k">done</span>
+</span></code></pre></div>
+<h3 id="batch-operations">Batch Operations</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-81-1"><a id="__codelineno-81-1" name="__codelineno-81-1" href="#__codelineno-81-1"></a><span class="ch">#!/bin/bash</span>
+</span><span id="__span-81-2"><a id="__codelineno-81-2" name="__codelineno-81-2" href="#__codelineno-81-2"></a><span class="c1"># Tag multiple deployments</span>
+</span><span id="__span-81-3"><a id="__codelineno-81-3" name="__codelineno-81-3" href="#__codelineno-81-3"></a>
+</span><span id="__span-81-4"><a id="__codelineno-81-4" name="__codelineno-81-4" href="#__codelineno-81-4"></a><span class="nv">DEPLOYMENTS</span><span class="o">=</span><span class="k">$(</span>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>list<span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.[].id&#39;</span><span class="k">)</span>
+</span><span id="__span-81-5"><a id="__codelineno-81-5" name="__codelineno-81-5" href="#__codelineno-81-5"></a><span class="nv">TAG_ID</span><span class="o">=</span><span class="s2">&quot;tag-environment-prod&quot;</span>
+</span><span id="__span-81-6"><a id="__codelineno-81-6" name="__codelineno-81-6" href="#__codelineno-81-6"></a>
+</span><span id="__span-81-7"><a id="__codelineno-81-7" name="__codelineno-81-7" href="#__codelineno-81-7"></a><span class="k">for</span><span class="w"> </span>deployment<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="nv">$DEPLOYMENTS</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-81-8"><a id="__codelineno-81-8" name="__codelineno-81-8" href="#__codelineno-81-8"></a><span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Tagging deployment: </span><span class="nv">$deployment</span><span class="s2">&quot;</span>
+</span><span id="__span-81-9"><a id="__codelineno-81-9" name="__codelineno-81-9" href="#__codelineno-81-9"></a><span class="w">    </span>vmware-vra<span class="w"> </span>tag<span class="w"> </span>assign<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$deployment</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TAG_ID</span><span class="s2">&quot;</span><span class="w"> </span>--confirm
+</span><span id="__span-81-10"><a id="__codelineno-81-10" name="__codelineno-81-10" href="#__codelineno-81-10"></a><span class="k">done</span>
+</span></code></pre></div>
+<h3 id="data-export-pipeline">Data Export Pipeline</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-82-1"><a id="__codelineno-82-1" name="__codelineno-82-1" href="#__codelineno-82-1"></a><span class="ch">#!/bin/bash</span>
+</span><span id="__span-82-2"><a id="__codelineno-82-2" name="__codelineno-82-2" href="#__codelineno-82-2"></a><span class="c1"># Complete data export and analysis</span>
+</span><span id="__span-82-3"><a id="__codelineno-82-3" name="__codelineno-82-3" href="#__codelineno-82-3"></a>
+</span><span id="__span-82-4"><a id="__codelineno-82-4" name="__codelineno-82-4" href="#__codelineno-82-4"></a><span class="nv">EXPORT_DIR</span><span class="o">=</span><span class="s2">&quot;/backup/vra/</span><span class="k">$(</span>date<span class="w"> </span>+%Y-%m-%d<span class="k">)</span><span class="s2">&quot;</span>
+</span><span id="__span-82-5"><a id="__codelineno-82-5" name="__codelineno-82-5" href="#__codelineno-82-5"></a>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$EXPORT_DIR</span><span class="s2">&quot;</span>
+</span><span id="__span-82-6"><a id="__codelineno-82-6" name="__codelineno-82-6" href="#__codelineno-82-6"></a>
+</span><span id="__span-82-7"><a id="__codelineno-82-7" name="__codelineno-82-7" href="#__codelineno-82-7"></a><span class="c1"># Export deployments</span>
+</span><span id="__span-82-8"><a id="__codelineno-82-8" name="__codelineno-82-8" href="#__codelineno-82-8"></a>vmware-vra<span class="w"> </span>deployment<span class="w"> </span>export-all<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-82-9"><a id="__codelineno-82-9" name="__codelineno-82-9" href="#__codelineno-82-9"></a><span class="w">    </span>--output-dir<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$EXPORT_DIR</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-82-10"><a id="__codelineno-82-10" name="__codelineno-82-10" href="#__codelineno-82-10"></a><span class="w">    </span>--include-resources
+</span><span id="__span-82-11"><a id="__codelineno-82-11" name="__codelineno-82-11" href="#__codelineno-82-11"></a>
+</span><span id="__span-82-12"><a id="__codelineno-82-12" name="__codelineno-82-12" href="#__codelineno-82-12"></a><span class="c1"># Generate reports</span>
+</span><span id="__span-82-13"><a id="__codelineno-82-13" name="__codelineno-82-13" href="#__codelineno-82-13"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>catalog-usage<span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span>&gt;<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$EXPORT_DIR</span><span class="s2">/catalog-usage.json&quot;</span>
+</span><span id="__span-82-14"><a id="__codelineno-82-14" name="__codelineno-82-14" href="#__codelineno-82-14"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>unsync<span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span>&gt;<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$EXPORT_DIR</span><span class="s2">/unsync-report.json&quot;</span>
+</span><span id="__span-82-15"><a id="__codelineno-82-15" name="__codelineno-82-15" href="#__codelineno-82-15"></a>vmware-vra<span class="w"> </span>report<span class="w"> </span>activity-timeline<span class="w"> </span>--days-back<span class="w"> </span><span class="m">90</span><span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span>&gt;<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$EXPORT_DIR</span><span class="s2">/activity-timeline.json&quot;</span>
+</span><span id="__span-82-16"><a id="__codelineno-82-16" name="__codelineno-82-16" href="#__codelineno-82-16"></a>
+</span><span id="__span-82-17"><a id="__codelineno-82-17" name="__codelineno-82-17" href="#__codelineno-82-17"></a><span class="c1"># Create summary</span>
+</span><span id="__span-82-18"><a id="__codelineno-82-18" name="__codelineno-82-18" href="#__codelineno-82-18"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Export completed: </span><span class="nv">$EXPORT_DIR</span><span class="s2">&quot;</span>
+</span><span id="__span-82-19"><a id="__codelineno-82-19" name="__codelineno-82-19" href="#__codelineno-82-19"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Files created:&quot;</span>
+</span><span id="__span-82-20"><a id="__codelineno-82-20" name="__codelineno-82-20" href="#__codelineno-82-20"></a>ls<span class="w"> </span>-la<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$EXPORT_DIR</span><span class="s2">&quot;</span>
+</span></code></pre></div>
+<p>This comprehensive CLI reference provides complete coverage of all available commands, options, and usage patterns for the VMware vRA CLI tool.</p>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="July 21, 2025 19:20:11 UTC"><span class="timeago" datetime="2025-07-21T19:20:11+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="July 21, 2025 19:20:11 UTC">2025-07-21</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="July 21, 2025 19:20:11 UTC"><span class="timeago" datetime="2025-07-21T19:20:11+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="July 21, 2025 19:20:11 UTC">2025-07-21</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2024 Sebastien Brun
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/brun_s/vmware-vra-cli" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/vmware-vra-cli/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "toc.follow", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="../../js/timeago.min.js"></script>
+      
+        <script src="../../js/timeago_mkdocs_material.js"></script>
+      
+    
+  </body>
+</html>
