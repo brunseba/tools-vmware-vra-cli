@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2025-01-21
+
+### Added
+- **Persistent Configuration Management**: Complete configuration storage system
+- **ConfigManager Class**: Handles persistent settings in `~/.vmware-vra-cli/config.json`
+- **Configuration Commands**:
+  - `vra config show`: Display current configuration with source information
+  - `vra config set`: Set individual configuration values
+  - `vra config reset`: Reset configuration to defaults
+  - `vra config edit`: Edit configuration file in default editor
+- **Automatic Parameter Storage**: Login parameters (URL, tenant, domain) saved during authentication
+- **Environment Variable Override**: Support for VRA_URL, VRA_TENANT, VRA_DOMAIN, etc.
+- **Enhanced Login Command**: Now includes tenant parameter and saves all connection details
+
+### Changed
+- **Improved User Experience**: No need to specify URL/tenant on every login
+- **Enhanced CLI Help**: Better documentation for configuration management
+- **Configuration Persistence**: Settings retained between CLI sessions
+
+### Fixed
+- **Configuration Loss Issue**: Login parameters now persist between sessions
+- **Parameter Redundancy**: No more need to repeatedly specify connection details
+
 ## [0.6.0] - 2025-01-21
 
 ### Added
