@@ -1061,6 +1061,242 @@ def catalog_usage_report(ctx, project, include_zero, sort_by, detailed_resources
         }
         console.print(yaml.dump(yaml_data, default_flow_style=False))
 
+@report.command('unsync')
+@click.option('--project', help='Filter by project ID')
+@click.option('--detailed-resources', is_flag=True, 
+              help='Fetch exact resource counts (slower but more accurate)')
+@click.option('--show-details', is_flag=True,
+              help='Show detailed analysis for each unsynced deployment')
+@click.option('--reason-filter', help='Filter by specific reason (e.g., missing_catalog_references, catalog_item_deleted)')
+@click.pass_context
+def unsync_report(ctx, project, detailed_resources, show_details, reason_filter):
+    """Generate a report of deployments that don't match to catalog items.
+    
+    This report identifies "unsynced" deployments that cannot be linked back to any 
+    catalog item in the system. These deployments may indicate:
+    - Deployments created outside the service catalog
+    - Catalog items that were deleted after deployment
+    - Issues with deployment tracking or naming
+    - Failed deployments that lost their catalog associations
+    
+    The report provides detailed analysis of why each deployment is unsynced
+    and suggests potential remediation actions.
+    """
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
+    
+    console.print("[bold blue]🔍 Generating Unsynced Deployments Report...[/bold blue]")
+    
+    if detailed_resources:
+        console.print("[yellow]⚠️  Detailed resource counting enabled - this may take longer[/yellow]")
+    
+    with console.status("[bold green]Analyzing unsynced deployments..."):
+        unsync_data = client.get_unsynced_deployments(
+            project_id=project, 
+            fetch_resource_counts=detailed_resources
+        )
+    
+    # Apply reason filter if specified
+    if reason_filter:
+        filtered_deployments = []
+        for unsync in unsync_data['unsynced_deployments']:
+            if unsync['analysis']['primary_reason'] == reason_filter:
+                filtered_deployments.append(unsync)
+        
+        unsync_data['unsynced_deployments'] = filtered_deployments
+        # Recalculate summary for filtered data
+        unsync_data['summary']['unsynced_deployments'] = len(filtered_deployments)
+        unsync_data['summary']['unsynced_percentage'] = (
+            len(filtered_deployments) / max(unsync_data['summary']['total_deployments'], 1) * 100
+        )
+    
+    # Display results
+    if ctx.obj['format'] == 'table':
+        summary = unsync_data['summary']
+        
+        # Summary statistics
+        console.print("\n[bold green]📊 Unsynced Deployments Summary[/bold green]")
+        summary_table = Table(show_header=False, box=None)
+        summary_table.add_column("Metric", style="cyan")
+        summary_table.add_column("Value", style="green")
+        summary_table.add_column("Note", style="dim")
+        
+        summary_table.add_row("Total Deployments", str(summary['total_deployments']), "All deployments in system")
+        summary_table.add_row("Linked Deployments", str(summary['linked_deployments']), "Successfully matched to catalog items")
+        summary_table.add_row("[bold red]Unsynced Deployments[/bold red]", str(summary['unsynced_deployments']), "Cannot match to catalog items")
+        summary_table.add_row("Unsynced Percentage", f"{summary['unsynced_percentage']}%", "Percentage of total deployments")
+        summary_table.add_row("Unsynced Resources", str(summary['total_unsynced_resources']), "Resources in unsynced deployments")
+        summary_table.add_row("Total Catalog Items", str(summary['catalog_items_count']), "Available for matching")
+        
+        console.print(summary_table)
+        
+        if reason_filter:
+            console.print(f"\n[yellow]🔎 Filtered by reason: {reason_filter}[/yellow]")
+        
+        # Reason breakdown
+        if unsync_data['reason_groups']:
+            console.print("\n[bold green]🔍 Root Cause Analysis[/bold green]")
+            reason_table = Table()
+            reason_table.add_column("Reason", style="yellow", width=25)
+            reason_table.add_column("Count", style="cyan", justify="right")
+            reason_table.add_column("Description", style="white")
+            
+            reason_descriptions = {
+                'missing_catalog_references': 'No catalog item ID/name in deployment',
+                'catalog_item_deleted': 'Referenced catalog item no longer exists', 
+                'catalog_name_mismatch': 'Catalog item name not found',
+                'blueprint_deleted': 'Referenced blueprint no longer exists',
+                'matching_logic_issue': 'Item exists but matching failed',
+                'weak_name_association': 'Possible match based on name similarity',
+                'failed_deployment': 'Deployment failed and lost associations',
+                'external_creation': 'Created outside service catalog',
+                'unknown': 'Could not determine cause'
+            }
+            
+            for reason, count in sorted(unsync_data['reason_groups'].items(), key=lambda x: x[1], reverse=True):
+                description = reason_descriptions.get(reason, 'Unknown reason type')
+                reason_table.add_row(reason.replace('_', ' ').title(), str(count), description)
+            
+            console.print(reason_table)
+        
+        # Status breakdown
+        if unsync_data['status_breakdown']:
+            console.print("\n[bold green]📈 Status Breakdown[/bold green]")
+            status_table = Table()
+            status_table.add_column("Status", style="blue")
+            status_table.add_column("Count", style="cyan", justify="right")
+            status_table.add_column("Note", style="dim")
+            
+            for status, count in sorted(unsync_data['status_breakdown'].items(), key=lambda x: x[1], reverse=True):
+                note = ""
+                if status in ['FAILED', 'CREATE_FAILED', 'UPDATE_FAILED']:
+                    note = "Failed deployments often lose catalog links"
+                elif status in ['CREATE_SUCCESSFUL', 'UPDATE_SUCCESSFUL', 'SUCCESSFUL']:
+                    note = "Successful but untracked deployments"
+                elif status in ['CREATE_INPROGRESS', 'UPDATE_INPROGRESS', 'INPROGRESS']:
+                    note = "May link once deployment completes"
+                
+                status_table.add_row(status, str(count), note)
+            
+            console.print(status_table)
+        
+        # Age breakdown
+        if unsync_data['age_breakdown']:
+            console.print("\n[bold green]🕐 Age Distribution[/bold green]")
+            age_table = Table()
+            age_table.add_column("Age Range", style="magenta")
+            age_table.add_column("Count", style="cyan", justify="right")
+            age_table.add_column("Implication", style="white")
+            
+            age_implications = {
+                '<24h': 'Recent - may be deployment in progress',
+                '1-7d': 'Recent - likely legitimate unsynced deployment',
+                '1-4w': 'Aging - should be investigated',
+                '>1m': 'Old - likely requires cleanup or investigation'
+            }
+            
+            for age_range, count in unsync_data['age_breakdown'].items():
+                if count > 0:
+                    implication = age_implications.get(age_range, '')
+                    age_table.add_row(age_range, str(count), implication)
+            
+            console.print(age_table)
+        
+        # Detailed deployments list
+        if show_details and unsync_data['unsynced_deployments']:
+            console.print("\n[bold green]📋 Detailed Unsynced Deployments[/bold green]")
+            
+            for i, unsync in enumerate(unsync_data['unsynced_deployments'][:20]):  # Limit to 20 for readability
+                deployment = unsync['deployment']
+                analysis = unsync['analysis']
+                
+                # Deployment header
+                console.print(f"\n[bold cyan]{i+1}. {deployment.get('name', 'Unknown')}[/bold cyan]")
+                console.print(f"   ID: {deployment.get('id', 'N/A')}")
+                console.print(f"   Status: {deployment.get('status', 'N/A')}")
+                console.print(f"   Created: {deployment.get('createdAt', 'N/A')}")
+                console.print(f"   Resources: {unsync['resource_count']}")
+                
+                # Analysis
+                console.print(f"   [yellow]Reason: {analysis['primary_reason'].replace('_', ' ').title()}[/yellow]")
+                
+                if analysis['details']:
+                    for detail in analysis['details']:
+                        console.print(f"   • {detail}")
+                
+                if analysis['suggestions']:
+                    console.print(f"   [green]Suggestions:[/green]")
+                    for suggestion in analysis['suggestions']:
+                        console.print(f"   → {suggestion}")
+                
+                if analysis['potential_matches']:
+                    console.print(f"   [blue]Potential Matches:[/blue]")
+                    for match in analysis['potential_matches']:
+                        console.print(f"   → {match['name']} (ID: {match['id']}) - {match['similarity_reason']}")
+            
+            if len(unsync_data['unsynced_deployments']) > 20:
+                remaining = len(unsync_data['unsynced_deployments']) - 20
+                console.print(f"\n[dim]... and {remaining} more unsynced deployments (use JSON/YAML format for full list)[/dim]")
+        
+        elif unsync_data['unsynced_deployments'] and not show_details:
+            console.print("\n[dim]💡 Use --show-details to see detailed analysis of each unsynced deployment[/dim]")
+        
+        if not unsync_data['unsynced_deployments']:
+            console.print("\n[bold green]✅ No unsynced deployments found! All deployments are properly linked to catalog items.[/bold green]")
+    
+    elif ctx.obj['format'] == 'json':
+        # Convert to JSON-serializable format
+        json_data = {
+            'summary': unsync_data['summary'],
+            'reason_groups': unsync_data['reason_groups'],
+            'status_breakdown': unsync_data['status_breakdown'],
+            'age_breakdown': unsync_data['age_breakdown'],
+            'unsynced_deployments': [
+                {
+                    'deployment': {
+                        'id': unsync['deployment'].get('id'),
+                        'name': unsync['deployment'].get('name'),
+                        'status': unsync['deployment'].get('status'),
+                        'createdAt': unsync['deployment'].get('createdAt'),
+                        'projectId': unsync['deployment'].get('projectId'),
+                        'catalogItemId': unsync['deployment'].get('catalogItemId'),
+                        'catalogItemName': unsync['deployment'].get('catalogItemName'),
+                        'blueprintId': unsync['deployment'].get('blueprintId')
+                    },
+                    'resource_count': unsync['resource_count'],
+                    'analysis': unsync['analysis']
+                }
+                for unsync in unsync_data['unsynced_deployments']
+            ]
+        }
+        console.print(json.dumps(json_data, indent=2))
+    
+    elif ctx.obj['format'] == 'yaml':
+        # Convert to YAML format
+        yaml_data = {
+            'summary': unsync_data['summary'],
+            'reason_groups': unsync_data['reason_groups'],
+            'status_breakdown': unsync_data['status_breakdown'],
+            'age_breakdown': unsync_data['age_breakdown'],
+            'unsynced_deployments': [
+                {
+                    'deployment': {
+                        'id': unsync['deployment'].get('id'),
+                        'name': unsync['deployment'].get('name'),
+                        'status': unsync['deployment'].get('status'),
+                        'createdAt': unsync['deployment'].get('createdAt'),
+                        'projectId': unsync['deployment'].get('projectId'),
+                        'catalogItemId': unsync['deployment'].get('catalogItemId'),
+                        'catalogItemName': unsync['deployment'].get('catalogItemName'),
+                        'blueprintId': unsync['deployment'].get('blueprintId')
+                    },
+                    'resource_count': unsync['resource_count'],
+                    'analysis': unsync['analysis']
+                }
+                for unsync in unsync_data['unsynced_deployments']
+            ]
+        }
+        console.print(yaml.dump(yaml_data, default_flow_style=False))
+
 # Workflow commands
 @main.group()
 def workflow():

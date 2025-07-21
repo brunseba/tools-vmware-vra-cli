@@ -856,7 +856,254 @@ class CatalogClient:
         
         return usage_stats
     
-    def get_activity_timeline(self, project_id: Optional[str] = None, 
+    def get_unsynced_deployments(self, project_id: Optional[str] = None, 
+                               fetch_resource_counts: bool = False) -> Dict[str, Any]:
+        """Get deployments that don't match to any catalog items.
+        
+        This method identifies deployments that cannot be linked back to catalog items,
+        which may indicate issues with deployment tracking, deleted catalog items,
+        or deployments created outside the service catalog.
+        
+        Args:
+            project_id: Optional project ID to filter deployments
+            fetch_resource_counts: Whether to fetch actual resource counts (slower but accurate)
+            
+        Returns:
+            Dictionary containing unsynced deployment details and statistics
+        """
+        from datetime import datetime
+        
+        # Get all catalog items and deployments
+        catalog_items = self.list_catalog_items(project_id=project_id)
+        all_deployments = self.list_deployments(project_id=project_id)
+        
+        # Create a set of all deployments that are linked to catalog items
+        linked_deployment_ids = set()
+        
+        # Track which deployments are linked to which catalog items
+        deployment_to_catalog_map = {}
+        
+        for item in catalog_items:
+            # Find deployments for this catalog item using the same matching logic
+            item_deployments = [
+                d for d in all_deployments 
+                if (d.get('catalogItemId') == item.id or 
+                    d.get('blueprintId') == item.id or
+                    d.get('catalogItemName') == item.name or
+                    # Also check if the deployment name contains the catalog item name
+                    (item.name.lower() in d.get('name', '').lower()))
+            ]
+            
+            for deployment in item_deployments:
+                deployment_id = deployment.get('id')
+                if deployment_id:
+                    linked_deployment_ids.add(deployment_id)
+                    deployment_to_catalog_map[deployment_id] = item
+        
+        # Find unsynced deployments
+        unsynced_deployments = []
+        for deployment in all_deployments:
+            deployment_id = deployment.get('id')
+            if deployment_id and deployment_id not in linked_deployment_ids:
+                # Analyze why this deployment is unsynced
+                analysis = self._analyze_unsynced_deployment(deployment, catalog_items)
+                
+                # Get resource count if requested
+                resource_count = 0
+                if fetch_resource_counts:
+                    try:
+                        resources = self.get_deployment_resources(deployment_id)
+                        resource_count = len(resources)
+                    except Exception:
+                        resource_count = 1  # Conservative estimate
+                else:
+                    resource_count = deployment.get('resourceCount', 1)
+                
+                unsynced_deployment = {
+                    'deployment': deployment,
+                    'resource_count': resource_count,
+                    'analysis': analysis
+                }
+                unsynced_deployments.append(unsynced_deployment)
+        
+        # Calculate statistics
+        total_deployments = len(all_deployments)
+        linked_deployments = len(linked_deployment_ids)
+        unsynced_count = len(unsynced_deployments)
+        unsynced_percentage = (unsynced_count / max(total_deployments, 1)) * 100
+        
+        # Group by analysis reasons
+        reason_groups = {}
+        for unsync in unsynced_deployments:
+            reason = unsync['analysis']['primary_reason']
+            if reason not in reason_groups:
+                reason_groups[reason] = []
+            reason_groups[reason].append(unsync)
+        
+        # Status breakdown of unsynced deployments
+        status_counts = {}
+        total_unsynced_resources = 0
+        
+        for unsync in unsynced_deployments:
+            deployment = unsync['deployment']
+            status = deployment.get('status', 'UNKNOWN')
+            status_counts[status] = status_counts.get(status, 0) + 1
+            total_unsynced_resources += unsync['resource_count']
+        
+        # Age analysis
+        now = datetime.now()
+        age_groups = {'<24h': 0, '1-7d': 0, '1-4w': 0, '>1m': 0}
+        
+        for unsync in unsynced_deployments:
+            created_at_str = unsync['deployment'].get('createdAt', '')
+            if created_at_str:
+                try:
+                    # Parse timestamp
+                    import re
+                    clean_timestamp = re.sub(r'\+\d{2}:\d{2}$|Z$', '', created_at_str)
+                    if '.' in clean_timestamp:
+                        clean_timestamp = clean_timestamp.split('.')[0]
+                    
+                    created_at = datetime.fromisoformat(clean_timestamp)
+                    age_delta = now - created_at
+                    age_days = age_delta.days
+                    
+                    if age_days < 1:
+                        age_groups['<24h'] += 1
+                    elif age_days <= 7:
+                        age_groups['1-7d'] += 1
+                    elif age_days <= 28:
+                        age_groups['1-4w'] += 1
+                    else:
+                        age_groups['>1m'] += 1
+                        
+                except Exception:
+                    pass  # Skip deployments with unparseable timestamps
+        
+        return {
+            'summary': {
+                'total_deployments': total_deployments,
+                'linked_deployments': linked_deployments,
+                'unsynced_deployments': unsynced_count,
+                'unsynced_percentage': round(unsynced_percentage, 1),
+                'total_unsynced_resources': total_unsynced_resources,
+                'catalog_items_count': len(catalog_items)
+            },
+            'unsynced_deployments': unsynced_deployments,
+            'reason_groups': {reason: len(group) for reason, group in reason_groups.items()},
+            'status_breakdown': status_counts,
+            'age_breakdown': age_groups,
+            'detailed_reason_groups': reason_groups
+        }
+    
+    def _analyze_unsynced_deployment(self, deployment: Dict[str, Any], 
+                                   catalog_items: List[CatalogItem]) -> Dict[str, Any]:
+        """Analyze why a deployment is not synced to any catalog item.
+        
+        Args:
+            deployment: The unsynced deployment
+            catalog_items: List of all available catalog items
+            
+        Returns:
+            Dictionary containing analysis of why the deployment is unsynced
+        """
+        analysis = {
+            'primary_reason': 'unknown',
+            'details': [],
+            'suggestions': [],
+            'potential_matches': []
+        }
+        
+        deployment_name = deployment.get('name', '').lower()
+        catalog_item_id = deployment.get('catalogItemId')
+        catalog_item_name = deployment.get('catalogItemName')
+        blueprint_id = deployment.get('blueprintId')
+        
+        # Check for missing catalog item references
+        if not catalog_item_id and not catalog_item_name and not blueprint_id:
+            analysis['primary_reason'] = 'missing_catalog_references'
+            analysis['details'].append('Deployment has no catalogItemId, catalogItemName, or blueprintId')
+            analysis['suggestions'].append('This deployment may have been created outside the service catalog')
+        
+        # Check if referenced catalog item exists
+        elif catalog_item_id:
+            matching_item = next((item for item in catalog_items if item.id == catalog_item_id), None)
+            if not matching_item:
+                analysis['primary_reason'] = 'catalog_item_deleted'
+                analysis['details'].append(f'Referenced catalog item ID {catalog_item_id} no longer exists')
+                analysis['suggestions'].append('The catalog item may have been deleted after deployment creation')
+            else:
+                analysis['primary_reason'] = 'matching_logic_issue'
+                analysis['details'].append('Catalog item exists but matching logic failed')
+                analysis['suggestions'].append('There may be an issue with the catalog item matching algorithm')
+        
+        elif blueprint_id:
+            matching_item = next((item for item in catalog_items if item.id == blueprint_id), None)
+            if not matching_item:
+                analysis['primary_reason'] = 'blueprint_deleted'
+                analysis['details'].append(f'Referenced blueprint ID {blueprint_id} no longer exists')
+                analysis['suggestions'].append('The blueprint may have been deleted or moved')
+            else:
+                analysis['primary_reason'] = 'matching_logic_issue'
+                analysis['details'].append('Blueprint exists but matching logic failed')
+                analysis['suggestions'].append('There may be an issue with the blueprint matching algorithm')
+        
+        elif catalog_item_name:
+            matching_items = [item for item in catalog_items if item.name == catalog_item_name]
+            if not matching_items:
+                analysis['primary_reason'] = 'catalog_name_mismatch'
+                analysis['details'].append(f'No catalog item found with name "{catalog_item_name}"')
+                analysis['suggestions'].append('The catalog item may have been renamed or deleted')
+                
+                # Look for similar names
+                similar_items = [item for item in catalog_items 
+                               if catalog_item_name.lower() in item.name.lower() or 
+                                  item.name.lower() in catalog_item_name.lower()]
+                if similar_items:
+                    analysis['potential_matches'] = [{
+                        'id': item.id,
+                        'name': item.name,
+                        'similarity_reason': 'name_substring_match'
+                    } for item in similar_items[:3]]  # Limit to top 3
+        
+        # Look for potential matches based on deployment name
+        if not analysis['potential_matches'] and deployment_name:
+            name_matches = []
+            for item in catalog_items:
+                item_name_lower = item.name.lower()
+                # Check various name matching strategies
+                if (deployment_name in item_name_lower or 
+                    item_name_lower in deployment_name or
+                    # Check for common prefixes/suffixes
+                    any(word in item_name_lower for word in deployment_name.split() if len(word) > 3)):
+                    
+                    name_matches.append({
+                        'id': item.id,
+                        'name': item.name,
+                        'similarity_reason': 'deployment_name_similarity'
+                    })
+            
+            if name_matches:
+                analysis['potential_matches'] = name_matches[:3]  # Limit to top 3
+                if analysis['primary_reason'] == 'unknown':
+                    analysis['primary_reason'] = 'weak_name_association'
+                    analysis['details'].append('Deployment name suggests possible catalog item association')
+                    analysis['suggestions'].append('Review potential matches to identify the correct catalog item')
+        
+        # If still unknown, provide general analysis
+        if analysis['primary_reason'] == 'unknown':
+            if deployment.get('status') in ['FAILED', 'CREATE_FAILED', 'UPDATE_FAILED']:
+                analysis['primary_reason'] = 'failed_deployment'
+                analysis['details'].append('Deployment failed - may not have been properly linked')
+                analysis['suggestions'].append('Failed deployments sometimes lose catalog associations')
+            else:
+                analysis['primary_reason'] = 'external_creation'
+                analysis['details'].append('Deployment appears to have been created outside service catalog')
+                analysis['suggestions'].append('This may be a direct vRA deployment or imported from another system')
+        
+        return analysis
+    
+    def get_activity_timeline(self, project_id: Optional[str] = None,
                             days_back: int = 30,
                             include_statuses: Optional[List[str]] = None,
                             group_by: str = 'day') -> Dict[str, Any]:
