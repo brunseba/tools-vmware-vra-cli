@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.10', '3.11', '3.12']
         architecture: [x86_64, aarch64]
     
     steps:
@@ -77,7 +77,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.8', '3.12']
+        python-version: ['3.10', '3.12']
     runs-on: ${{ matrix.os }}
     
     steps:
@@ -102,7 +102,7 @@ jobs:
     - name: Test installation
       run: |
         python -c "import vmware_vra_cli; print(vmware_vra_cli.__version__)"
-        vra-cli --version
+        vra --version
 
   publish-pypi:
     if: github.event_name == 'release'
