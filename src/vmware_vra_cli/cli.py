@@ -930,21 +930,32 @@ def catalog_usage_report(ctx, project, include_zero, sort_by, detailed_resources
         summary_table = Table(show_header=False, box=None)
         summary_table.add_column("Metric", style="cyan")
         summary_table.add_column("Value", style="green")
+        summary_table.add_column("Note", style="dim")
         
-        summary_table.add_row("Total Catalog Items", str(total_catalog_items))
-        summary_table.add_row("Active Items (with deployments)", str(len([s for s in original_usage_stats if s['deployment_count'] > 0])))
-        summary_table.add_row("Total Deployments (system-wide)", str(len(all_deployments)))
-        summary_table.add_row("Catalog-linked Deployments", str(total_catalog_deployments))
-        summary_table.add_row("Unlinked Deployments", str(len(all_deployments) - total_catalog_deployments))
-        if not include_zero:
-            summary_table.add_row("Showing Items", str(total_items))
-            summary_table.add_row("Showing Deployments", str(catalog_deployments))
-        summary_table.add_row("Total Resources (estimated)", str(catalog_resources))
+        summary_table.add_row("Total Catalog Items", str(total_catalog_items), "All items in catalog")
+        summary_table.add_row("Active Items (with deployments)", str(len([s for s in original_usage_stats if s['deployment_count'] > 0])), "Items with ≥1 deployment")
+        summary_table.add_row("", "", "")
+        summary_table.add_row("[bold]System-wide Totals[/bold]", "[bold]Count[/bold]", "[bold]Description[/bold]")
+        summary_table.add_row("Total Deployments (all)", str(len(all_deployments)), "All deployments in vRA")
+        summary_table.add_row("Catalog-linked Deployments", str(total_catalog_deployments), "Can match to catalog items")
+        summary_table.add_row("Unlinked Deployments", str(len(all_deployments) - total_catalog_deployments), "Cannot match to catalog items")
+        summary_table.add_row("", "", "")
+        summary_table.add_row("[bold]Table Display[/bold]", "[bold]Count[/bold]", "[bold]Description[/bold]")
+        summary_table.add_row("Items Shown Below", str(total_items), "After filtering" if not include_zero else "All items")
+        summary_table.add_row("Deployments Shown Below", str(catalog_deployments), "Sum of table deployment column")
+        summary_table.add_row("Resources Shown Below", str(catalog_resources), "Sum of table resource column")
         if active_items > 0:
             avg_deployments = catalog_deployments / active_items if not include_zero else total_catalog_deployments / len([s for s in original_usage_stats if s['deployment_count'] > 0])
             summary_table.add_row("Avg Deployments per Active Item", f"{avg_deployments:.1f}")
         
         console.print(summary_table)
+        
+        # Add verification note
+        if catalog_deployments != total_catalog_deployments and not include_zero:
+            console.print(f"\n[yellow]💡 Note: The table below shows {catalog_deployments} deployments from {total_items} filtered catalog items.")
+            console.print(f"[yellow]   {total_catalog_deployments - catalog_deployments} additional deployments come from {total_catalog_items - total_items} catalog items with zero deployments (use --include-zero to see all).[/yellow]")
+        elif catalog_deployments == total_catalog_deployments:
+            console.print(f"\n[green]✅ All {total_catalog_deployments} catalog-linked deployments are shown in the table below.[/green]")
         
         # Detailed table
         console.print("\n[bold green]📋 Detailed Usage Report[/bold green]")
