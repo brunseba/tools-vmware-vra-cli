@@ -13,28 +13,10 @@ import yaml
 
 from vmware_vra_cli.api.catalog import CatalogClient
 from vmware_vra_cli.auth import VRAAuthenticator, TokenManager
+from vmware_vra_cli.config import get_config, save_login_config, config_manager
 from vmware_vra_cli import __version__
 
 console = Console()
-
-# Default configuration
-DEFAULT_CONFIG = {
-    "api_url": "https://vra.example.com",
-    "tenant": "vsphere.local",
-    "verify_ssl": True,
-    "timeout": 30
-}
-
-def get_config() -> Dict[str, Any]:
-    """Get configuration from environment or config file."""
-    config = DEFAULT_CONFIG.copy()
-    
-    # Override with environment variables
-    config["api_url"] = os.getenv("VRA_URL", config["api_url"])
-    config["tenant"] = os.getenv("VRA_TENANT", config["tenant"])
-    config["verify_ssl"] = os.getenv("VRA_VERIFY_SSL", "true").lower() == "true"
-    
-    return config
 
 def get_catalog_client() -> CatalogClient:
     """Get configured catalog client with automatic token refresh."""
@@ -85,14 +67,17 @@ def auth():
 @click.option('--username', prompt=True, help='Username for vRA access')
 @click.option('--password', prompt=True, hide_input=True, help='Password for vRA access')
 @click.option('--url', help='vRA server URL', default=lambda: get_config()["api_url"])
+@click.option('--tenant', help='vRA tenant', default=lambda: get_config()["tenant"])
 @click.option('--domain', help='Domain for multiple identity sources (optional)')
-def login(username, password, url, domain):
+def login(username, password, url, tenant, domain):
     """
     Authenticate to vRA using the two-step procedure.
     
     This implements the official VMware vRA authentication process:
     1. Obtain refresh token from Identity Service API (valid for 90 days)
     2. Exchange refresh token for access token via IaaS API (valid for 8 hours)
+    
+    The URL, tenant, and domain parameters are saved to configuration for future use.
     """
     config = get_config()
     
@@ -107,10 +92,16 @@ def login(username, password, url, domain):
                 tokens['refresh_token']
             )
             
+            # Save configuration parameters for future use
+            save_login_config(api_url=url, tenant=tenant, domain=domain)
+            
             console.print("[bold green]✅ Authentication successful![/bold green]")
             console.print("[green]🔑 Tokens saved securely[/green]")
+            console.print(f"[cyan]💾 Configuration saved: {url}[/cyan]")
+            if tenant:
+                console.print(f"[cyan]🏢 Tenant: {tenant}[/cyan]")
             if domain:
-                console.print(f"[cyan]Domain: {domain}[/cyan]")
+                console.print(f"[cyan]🌐 Domain: {domain}[/cyan]")
             
         except requests.exceptions.RequestException as e:
             console.print(f"[bold red]❌ Authentication failed: {e}[/bold red]")
@@ -153,6 +144,116 @@ def refresh():
         console.print("[green]✅ Access token refreshed successfully[/green]")
     else:
         console.print("[red]❌ Failed to refresh token. Please login again.[/red]")
+
+# Configuration commands
+@main.group()
+def config():
+    """Configuration management operations."""
+    pass
+
+@config.command('show')
+@click.pass_context
+def show_config(ctx):
+    """Show current configuration."""
+    current_config = get_config()
+    
+    if ctx.obj['format'] == 'table':
+        table = Table(title="VMware vRA CLI Configuration")
+        table.add_column("Setting", style="cyan")
+        table.add_column("Value", style="green")
+        table.add_column("Source", style="yellow")
+        
+        # Check which values come from environment vs config file
+        for key, value in current_config.items():
+            env_key = f"VRA_{key.upper()}"
+            if key == "api_url":
+                env_key = "VRA_URL"
+            
+            source = "Default"
+            if os.getenv(env_key):
+                source = f"Environment ({env_key})"
+            elif config_manager.config_file.exists():
+                try:
+                    with open(config_manager.config_file, 'r') as f:
+                        file_config = json.load(f)
+                    if key in file_config:
+                        source = "Config file"
+                except Exception:
+                    pass
+            
+            # Mask sensitive or long values
+            display_value = str(value) if value is not None else "Not set"
+            if key == "domain" and not value:
+                display_value = "Not set"
+                
+            table.add_row(key.replace('_', ' ').title(), display_value, source)
+        
+        console.print(table)
+        console.print(f"\n[dim]Config file: {config_manager.config_file}[/dim]")
+        
+    elif ctx.obj['format'] == 'json':
+        console.print(json.dumps(current_config, indent=2))
+    elif ctx.obj['format'] == 'yaml':
+        console.print(yaml.dump(current_config, default_flow_style=False))
+
+@config.command('set')
+@click.argument('key')
+@click.argument('value')
+def set_config_value(key, value):
+    """Set a configuration value.
+    
+    Examples:
+        vra config set api_url https://vra.company.com
+        vra config set tenant mydomain.local
+        vra config set verify_ssl false
+    """
+    # Handle boolean values
+    if key == "verify_ssl":
+        value = value.lower() == "true"
+    elif key == "timeout":
+        try:
+            value = int(value)
+        except ValueError:
+            console.print(f"[red]❌ Invalid timeout value: {value}[/red]")
+            raise click.Abort()
+    
+    config_manager.set_config_value(key, value)
+    console.print(f"[green]✅ Configuration updated: {key} = {value}[/green]")
+    console.print(f"[dim]Saved to: {config_manager.config_file}[/dim]")
+
+@config.command('reset')
+@click.option('--confirm', is_flag=True, help='Skip confirmation prompt')
+def reset_config(confirm):
+    """Reset configuration to defaults."""
+    if not confirm:
+        if not click.confirm("Are you sure you want to reset all configuration to defaults?"):
+            return
+    
+    config_manager.reset_config()
+    console.print("[green]✅ Configuration reset to defaults[/green]")
+    console.print(f"[dim]Config file removed: {config_manager.config_file}[/dim]")
+
+@config.command('edit')
+def edit_config():
+    """Edit configuration file in default editor."""
+    import subprocess
+    
+    # Ensure config file exists
+    if not config_manager.config_file.exists():
+        config_manager.save_config(config_manager.DEFAULT_CONFIG)
+    
+    editor = os.getenv('EDITOR', 'nano' if os.name != 'nt' else 'notepad')
+    
+    try:
+        subprocess.run([editor, str(config_manager.config_file)], check=True)
+        console.print(f"[green]✅ Configuration file edited[/green]")
+        console.print(f"[dim]File: {config_manager.config_file}[/dim]")
+    except subprocess.CalledProcessError:
+        console.print(f"[red]❌ Failed to open editor: {editor}[/red]")
+        console.print(f"[dim]You can manually edit: {config_manager.config_file}[/dim]")
+    except FileNotFoundError:
+        console.print(f"[red]❌ Editor not found: {editor}[/red]")
+        console.print(f"[dim]Set EDITOR environment variable or manually edit: {config_manager.config_file}[/dim]")
 
 # Service Catalog commands
 @main.group()
