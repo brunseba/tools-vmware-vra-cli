@@ -1,0 +1,171 @@
+name: Build and Publish Python Wheels
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  release:
+    types: [published]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+
+    - name: Build wheel and source distribution
+      run: |
+        python -m build
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: wheels-${{ matrix.os }}-${{ matrix.python-version }}
+        path: dist/*
+        retention-days: 7
+
+  build-cross-platform:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        architecture: [x86_64, aarch64]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up QEMU for cross-platform builds
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: arm64
+    
+    - name: Build wheels with cibuildwheel
+      uses: pypa/cibuildwheel@v2.16.2
+      env:
+        CIBW_BUILD: cp${{ matrix.python-version }}-*
+        CIBW_ARCHS: ${{ matrix.architecture }}
+        CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_i686"
+        CIBW_TEST_COMMAND: "python -c 'import vmware_vra_cli; print(vmware_vra_cli.__version__)'"
+    
+    - name: Upload cross-platform wheels
+      uses: actions/upload-artifact@v4
+      with:
+        name: wheels-cross-${{ matrix.architecture }}-cp${{ matrix.python-version }}
+        path: wheelhouse/*.whl
+        retention-days: 7
+
+  test:
+    needs: [build]
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.12']
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: wheels-${{ matrix.os }}-${{ matrix.python-version }}
+        path: dist/
+    
+    - name: Install wheel
+      run: |
+        python -m pip install --upgrade pip
+        pip install dist/*.whl
+    
+    - name: Test installation
+      run: |
+        python -c "import vmware_vra_cli; print(vmware_vra_cli.__version__)"
+        vra-cli --version
+
+  publish-pypi:
+    if: github.event_name == 'release'
+    needs: [build, build-cross-platform, test]
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts/
+    
+    - name: Collect all wheels
+      run: |
+        mkdir -p dist/
+        find artifacts/ -name "*.whl" -exec cp {} dist/ \;
+        find artifacts/ -name "*.tar.gz" -exec cp {} dist/ \;
+        ls -la dist/
+    
+    - name: Remove duplicates
+      run: |
+        cd dist/
+        # Keep only one source distribution
+        ls -1 *.tar.gz | tail -n +2 | xargs rm -f || true
+        # Remove duplicate wheels (keep the first occurrence)
+        for wheel in $(ls *.whl | cut -d'-' -f1-2 | sort | uniq); do
+          ls -1 ${wheel}*.whl | tail -n +2 | xargs rm -f || true
+        done
+        ls -la
+    
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        skip-existing: true
+
+  publish-github:
+    if: github.event_name == 'release'
+    needs: [build, build-cross-platform, test]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts/
+    
+    - name: Collect all wheels for GitHub release
+      run: |
+        mkdir -p release-assets/
+        find artifacts/ -name "*.whl" -exec cp {} release-assets/ \;
+        find artifacts/ -name "*.tar.gz" -exec cp {} release-assets/ \;
+        ls -la release-assets/
+    
+    - name: Upload release assets
+      uses: softprops/action-gh-release@v1
+      with:
+        files: release-assets/*
+        generate_release_notes: true
+
