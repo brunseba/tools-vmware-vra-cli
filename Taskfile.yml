@@ -1,0 +1,243 @@
+version: '3'
+
+vars:
+  PYTHON_VERSION: "3.10"
+  PROJECT_NAME: "vmware-vra-cli"
+  REPO_NAME: "brunseba/tools-vmware-vra-cli"
+  DOCS_PORT: "8000"
+
+tasks:
+  default:
+    desc: Show available tasks
+    silent: true
+    cmds:
+      - task --list
+
+  # Development Environment Setup
+  setup:
+    desc: Setup development environment with uv
+    cmds:
+      - echo "Setting up development environment..."
+      - uv sync --extra dev --extra docs
+      - uv run pre-commit install
+      - echo "✅ Development environment ready!"
+
+  clean:
+    desc: Clean build artifacts and cache files
+    cmds:
+      - rm -rf build/
+      - rm -rf dist/
+      - rm -rf *.egg-info/
+      - rm -rf .pytest_cache/
+      - rm -rf htmlcov/
+      - rm -rf .coverage
+      - find . -type d -name __pycache__ -delete
+      - echo "✅ Cleaned build artifacts"
+
+  # Code Quality
+  format:
+    desc: Format code with black and isort
+    cmds:
+      - echo "Formatting code..."
+      - uv run black src/ tests/
+      - uv run isort src/ tests/
+      - echo "✅ Code formatted"
+
+  lint:
+    desc: Run linting checks
+    cmds:
+      - echo "Running linting checks..."
+      - uv run flake8 src/ tests/
+      - uv run mypy src/
+      - echo "✅ Linting completed"
+
+  check:
+    desc: Run all code quality checks
+    deps: [format, lint]
+    cmds:
+      - echo "✅ All code quality checks passed"
+
+  # Testing
+  test:
+    desc: Run tests with coverage
+    cmds:
+      - echo "Running tests..."
+      - uv run pytest --cov=src --cov-report=term-missing --cov-report=html
+      - echo "✅ Tests completed"
+
+  test:unit:
+    desc: Run unit tests only
+    cmds:
+      - uv run pytest tests/ -k "not integration"
+
+  test:integration:
+    desc: Run integration tests only
+    cmds:
+      - uv run pytest tests/ -k "integration"
+
+  test:watch:
+    desc: Run tests in watch mode
+    cmds:
+      - uv run pytest-watch
+
+  # Pre-commit hooks
+  pre-commit:
+    desc: Run pre-commit hooks on all files
+    cmds:
+      - uv run pre-commit run --all-files
+
+  pre-commit:update:
+    desc: Update pre-commit hooks
+    cmds:
+      - uv run pre-commit autoupdate
+
+  # Documentation
+  docs:serve:
+    desc: Serve documentation locally
+    cmds:
+      - echo "Starting documentation server on http://localhost:{{.DOCS_PORT}}"
+      - uv run mkdocs serve --dev-addr localhost:{{.DOCS_PORT}}
+
+  docs:build:
+    desc: Build documentation
+    cmds:
+      - echo "Building documentation..."
+      - uv run mkdocs build
+      - echo "✅ Documentation built in site/"
+
+  docs:deploy:
+    desc: Deploy documentation to GitHub Pages
+    cmds:
+      - echo "Deploying documentation to GitHub Pages..."
+      - uv run mkdocs gh-deploy --force
+      - echo "✅ Documentation deployed"
+
+  # Package Management
+  build:
+    desc: Build Python package
+    deps: [clean]
+    cmds:
+      - echo "Building package..."
+      - uv build
+      - echo "✅ Package built in dist/"
+
+  publish:test:
+    desc: Publish package to TestPyPI
+    deps: [build]
+    cmds:
+      - echo "Publishing to TestPyPI..."
+      - uv publish --repository testpypi
+      - echo "✅ Published to TestPyPI"
+
+  publish:
+    desc: Publish package to PyPI
+    deps: [build]
+    cmds:
+      - echo "Publishing to PyPI..."
+      - uv publish
+      - echo "✅ Published to PyPI"
+
+  # GitHub Management
+  labels:create:
+    desc: Create GitHub labels for conventional commits
+    cmds:
+      - echo "Creating GitHub labels..."
+      - ./create_labels.sh
+      - echo "✅ GitHub labels created"
+
+  repo:setup:
+    desc: Setup GitHub repository with labels and settings
+    deps: [labels:create]
+    cmds:
+      - echo "Repository setup completed"
+
+  # Release Management
+  version:patch:
+    desc: Bump patch version
+    cmds:
+      - echo "Bumping patch version..."
+      - uv run bump2version patch
+      - echo "✅ Patch version bumped"
+
+  version:minor:
+    desc: Bump minor version
+    cmds:
+      - echo "Bumping minor version..."
+      - uv run bump2version minor
+      - echo "✅ Minor version bumped"
+
+  version:major:
+    desc: Bump major version
+    cmds:
+      - echo "Bumping major version..."
+      - uv run bump2version major
+      - echo "✅ Major version bumped"
+
+  release:
+    desc: Create a new release (build, tag, and push)
+    deps: [test, build]
+    cmds:
+      - echo "Creating release..."
+      - git push origin main
+      - git push --tags
+      - echo "✅ Release created"
+
+  # CLI Testing
+  cli:install:
+    desc: Install CLI in development mode
+    cmds:
+      - uv pip install -e .
+      - echo "✅ CLI installed in development mode"
+
+  cli:test:
+    desc: Test CLI commands
+    cmds:
+      - echo "Testing CLI installation..."
+      - vra --help
+      - echo "✅ CLI working correctly"
+
+  # Docker (if needed for integration tests)
+  docker:build:
+    desc: Build Docker image for testing
+    cmds:
+      - docker build -t {{.PROJECT_NAME}}:latest .
+
+  docker:test:
+    desc: Run tests in Docker container
+    cmds:
+      - docker run --rm -v $(pwd):/workspace {{.PROJECT_NAME}}:latest pytest
+
+  # Maintenance
+  deps:update:
+    desc: Update dependencies
+    cmds:
+      - echo "Updating dependencies..."
+      - uv sync --upgrade
+      - echo "✅ Dependencies updated"
+
+  security:check:
+    desc: Run security checks
+    cmds:
+      - echo "Running security checks..."
+      - uv run safety check
+      - uv run bandit -r src/
+      - echo "✅ Security checks completed"
+
+  # All-in-one tasks
+  ci:
+    desc: Run all CI checks (format, lint, test)
+    deps: [format, lint, test]
+    cmds:
+      - echo "✅ All CI checks passed"
+
+  dev:
+    desc: Setup development environment and run checks
+    deps: [setup, ci]
+    cmds:
+      - echo "✅ Development environment ready and validated"
+
+  full-check:
+    desc: Run comprehensive checks before release
+    deps: [clean, format, lint, test, docs:build, build]
+    cmds:
+      - echo "✅ All checks passed - ready for release"
