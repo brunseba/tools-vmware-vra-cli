@@ -855,3 +855,210 @@ class CatalogClient:
             usage_stats.append(stats)
         
         return usage_stats
+    
+    def get_activity_timeline(self, project_id: Optional[str] = None, 
+                            days_back: int = 30,
+                            include_statuses: Optional[List[str]] = None) -> Dict[str, Any]:
+        """Get deployment activity timeline for analytics.
+        
+        This method provides a timeline view of deployment activity, showing
+        patterns of usage over time including creation, updates, and failures.
+        
+        Args:
+            project_id: Optional project ID to filter deployments
+            days_back: Number of days to look back for activity (default: 30)
+            include_statuses: List of deployment statuses to include (default: all)
+            
+        Returns:
+            Dictionary containing timeline data with dates, activity counts, and trends
+        """
+        from datetime import datetime, timedelta
+        from collections import defaultdict
+        import re
+        
+        # Get deployments
+        deployments = self.list_deployments(project_id=project_id)
+        
+        # Calculate date range
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=days_back)
+        
+        # Parse deployment timestamps and organize by date
+        daily_activity = defaultdict(lambda: {
+            'total_deployments': 0,
+            'successful_deployments': 0,
+            'failed_deployments': 0,
+            'in_progress_deployments': 0,
+            'catalog_items': set(),
+            'projects': set(),
+            'deployments': []
+        })
+        
+        # Track catalog item activity
+        catalog_item_timeline = defaultdict(lambda: defaultdict(int))
+        hourly_activity = defaultdict(int)
+        status_timeline = defaultdict(lambda: defaultdict(int))
+        
+        total_deployments = 0
+        successful_deployments = 0
+        failed_deployments = 0
+        in_progress_deployments = 0
+        
+        success_statuses = ['CREATE_SUCCESSFUL', 'UPDATE_SUCCESSFUL', 'SUCCESSFUL']
+        failed_statuses = ['CREATE_FAILED', 'UPDATE_FAILED', 'FAILED']
+        progress_statuses = ['CREATE_INPROGRESS', 'UPDATE_INPROGRESS', 'INPROGRESS']
+        
+        if include_statuses is None:
+            include_statuses = success_statuses + failed_statuses + progress_statuses + ['DELETED', 'ABORTED']
+        
+        for deployment in deployments:
+            # Parse creation timestamp
+            created_at_str = deployment.get('createdAt', '')
+            if not created_at_str:
+                continue
+                
+            try:
+                # Handle ISO format with timezone
+                # Remove timezone info for simpler parsing
+                clean_timestamp = re.sub(r'\+\d{2}:\d{2}$|Z$', '', created_at_str)
+                if '.' in clean_timestamp:
+                    # Handle microseconds
+                    clean_timestamp = clean_timestamp.split('.')[0]
+                
+                created_at = datetime.fromisoformat(clean_timestamp)
+                
+                # Skip deployments outside our date range
+                if created_at < start_date or created_at > end_date:
+                    continue
+                    
+                status = deployment.get('status', 'UNKNOWN')
+                if status not in include_statuses:
+                    continue
+                    
+                date_key = created_at.strftime('%Y-%m-%d')
+                hour_key = created_at.strftime('%H')
+                
+                # Daily activity
+                daily_activity[date_key]['total_deployments'] += 1
+                daily_activity[date_key]['deployments'].append({
+                    'id': deployment.get('id'),
+                    'name': deployment.get('name'),
+                    'status': status,
+                    'catalog_item': deployment.get('catalogItemName', 'Unknown'),
+                    'time': created_at.strftime('%H:%M:%S')
+                })
+                
+                # Track catalog items and projects
+                if deployment.get('catalogItemName'):
+                    daily_activity[date_key]['catalog_items'].add(deployment.get('catalogItemName'))
+                if deployment.get('projectId'):
+                    daily_activity[date_key]['projects'].add(deployment.get('projectId'))
+                
+                # Status-based counting
+                if status in success_statuses:
+                    daily_activity[date_key]['successful_deployments'] += 1
+                    successful_deployments += 1
+                elif status in failed_statuses:
+                    daily_activity[date_key]['failed_deployments'] += 1
+                    failed_deployments += 1
+                elif status in progress_statuses:
+                    daily_activity[date_key]['in_progress_deployments'] += 1
+                    in_progress_deployments += 1
+                
+                # Catalog item timeline
+                catalog_item_name = deployment.get('catalogItemName', 'Unknown')
+                catalog_item_timeline[catalog_item_name][date_key] += 1
+                
+                # Hourly distribution
+                hourly_activity[hour_key] += 1
+                
+                # Status timeline
+                status_timeline[status][date_key] += 1
+                
+                total_deployments += 1
+                
+            except Exception as e:
+                # Skip deployments with invalid timestamps
+                if self.verbose:
+                    print(f"Warning: Could not parse timestamp '{created_at_str}': {e}")
+                continue
+        
+        # Convert sets to counts for JSON serialization
+        for date_data in daily_activity.values():
+            date_data['unique_catalog_items'] = len(date_data['catalog_items'])
+            date_data['unique_projects'] = len(date_data['projects'])
+            date_data['catalog_items'] = list(date_data['catalog_items'])
+            date_data['projects'] = list(date_data['projects'])
+        
+        # Generate date range for missing days (fill gaps with zero activity)
+        current_date = start_date
+        while current_date <= end_date:
+            date_key = current_date.strftime('%Y-%m-%d')
+            if date_key not in daily_activity:
+                daily_activity[date_key] = {
+                    'total_deployments': 0,
+                    'successful_deployments': 0,
+                    'failed_deployments': 0,
+                    'in_progress_deployments': 0,
+                    'unique_catalog_items': 0,
+                    'unique_projects': 0,
+                    'catalog_items': [],
+                    'projects': [],
+                    'deployments': []
+                }
+            current_date += timedelta(days=1)
+        
+        # Calculate trends and insights
+        sorted_dates = sorted(daily_activity.keys())
+        if len(sorted_dates) >= 2:
+            recent_activity = sum(daily_activity[date]['total_deployments'] 
+                               for date in sorted_dates[-7:])  # Last 7 days
+            previous_activity = sum(daily_activity[date]['total_deployments'] 
+                                 for date in sorted_dates[-14:-7])  # Previous 7 days
+            
+            trend = 'increasing' if recent_activity > previous_activity else 'decreasing' if recent_activity < previous_activity else 'stable'
+            trend_percentage = ((recent_activity - previous_activity) / max(previous_activity, 1)) * 100
+        else:
+            trend = 'insufficient_data'
+            trend_percentage = 0
+        
+        # Find peak activity day
+        peak_day = max(daily_activity.keys(), key=lambda d: daily_activity[d]['total_deployments'])
+        peak_activity = daily_activity[peak_day]['total_deployments']
+        
+        # Find most active hour
+        if hourly_activity:
+            peak_hour = max(hourly_activity.keys(), key=hourly_activity.get)
+            peak_hour_count = hourly_activity[peak_hour]
+        else:
+            peak_hour = 'N/A'
+            peak_hour_count = 0
+        
+        # Calculate success rate
+        success_rate = (successful_deployments / max(total_deployments, 1)) * 100
+        
+        return {
+            'summary': {
+                'period_days': days_back,
+                'start_date': start_date.strftime('%Y-%m-%d'),
+                'end_date': end_date.strftime('%Y-%m-%d'),
+                'total_deployments': total_deployments,
+                'successful_deployments': successful_deployments,
+                'failed_deployments': failed_deployments,
+                'in_progress_deployments': in_progress_deployments,
+                'success_rate': round(success_rate, 1),
+                'trend': trend,
+                'trend_percentage': round(trend_percentage, 1),
+                'peak_activity_day': peak_day,
+                'peak_activity_count': peak_activity,
+                'peak_hour': f"{peak_hour}:00" if peak_hour != 'N/A' else peak_hour,
+                'peak_hour_count': peak_hour_count,
+                'unique_catalog_items': len(set(d.get('catalogItemName', 'Unknown') 
+                                              for d in deployments if d.get('catalogItemName'))),
+                'unique_projects': len(set(d.get('projectId') for d in deployments if d.get('projectId')))
+            },
+            'daily_activity': dict(daily_activity),
+            'catalog_item_timeline': dict(catalog_item_timeline),
+            'hourly_distribution': dict(hourly_activity),
+            'status_timeline': dict(status_timeline)
+        }

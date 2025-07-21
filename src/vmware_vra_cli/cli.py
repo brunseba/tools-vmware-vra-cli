@@ -762,6 +762,75 @@ def report():
     """Generate reports and analytics."""
     pass
 
+@report.command('activity-timeline')
+@click.option('--project', help='Filter by project ID')
+@click.option('--days-back', type=int, default=30, help='Days back for activity timeline (default: 30)')
+@click.option('--statuses', help='Comma-separated list of statuses to include (default: all)',
+              default='CREATE_SUCCESSFUL,UPDATE_SUCCESSFUL,SUCCESSFUL,CREATE_FAILED,UPDATE_FAILED,FAILED,CREATE_INPROGRESS,UPDATE_INPROGRESS,INPROGRESS')
+@click.pass_context
+def activity_timeline_report(ctx, project, days_back, statuses):
+    """Generate an activity timeline for service catalog items.
+    
+    This timeline provides a historical view of deployment activities over a specified period,
+    allowing you to see patterns, peak activity periods, and trends.
+    """
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
+    
+    console.print("[bold blue]📈 Generating Activity Timeline Report...[/bold blue]")
+    
+    # Convert status string to list
+    include_statuses = [status.strip().upper() for status in statuses.split(',')]
+    
+    with console.status("[bold green]Analyzing activity timeline..."):
+        timeline_data = client.get_activity_timeline(
+            project_id=project, 
+            days_back=days_back, 
+            include_statuses=include_statuses
+        )
+    
+    # Display results
+    if ctx.obj['format'] == 'table':
+        # Summary statistics
+        summary = timeline_data['summary']
+        console.print("\n[bold green]📊 Summary Statistics[/bold green]")
+        summary_table = Table(show_header=False, box=None)
+        summary_table.add_column("Metric", style="cyan")
+        summary_table.add_column("Value", style="green")
+        
+        for key, value in summary.items():
+            summary_table.add_row(key.replace('_', ' ').title(), str(value))
+        
+        console.print(summary_table)
+        
+        # Daily activity table
+        console.print("\n[bold green]📅 Daily Activity[/bold green]")
+        daily_table = Table(title="Daily Deployment Activity")
+        daily_table.add_column("Date", style="blue")
+        daily_table.add_column("Deployments", style="cyan", justify="right")
+        daily_table.add_column("Success", style="green", justify="right")
+        daily_table.add_column("Failed", style="red", justify="right")
+        daily_table.add_column("In Progress", style="yellow", justify="right")
+        daily_table.add_column("Unique Items", style="magenta", justify="right")
+        daily_table.add_column("Unique Projects", style="white", justify="right")
+        
+        for date, data in sorted(timeline_data['daily_activity'].items()):
+            daily_table.add_row(
+                date,
+                str(data['total_deployments']),
+                str(data['successful_deployments']),
+                str(data['failed_deployments']),
+                str(data['in_progress_deployments']),
+                str(data['unique_catalog_items']),
+                str(data['unique_projects'])
+            )
+        
+        console.print(daily_table)
+        
+    elif ctx.obj['format'] == 'json':
+        console.print(json.dumps(timeline_data, indent=2))
+    elif ctx.obj['format'] == 'yaml':
+        console.print(yaml.dump(timeline_data, default_flow_style=False))
+
 @report.command('catalog-usage')
 @click.option('--project', help='Filter by project ID')
 @click.option('--include-zero', is_flag=True, help='Include catalog items with zero deployments')
@@ -795,6 +864,9 @@ def catalog_usage_report(ctx, project, include_zero, sort_by, detailed_resources
             project_id=project, 
             fetch_resource_counts=detailed_resources
         )
+        
+        # Also get total deployment count for accurate summary
+        all_deployments = client.list_deployments(project_id=project)
     
     # Filter out zero deployments unless requested
     if not include_zero:
@@ -807,26 +879,39 @@ def catalog_usage_report(ctx, project, include_zero, sort_by, detailed_resources
         usage_stats.sort(key=lambda x: x['resource_count'], reverse=True)
     elif sort_by == 'name':
         usage_stats.sort(key=lambda x: x['catalog_item'].name.lower())
-    
+        
     # Display results
     if ctx.obj['format'] == 'table':
         # Summary statistics
-        total_deployments = sum(stat['deployment_count'] for stat in usage_stats)
-        total_resources = sum(stat['resource_count'] for stat in usage_stats)
+        catalog_deployments = sum(stat['deployment_count'] for stat in usage_stats)
+        catalog_resources = sum(stat['resource_count'] for stat in usage_stats)
         total_items = len(usage_stats)
         active_items = len([s for s in usage_stats if s['deployment_count'] > 0])
+        
+        # Get original stats before filtering for accurate totals
+        original_usage_stats = client.get_catalog_usage_stats(
+            project_id=project, 
+            fetch_resource_counts=False  # Use fast estimation for totals
+        )
+        total_catalog_deployments = sum(stat['deployment_count'] for stat in original_usage_stats)
+        total_catalog_items = len(original_usage_stats)
         
         console.print("\n[bold green]📈 Summary Statistics[/bold green]")
         summary_table = Table(show_header=False, box=None)
         summary_table.add_column("Metric", style="cyan")
         summary_table.add_column("Value", style="green")
         
-        summary_table.add_row("Total Catalog Items", str(total_items))
-        summary_table.add_row("Active Items (with deployments)", str(active_items))
-        summary_table.add_row("Total Deployments", str(total_deployments))
-        summary_table.add_row("Total Resources (estimated)", str(total_resources))
+        summary_table.add_row("Total Catalog Items", str(total_catalog_items))
+        summary_table.add_row("Active Items (with deployments)", str(len([s for s in original_usage_stats if s['deployment_count'] > 0])))
+        summary_table.add_row("Total Deployments (system-wide)", str(len(all_deployments)))
+        summary_table.add_row("Catalog-linked Deployments", str(total_catalog_deployments))
+        summary_table.add_row("Unlinked Deployments", str(len(all_deployments) - total_catalog_deployments))
+        if not include_zero:
+            summary_table.add_row("Showing Items", str(total_items))
+            summary_table.add_row("Showing Deployments", str(catalog_deployments))
+        summary_table.add_row("Total Resources (estimated)", str(catalog_resources))
         if active_items > 0:
-            avg_deployments = total_deployments / active_items
+            avg_deployments = catalog_deployments / active_items if not include_zero else total_catalog_deployments / len([s for s in original_usage_stats if s['deployment_count'] > 0])
             summary_table.add_row("Avg Deployments per Active Item", f"{avg_deployments:.1f}")
         
         console.print(summary_table)
@@ -862,12 +947,22 @@ def catalog_usage_report(ctx, project, include_zero, sort_by, detailed_resources
         console.print(table)
         
     elif ctx.obj['format'] == 'json':
+        # Get original stats for accurate totals in JSON output
+        original_usage_stats = client.get_catalog_usage_stats(
+            project_id=project, 
+            fetch_resource_counts=False
+        )
+        
         # Convert to JSON-serializable format
         json_data = {
             'summary': {
-                'total_catalog_items': len(usage_stats),
-                'active_items': len([s for s in usage_stats if s['deployment_count'] > 0]),
-                'total_deployments': sum(stat['deployment_count'] for stat in usage_stats),
+                'total_catalog_items': len(original_usage_stats),
+                'active_items': len([s for s in original_usage_stats if s['deployment_count'] > 0]),
+                'total_deployments_system_wide': len(all_deployments),
+                'catalog_linked_deployments': sum(stat['deployment_count'] for stat in original_usage_stats),
+                'unlinked_deployments': len(all_deployments) - sum(stat['deployment_count'] for stat in original_usage_stats),
+                'showing_items': len(usage_stats),
+                'showing_deployments': sum(stat['deployment_count'] for stat in usage_stats),
                 'total_resources': sum(stat['resource_count'] for stat in usage_stats)
             },
             'catalog_items': [
@@ -889,12 +984,22 @@ def catalog_usage_report(ctx, project, include_zero, sort_by, detailed_resources
         console.print(json.dumps(json_data, indent=2))
     
     elif ctx.obj['format'] == 'yaml':
+        # Get original stats for accurate totals in YAML output  
+        original_usage_stats = client.get_catalog_usage_stats(
+            project_id=project, 
+            fetch_resource_counts=False
+        )
+        
         # Convert to YAML format
         yaml_data = {
             'summary': {
-                'total_catalog_items': len(usage_stats),
-                'active_items': len([s for s in usage_stats if s['deployment_count'] > 0]),
-                'total_deployments': sum(stat['deployment_count'] for stat in usage_stats),
+                'total_catalog_items': len(original_usage_stats),
+                'active_items': len([s for s in original_usage_stats if s['deployment_count'] > 0]),
+                'total_deployments_system_wide': len(all_deployments),
+                'catalog_linked_deployments': sum(stat['deployment_count'] for stat in original_usage_stats),
+                'unlinked_deployments': len(all_deployments) - sum(stat['deployment_count'] for stat in original_usage_stats),
+                'showing_items': len(usage_stats),
+                'showing_deployments': sum(stat['deployment_count'] for stat in usage_stats),
                 'total_resources': sum(stat['resource_count'] for stat in usage_stats)
             },
             'catalog_items': [
