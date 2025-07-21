@@ -13,8 +13,10 @@ A powerful Python CLI tool to interact with VMware vRealize Automation 8 via RES
     - **Authentication Management**: Secure authentication with vRA 8 using bearer tokens
     - **Service Catalog Management**: Access and request catalog items programmatically
     - **Deployment Lifecycle**: Create, manage, and destroy deployments through the CLI
+    - **Deployment Export**: Export all deployments grouped by catalog item for backup, migration, and analytics
     - **Tag Management**: Comprehensive tagging system for resource organization and governance
     - **Workflow Operations**: Execute and monitor vRealize Orchestrator workflows
+    - **Analytics & Reporting**: Generate usage reports, activity timelines, and unsynced deployment analysis
     - **Configuration Management**: Flexible configuration options with environment variables and config files
     - **Rich Output**: Beautiful terminal output with colors and progress indicators
     - **Secure Credential Storage**: Integration with system keyring for secure credential management

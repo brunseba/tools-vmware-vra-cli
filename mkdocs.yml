@@ -99,7 +99,10 @@ nav:
     - Authentication: user-guide/authentication.md
     - Service Catalog: user-guide/service-catalog.md
     - Tag Management: user-guide/tag-management.md
-    - API Reference: user-guide/api-reference.md
+    - Deployment Export: user-guide/deployment-export.md
+    - CLI Reference: user-guide/cli-reference.md
+    - Practical Examples: user-guide/examples.md
+    - Troubleshooting: user-guide/troubleshooting.md
   - Developer Guide:
     - Contributing: developer-guide/contributing.md
     - Architecture: developer-guide/architecture.md

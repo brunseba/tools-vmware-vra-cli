@@ -77,7 +77,39 @@ vra deployment delete 5C<deployment-id5C> --confirm
 View deployment resources:
 
 ```bash
-vra deployment resources 5C<deployment-id5C>
+vra deployment resources <deployment-id>
+```
+
+### Export All Deployments
+
+**NEW in v0.9.0**: Export all deployments grouped by catalog item:
+
+```bash
+vra deployment export-all
+```
+
+This powerful command exports all your deployments organized by catalog item to separate JSON files, making it perfect for:
+- **Backup and recovery** operations
+- **Migration planning** between environments
+- **Audit and compliance** reporting
+- **Usage analytics** and optimization
+
+For comprehensive documentation, see the [Deployment Export Guide](deployment-export.md).
+
+**Quick Examples:**
+
+```bash
+# Basic export to ./exports directory
+vra deployment export-all
+
+# Export with detailed resource information
+vra deployment export-all --include-resources
+
+# Export specific project to custom directory
+vra deployment export-all --project dev-project-123 --output-dir /backup/vra
+
+# Export excluding unsynced deployments
+vra deployment export-all --no-unsynced
 ```
 
 ## Configuration and Best Practices
