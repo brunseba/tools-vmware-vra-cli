@@ -75,25 +75,43 @@ class CatalogClient:
         })
         self.session.verify = verify_ssl
     
-    def list_catalog_items(self, project_id: Optional[str] = None) -> List[CatalogItem]:
+    def list_catalog_items(self, project_id: Optional[str] = None, page_size: int = 100, fetch_all: bool = True) -> List[CatalogItem]:
         """List available catalog items.
         
         Args:
             project_id: Optional project ID to filter items
+            page_size: Number of items per page (default: 100, max: 2000)
+            fetch_all: Whether to fetch all pages or just the first page (default: True)
             
         Returns:
             List of catalog items
         """
         url = f"{self.base_url}/catalog/api/items"
-        params = {}
-        if project_id:
-            params['projectId'] = project_id
-            
-        response = self.session.get(url, params=params)
-        response.raise_for_status()
+        all_items = []
+        page = 0
         
-        data = response.json()
-        return [CatalogItem(**item) for item in data.get('content', [])]
+        while True:
+            params = {
+                'page': page,
+                'size': min(page_size, 2000)  # vRA typically has a max page size limit
+            }
+            if project_id:
+                params['projectId'] = project_id
+                
+            response = self.session.get(url, params=params)
+            response.raise_for_status()
+            
+            data = response.json()
+            items = [CatalogItem(**item) for item in data.get('content', [])]
+            all_items.extend(items)
+            
+            # Check if this is the last page or if we only want the first page
+            if not fetch_all or data.get('last', True) or len(items) == 0:
+                break
+                
+            page += 1
+        
+        return all_items
     
     def get_catalog_item(self, item_id: str) -> CatalogItem:
         """Get details of a specific catalog item.

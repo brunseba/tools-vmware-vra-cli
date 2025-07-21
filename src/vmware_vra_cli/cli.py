@@ -263,16 +263,34 @@ def catalog():
 
 @catalog.command('list')
 @click.option('--project', help='Filter by project ID')
+@click.option('--page-size', type=int, default=100, help='Number of items per page (default: 100, max: 2000)')
+@click.option('--first-page-only', is_flag=True, help='Fetch only the first page instead of all items')
 @click.pass_context
-def list_catalog_items(ctx, project):
-    """List available catalog items."""
+def list_catalog_items(ctx, project, page_size, first_page_only):
+    """List available catalog items.
+    
+    By default, this command fetches all catalog items across all pages.
+    Use --first-page-only to limit to just the first page for faster results.
+    """
     client = get_catalog_client()
     
-    with console.status("[bold blue]Fetching catalog items..."):
-        items = client.list_catalog_items(project_id=project)
+    status_msg = "[bold blue]Fetching catalog items..."  
+    if not first_page_only:
+        status_msg += " (all pages)"
+    
+    with console.status(status_msg):
+        items = client.list_catalog_items(
+            project_id=project, 
+            page_size=page_size,
+            fetch_all=not first_page_only
+        )
     
     if ctx.obj['format'] == 'table':
-        table = Table(title="Service Catalog Items")
+        table_title = f"Service Catalog Items ({len(items)} items)"
+        if first_page_only:
+            table_title += " - First Page Only"
+        
+        table = Table(title=table_title)
         table.add_column("ID", style="cyan")
         table.add_column("Name", style="green")
         table.add_column("Type", style="yellow")
