@@ -387,12 +387,12 @@ def export_all_schemas(ctx, project, output_dir, format_type):
     console.print(f"  Items failed to export: {export_summary['statistics']['failed_exports']}")
     console.print(f"  Items without schemas: {export_summary['statistics']['items_without_schema']}")
     
-    if export_summary['statistics']['failed_exports']  3e 0:
+    if export_summary['statistics']['failed_exports'] > 0:
         console.print("\n[red]Failed export details:[/red]")
         for failure in export_summary['failed_items']:
             console.print(f"  - {failure['name']} (ID: {failure['id']}): {failure['error']}")
 
-    if export_summary['statistics']['items_without_schema']  3e 0:
+    if export_summary['statistics']['items_without_schema'] > 0:
         console.print("\n[yellow]Items without schema details:[/yellow]")
         for item in export_summary['items_without_schema']:
             console.print(f"  - {item['name']} (ID: {item['id']}): {item['reason']}")
