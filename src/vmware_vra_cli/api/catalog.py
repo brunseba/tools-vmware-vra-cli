@@ -214,28 +214,47 @@ class CatalogClient:
         return response.json()
     
     def list_deployments(self, project_id: Optional[str] = None, 
-                        status: Optional[str] = None) -> List[Dict[str, Any]]:
+                        status: Optional[str] = None, page_size: int = 100, fetch_all: bool = True) -> List[Dict[str, Any]]:
         """List deployments.
         
         Args:
             project_id: Optional project ID to filter deployments
             status: Optional status to filter deployments
+            page_size: Number of items per page (default: 100, max: 2000)
+            fetch_all: Whether to fetch all pages or just the first page (default: True)
             
         Returns:
             List of deployments
         """
         url = f"{self.base_url}/deployment/api/deployments"
-        params = {}
+        all_deployments = []
+        page = 0
         
-        if project_id:
-            params['projects'] = project_id
-        if status:
-            params['status'] = status
+        while True:
+            params = {
+                'page': page,
+                'size': min(page_size, 2000)
+            }
             
-        response = self.session.get(url, params=params)
-        response.raise_for_status()
+            if project_id:
+                params['projects'] = project_id
+            if status:
+                params['status'] = status
+                
+            response = self.session.get(url, params=params)
+            response.raise_for_status()
+            
+            data = response.json()
+            deployments = data.get('content', [])
+            all_deployments.extend(deployments)
+            
+            # Check if this is the last page or if we only want the first page
+            if not fetch_all or data.get('last', True) or len(deployments) == 0:
+                break
+                
+            page += 1
         
-        return response.json().get('content', [])
+        return all_deployments
     
     def get_deployment(self, deployment_id: str) -> Dict[str, Any]:
         """Get deployment details.
@@ -337,17 +356,42 @@ class CatalogClient:
             end_date=data.get('end-date')
         )
     
-    def list_workflows(self) -> List[Dict[str, Any]]:
+    def list_workflows(self, page_size: int = 100, fetch_all: bool = True) -> List[Dict[str, Any]]:
         """List available workflows.
+        
+        Args:
+            page_size: Number of items per page (default: 100, max: 2000)
+            fetch_all: Whether to fetch all pages or just the first page (default: True)
         
         Returns:
             List of workflows
         """
         url = f"{self.base_url}/vco/api/workflows"
-        response = self.session.get(url)
-        response.raise_for_status()
+        all_workflows = []
+        page = 0
         
-        return response.json().get('link', [])
+        while True:
+            # vCO/vRO API might use different pagination parameters
+            params = {
+                'maxResult': min(page_size, 2000),
+                'startIndex': page * page_size
+            }
+                
+            response = self.session.get(url, params=params)
+            response.raise_for_status()
+            
+            data = response.json()
+            workflows = data.get('link', [])
+            all_workflows.extend(workflows)
+            
+            # Check if this is the last page or if we only want the first page
+            # vRO API might not have 'last' indicator, so check if we got fewer items than requested
+            if not fetch_all or len(workflows) < page_size or len(workflows) == 0:
+                break
+                
+            page += 1
+        
+        return all_workflows
     
     def get_workflow_schema(self, workflow_id: str) -> Dict[str, Any]:
         """Get workflow input/output schema.
@@ -385,41 +429,56 @@ class CatalogClient:
     
     # Tag Management Methods
     
-    def list_tags(self, search: Optional[str] = None) -> List[Tag]:
+    def list_tags(self, search: Optional[str] = None, page_size: int = 100, fetch_all: bool = True) -> List[Tag]:
         """List available tags.
         
         Args:
             search: Optional search term to filter tags
+            page_size: Number of items per page (default: 100, max: 2000)
+            fetch_all: Whether to fetch all pages or just the first page (default: True)
             
         Returns:
             List of tags
         """
         url = f"{self.base_url}/vco/api/tags"
-        params = {}
+        all_tags = []
+        page = 0
         
-        if search:
-            params['$filter'] = f"substringof('{search}', key) or substringof('{search}', value)"
-            
-        response = self.session.get(url, params=params)
-        response.raise_for_status()
-        
-        data = response.json()
-        tags = []
-        
-        for item in data.get('value', []):
-            tag_data = {
-                'id': item.get('id', ''),
-                'key': item.get('key', ''),
-                'value': item.get('value'),
-                'description': item.get('description'),
-                'created_at': item.get('createdAt'),
-                'updated_at': item.get('updatedAt'),
-                'created_by': item.get('createdBy'),
-                'updated_by': item.get('updatedBy')
+        while True:
+            params = {
+                '$skip': page * page_size,
+                '$top': min(page_size, 2000)
             }
-            tags.append(Tag(**tag_data))
             
-        return tags
+            if search:
+                params['$filter'] = f"substringof('{search}', key) or substringof('{search}', value)"
+                
+            response = self.session.get(url, params=params)
+            response.raise_for_status()
+            
+            data = response.json()
+            items = data.get('value', [])
+            
+            for item in items:
+                tag_data = {
+                    'id': item.get('id', ''),
+                    'key': item.get('key', ''),
+                    'value': item.get('value'),
+                    'description': item.get('description'),
+                    'created_at': item.get('createdAt'),
+                    'updated_at': item.get('updatedAt'),
+                    'created_by': item.get('createdBy'),
+                    'updated_by': item.get('updatedBy')
+                }
+                all_tags.append(Tag(**tag_data))
+            
+            # Check if this is the last page or if we only want the first page
+            if not fetch_all or len(items) < page_size or len(items) == 0:
+                break
+                
+            page += 1
+            
+        return all_tags
     
     def get_tag(self, tag_id: str) -> Tag:
         """Get details of a specific tag.

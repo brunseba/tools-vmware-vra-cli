@@ -403,16 +403,35 @@ def deployment():
 @deployment.command('list')
 @click.option('--project', help='Filter by project ID')
 @click.option('--status', help='Filter by status')
+@click.option('--page-size', type=int, default=100, help='Number of items per page (default: 100, max: 2000)')
+@click.option('--first-page-only', is_flag=True, help='Fetch only the first page instead of all items')
 @click.pass_context
-def list_deployments(ctx, project, status):
-    """List deployments."""
+def list_deployments(ctx, project, status, page_size, first_page_only):
+    """List deployments.
+    
+    By default, this command fetches all deployments across all pages.
+    Use --first-page-only to limit to just the first page for faster results.
+    """
     client = get_catalog_client()
     
-    with console.status("[bold blue]Fetching deployments..."):
-        deployments = client.list_deployments(project_id=project, status=status)
+    status_msg = "[bold blue]Fetching deployments..."
+    if not first_page_only:
+        status_msg += " (all pages)"
+    
+    with console.status(status_msg):
+        deployments = client.list_deployments(
+            project_id=project, 
+            status=status,
+            page_size=page_size,
+            fetch_all=not first_page_only
+        )
     
     if ctx.obj['format'] == 'table':
-        table = Table(title="Deployments")
+        table_title = f"Deployments ({len(deployments)} items)"
+        if first_page_only:
+            table_title += " - First Page Only"
+        
+        table = Table(title=table_title)
         table.add_column("ID", style="cyan")
         table.add_column("Name", style="green")
         table.add_column("Status", style="yellow")
@@ -515,16 +534,34 @@ def tag():
 
 @tag.command('list')
 @click.option('--search', help='Search term to filter tags')
+@click.option('--page-size', type=int, default=100, help='Number of items per page (default: 100, max: 2000)')
+@click.option('--first-page-only', is_flag=True, help='Fetch only the first page instead of all items')
 @click.pass_context
-def list_tags(ctx, search):
-    """List available tags."""
+def list_tags(ctx, search, page_size, first_page_only):
+    """List available tags.
+    
+    By default, this command fetches all tags across all pages.
+    Use --first-page-only to limit to just the first page for faster results.
+    """
     client = get_catalog_client()
     
-    with console.status("[bold blue]Fetching tags..."):
-        tags = client.list_tags(search=search)
+    status_msg = "[bold blue]Fetching tags..."
+    if not first_page_only:
+        status_msg += " (all pages)"
+    
+    with console.status(status_msg):
+        tags = client.list_tags(
+            search=search,
+            page_size=page_size,
+            fetch_all=not first_page_only
+        )
     
     if ctx.obj['format'] == 'table':
-        table = Table(title="Tags")
+        table_title = f"Tags ({len(tags)} items)"
+        if first_page_only:
+            table_title += " - First Page Only"
+        
+        table = Table(title=table_title)
         table.add_column("ID", style="cyan")
         table.add_column("Key", style="green")
         table.add_column("Value", style="yellow")
@@ -721,16 +758,33 @@ def workflow():
     pass
 
 @workflow.command('list')
+@click.option('--page-size', type=int, default=100, help='Number of items per page (default: 100, max: 2000)')
+@click.option('--first-page-only', is_flag=True, help='Fetch only the first page instead of all items')
 @click.pass_context
-def list_workflows(ctx):
-    """List available workflows."""
+def list_workflows(ctx, page_size, first_page_only):
+    """List available workflows.
+    
+    By default, this command fetches all workflows across all pages.
+    Use --first-page-only to limit to just the first page for faster results.
+    """
     client = get_catalog_client()
     
-    with console.status("[bold blue]Fetching workflows..."):
-        workflows = client.list_workflows()
+    status_msg = "[bold blue]Fetching workflows..."
+    if not first_page_only:
+        status_msg += " (all pages)"
+    
+    with console.status(status_msg):
+        workflows = client.list_workflows(
+            page_size=page_size,
+            fetch_all=not first_page_only
+        )
     
     if ctx.obj['format'] == 'table':
-        table = Table(title="Available Workflows")
+        table_title = f"Available Workflows ({len(workflows)} items)"
+        if first_page_only:
+            table_title += " - First Page Only"
+        
+        table = Table(title=table_title)
         table.add_column("ID", style="cyan")
         table.add_column("Name", style="green")
         table.add_column("Description", style="yellow")
