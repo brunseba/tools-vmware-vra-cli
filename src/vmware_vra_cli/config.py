@@ -151,6 +151,22 @@ class ConfigManager:
             key: Configuration key to set
             value: Value to set
         """
+        # Check if this setting will be overridden by environment variable
+        env_mapping = {
+            "api_url": "VRA_URL",
+            "tenant": "VRA_TENANT", 
+            "domain": "VRA_DOMAIN",
+            "verify_ssl": "VRA_VERIFY_SSL",
+            "timeout": "VRA_TIMEOUT",
+            "output_format": "VRA_OUTPUT_FORMAT"
+        }
+        
+        env_key = env_mapping.get(key)
+        if env_key and os.getenv(env_key):
+            console.print(f"[yellow]⚠️  Warning: Setting '{key}' will be overridden by environment variable '{env_key}'[/yellow]")
+            console.print(f"[yellow]   Current env value: {os.getenv(env_key)}[/yellow]")
+            console.print(f"[yellow]   To use the config file value, unset the environment variable: unset {env_key}[/yellow]")
+        
         self.update_config(**{key: value})
     
     def reset_config(self) -> Dict[str, Any]:
