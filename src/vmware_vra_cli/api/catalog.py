@@ -58,15 +58,17 @@ class Tag(BaseModel):
 class CatalogClient:
     """Client for interacting with vRA Service Catalog APIs."""
     
-    def __init__(self, base_url: str, token: str, verify_ssl: bool = True):
+    def __init__(self, base_url: str, token: str, verify_ssl: bool = True, verbose: bool = False):
         """Initialize the catalog client.
         
         Args:
             base_url: Base URL of the vRA instance
             token: Authentication token
             verify_ssl: Whether to verify SSL certificates
+            verbose: Whether to print HTTP request/response details
         """
         self.base_url = base_url.rstrip('/')
+        self.verbose = verbose
         self.session = requests.Session()
         self.session.headers.update({
             'Authorization': f'Bearer {token}',
@@ -74,6 +76,38 @@ class CatalogClient:
             'Accept': 'application/json'
         })
         self.session.verify = verify_ssl
+    
+    def _log_http_request(self, method: str, url: str, params: Optional[Dict] = None, data: Optional[Dict] = None):
+        """Log HTTP request details if verbose mode is enabled."""
+        if not self.verbose:
+            return
+            
+        print(f"\n[HTTP REQUEST]")
+        print(f"Method: {method.upper()}")
+        print(f"URL: {url}")
+        
+        if params:
+            print(f"Parameters: {params}")
+            
+        if data:
+            print(f"Request Body: {json.dumps(data, indent=2)}")
+            
+    def _log_http_response(self, response: requests.Response):
+        """Log HTTP response details if verbose mode is enabled."""
+        if not self.verbose:
+            return
+            
+        print(f"\n[HTTP RESPONSE]")
+        print(f"Status Code: {response.status_code}")
+        print(f"Headers: {dict(response.headers)}")
+        
+        try:
+            response_json = response.json()
+            print(f"Response Body: {json.dumps(response_json, indent=2)}")
+        except (ValueError, requests.exceptions.JSONDecodeError):
+            print(f"Response Body (text): {response.text}")
+        
+        print()
     
     def list_catalog_items(self, project_id: Optional[str] = None, page_size: int = 100, fetch_all: bool = True) -> List[CatalogItem]:
         """List available catalog items.
@@ -98,7 +132,9 @@ class CatalogClient:
             if project_id:
                 params['projectId'] = project_id
                 
+            self._log_http_request('GET', url, params=params)
             response = self.session.get(url, params=params)
+            self._log_http_response(response)
             response.raise_for_status()
             
             data = response.json()
@@ -123,7 +159,9 @@ class CatalogClient:
             Catalog item details
         """
         url = f"{self.base_url}/catalog/api/items/{item_id}"
+        self._log_http_request('GET', url)
         response = self.session.get(url)
+        self._log_http_response(response)
         response.raise_for_status()
         
         return CatalogItem(**response.json())
@@ -139,7 +177,9 @@ class CatalogClient:
         """
         # First try the standard catalog schema endpoint
         url = f"{self.base_url}/catalog/api/items/{item_id}/schema"
+        self._log_http_request('GET', url)
         response = self.session.get(url)
+        self._log_http_response(response)
         
         if response.status_code == 404:
             # If not found, try to get the item details to determine the type
@@ -208,7 +248,9 @@ class CatalogClient:
         if reason:
             payload["reason"] = reason
             
+        self._log_http_request('POST', url, data=payload)
         response = self.session.post(url, json=payload)
+        self._log_http_response(response)
         response.raise_for_status()
         
         return response.json()
@@ -530,7 +572,9 @@ class CatalogClient:
         if description is not None:
             payload["description"] = description
             
+        self._log_http_request('POST', url, data=payload)
         response = self.session.post(url, json=payload)
+        self._log_http_response(response)
         response.raise_for_status()
         
         data = response.json()
@@ -598,7 +642,9 @@ class CatalogClient:
             True if deletion was successful
         """
         url = f"{self.base_url}/vco/api/tags/{tag_id}"
+        self._log_http_request('DELETE', url)
         response = self.session.delete(url)
+        self._log_http_response(response)
         response.raise_for_status()
         
         return response.status_code == 204

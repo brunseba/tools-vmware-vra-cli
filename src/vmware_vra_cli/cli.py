@@ -18,7 +18,7 @@ from vmware_vra_cli import __version__
 
 console = Console()
 
-def get_catalog_client() -> CatalogClient:
+def get_catalog_client(verbose: bool = False) -> CatalogClient:
     """Get configured catalog client with automatic token refresh."""
     config = get_config()
     token = TokenManager.get_access_token()
@@ -37,7 +37,8 @@ def get_catalog_client() -> CatalogClient:
     return CatalogClient(
         base_url=config["api_url"],
         token=token,
-        verify_ssl=config["verify_ssl"]
+        verify_ssl=config["verify_ssl"],
+        verbose=verbose
     )
 
 @click.group()
@@ -272,7 +273,7 @@ def list_catalog_items(ctx, project, page_size, first_page_only):
     By default, this command fetches all catalog items across all pages.
     Use --first-page-only to limit to just the first page for faster results.
     """
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     status_msg = "[bold blue]Fetching catalog items..."  
     if not first_page_only:
@@ -317,7 +318,7 @@ def list_catalog_items(ctx, project, page_size, first_page_only):
 @click.pass_context
 def show_catalog_item(ctx, item_id):
     """Show details of a specific catalog item."""
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     with console.status(f"[bold blue]Fetching catalog item {item_id}..."):
         item = client.get_catalog_item(item_id)
@@ -347,7 +348,7 @@ def show_catalog_item(ctx, item_id):
 @click.pass_context
 def show_catalog_item_schema(ctx, item_id):
     """Show request schema for a catalog item."""
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     with console.status(f"[bold blue]Fetching schema for {item_id}..."):
         schema = client.get_catalog_item_schema(item_id)
@@ -369,7 +370,7 @@ def show_catalog_item_schema(ctx, item_id):
 @click.pass_context
 def request_catalog_item(ctx, item_id, inputs, inputs_file, project, reason, name):
     """Request a catalog item."""
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     # Parse inputs
     inputs_dict = {}
@@ -412,7 +413,7 @@ def list_deployments(ctx, project, status, page_size, first_page_only):
     By default, this command fetches all deployments across all pages.
     Use --first-page-only to limit to just the first page for faster results.
     """
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     status_msg = "[bold blue]Fetching deployments..."
     if not first_page_only:
@@ -458,7 +459,7 @@ def list_deployments(ctx, project, status, page_size, first_page_only):
 @click.pass_context
 def show_deployment(ctx, deployment_id):
     """Show deployment details."""
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     with console.status(f"[bold blue]Fetching deployment {deployment_id}..."):
         deployment = client.get_deployment(deployment_id)
@@ -482,13 +483,14 @@ def show_deployment(ctx, deployment_id):
 @deployment.command('delete')
 @click.argument('deployment_id')
 @click.option('--confirm', is_flag=True, help='Skip confirmation prompt')
-def delete_deployment(deployment_id, confirm):
+@click.pass_context
+def delete_deployment(ctx, deployment_id, confirm):
     """Delete a deployment."""
     if not confirm:
         if not click.confirm(f"Are you sure you want to delete deployment {deployment_id}?"):
             return
     
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     with console.status(f"[bold red]Deleting deployment {deployment_id}..."):
         result = client.delete_deployment(deployment_id)
@@ -500,7 +502,7 @@ def delete_deployment(deployment_id, confirm):
 @click.pass_context
 def show_deployment_resources(ctx, deployment_id):
     """Show deployment resources."""
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     with console.status(f"[bold blue]Fetching resources for deployment {deployment_id}..."):
         resources = client.get_deployment_resources(deployment_id)
@@ -543,7 +545,7 @@ def list_tags(ctx, search, page_size, first_page_only):
     By default, this command fetches all tags across all pages.
     Use --first-page-only to limit to just the first page for faster results.
     """
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     status_msg = "[bold blue]Fetching tags..."
     if not first_page_only:
@@ -588,7 +590,7 @@ def list_tags(ctx, search, page_size, first_page_only):
 @click.pass_context
 def show_tag(ctx, tag_id):
     """Show details of a specific tag."""
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     with console.status(f"[bold blue]Fetching tag {tag_id}..."):
         tag = client.get_tag(tag_id)
@@ -622,7 +624,7 @@ def show_tag(ctx, tag_id):
 @click.pass_context
 def create_tag(ctx, key, value, description):
     """Create a new tag."""
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     with console.status(f"[bold blue]Creating tag {key}..."):
         tag = client.create_tag(key=key, value=value, description=description)
@@ -643,7 +645,7 @@ def create_tag(ctx, key, value, description):
 @click.pass_context
 def update_tag(ctx, tag_id, key, value, description):
     """Update an existing tag."""
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     with console.status(f"[bold blue]Updating tag {tag_id}..."):
         tag = client.update_tag(tag_id=tag_id, key=key, value=value, description=description)
@@ -659,13 +661,14 @@ def update_tag(ctx, tag_id, key, value, description):
 @tag.command('delete')
 @click.argument('tag_id')
 @click.option('--confirm', is_flag=True, help='Skip confirmation prompt')
-def delete_tag(tag_id, confirm):
+@click.pass_context
+def delete_tag(ctx, tag_id, confirm):
     """Delete a tag."""
     if not confirm:
         if not click.confirm(f"Are you sure you want to delete tag {tag_id}?"):
             return
     
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     with console.status(f"[bold red]Deleting tag {tag_id}..."):
         result = client.delete_tag(tag_id)
@@ -680,9 +683,10 @@ def delete_tag(tag_id, confirm):
 @click.argument('tag_id')
 @click.option('--resource-type', type=click.Choice(['deployment', 'catalog-item']), 
               default='deployment', help='Type of resource to tag')
-def assign_tag(resource_id, tag_id, resource_type):
+@click.pass_context
+def assign_tag(ctx, resource_id, tag_id, resource_type):
     """Assign a tag to a resource."""
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     with console.status(f"[bold blue]Assigning tag {tag_id} to {resource_type} {resource_id}..."):
         result = client.assign_tag_to_resource(resource_id, tag_id, resource_type)
@@ -700,13 +704,14 @@ def assign_tag(resource_id, tag_id, resource_type):
 @click.option('--resource-type', type=click.Choice(['deployment', 'catalog-item']), 
               default='deployment', help='Type of resource to untag')
 @click.option('--confirm', is_flag=True, help='Skip confirmation prompt')
-def remove_tag(resource_id, tag_id, resource_type, confirm):
+@click.pass_context
+def remove_tag(ctx, resource_id, tag_id, resource_type, confirm):
     """Remove a tag from a resource."""
     if not confirm:
         if not click.confirm(f"Are you sure you want to remove tag {tag_id} from {resource_type} {resource_id}?"):
             return
     
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     with console.status(f"[bold blue]Removing tag {tag_id} from {resource_type} {resource_id}..."):
         result = client.remove_tag_from_resource(resource_id, tag_id, resource_type)
@@ -725,7 +730,7 @@ def remove_tag(resource_id, tag_id, resource_type, confirm):
 @click.pass_context
 def show_resource_tags(ctx, resource_id, resource_type):
     """Show tags assigned to a resource."""
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     with console.status(f"[bold blue]Fetching tags for {resource_type} {resource_id}..."):
         tags = client.get_resource_tags(resource_id, resource_type)
@@ -767,7 +772,7 @@ def list_workflows(ctx, page_size, first_page_only):
     By default, this command fetches all workflows across all pages.
     Use --first-page-only to limit to just the first page for faster results.
     """
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     status_msg = "[bold blue]Fetching workflows..."
     if not first_page_only:
@@ -813,7 +818,7 @@ def list_workflows(ctx, page_size, first_page_only):
 @click.pass_context
 def run_workflow(ctx, workflow_id, inputs, inputs_file):
     """Execute a workflow."""
-    client = get_catalog_client()
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
     
     # Parse inputs
     inputs_dict = {}
