@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2025-01-21
+
+### Added
+- Added --version option to CLI for better version management
+- Cross-platform installation scripts for development tools
+- Comprehensive GitHub workflow for multiarch wheel building and publishing
+- Comprehensive tag management functionality
+- Taskfile for task automation
+- MIT license for open source distribution
+
+### Changed
+- Refined GitHub workflow configuration for better reliability
+- Updated README with correct repository URLs and tag management commands
+- Removed Windows targets from workflow to reduce build complexity
+
+### Fixed
+- Improved CI/CD pipeline stability
+
+## [0.4.0] - 2025-01-21
+
 ### Added
 - Initial release of VMware vRA CLI
 - Service Catalog integration with vRealize Orchestrator API
