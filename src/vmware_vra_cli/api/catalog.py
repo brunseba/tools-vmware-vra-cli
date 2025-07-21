@@ -6,16 +6,30 @@ from pydantic import BaseModel
 import json
 
 
+class CatalogItemType(BaseModel):
+    """Represents the type information of a catalog item."""
+    id: str
+    link: Optional[str] = None
+    name: str
+
+
 class CatalogItem(BaseModel):
     """Represents a catalog item in vRA."""
     id: str
     name: str
     description: Optional[str] = None
-    type: str
-    status: str
+    type: CatalogItemType
+    status: Optional[str] = None
     version: Optional[str] = None
     icon: Optional[str] = None
+    iconId: Optional[str] = None
     form: Optional[Dict[str, Any]] = None
+    projectIds: Optional[List[str]] = None
+    createdAt: Optional[str] = None
+    createdBy: Optional[str] = None
+    lastUpdatedAt: Optional[str] = None
+    lastUpdatedBy: Optional[str] = None
+    bulkRequestLimit: Optional[int] = None
 
 
 class WorkflowRun(BaseModel):
@@ -79,11 +93,6 @@ class CatalogClient:
         response.raise_for_status()
         
         data = response.json()
-
-        # Debug: Print the raw response data for diagnostics
-        print("[DEBUG] Raw API response:")
-        print(json.dumps(data, indent=2))
-
         return [CatalogItem(**item) for item in data.get('content', [])]
     
     def get_catalog_item(self, item_id: str) -> CatalogItem:
