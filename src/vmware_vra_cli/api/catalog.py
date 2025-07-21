@@ -2,7 +2,7 @@
 
 import requests
 from typing import Dict, List, Optional, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import json
 
 
@@ -24,12 +24,15 @@ class CatalogItem(BaseModel):
     icon: Optional[str] = None
     iconId: Optional[str] = None
     form: Optional[Dict[str, Any]] = None
+    item_schema: Optional[Dict[str, Any]] = Field(None, alias='schema')
     projectIds: Optional[List[str]] = None
     createdAt: Optional[str] = None
     createdBy: Optional[str] = None
     lastUpdatedAt: Optional[str] = None
     lastUpdatedBy: Optional[str] = None
     bulkRequestLimit: Optional[int] = None
+    formId: Optional[str] = None
+    externalId: Optional[str] = None
 
 
 class WorkflowRun(BaseModel):
@@ -169,20 +172,42 @@ class CatalogClient:
     def get_catalog_item_schema(self, item_id: str) -> Dict[str, Any]:
         """Get the request schema for a catalog item.
         
+        This method first tries to get the schema from the catalog item response itself,
+        as many catalog items include their schema directly. If no schema is found,
+        it falls back to trying dedicated schema endpoints.
+        
         Args:
             item_id: ID of the catalog item
             
         Returns:
             Schema definition for the catalog item
         """
-        # First try the standard catalog schema endpoint
+        # First, get the catalog item details which often include the schema
+        try:
+            item = self.get_catalog_item(item_id)
+            item_dict = item.dict()
+            
+            # Check if schema is included in the catalog item response
+            # Access the schema directly from the item object
+            if item.item_schema:
+                return item.item_schema
+                
+        except Exception as e:
+            # If getting catalog item fails, continue with fallback methods
+            pass
+        
+        # Fallback: try the standard catalog schema endpoint
         url = f"{self.base_url}/catalog/api/items/{item_id}/schema"
         self._log_http_request('GET', url)
         response = self.session.get(url)
         self._log_http_response(response)
         
+        if response.status_code == 200:
+            response.raise_for_status()
+            return response.json()
+        
+        # If schema endpoint returns 404, try type-specific endpoints
         if response.status_code == 404:
-            # If not found, try to get the item details to determine the type
             try:
                 item = self.get_catalog_item(item_id)
                 item_type = item.type.id
@@ -190,14 +215,17 @@ class CatalogClient:
                 if item_type == "com.vmw.vro.workflow":
                     # For workflows, try the workflow schema endpoint
                     workflow_url = f"{self.base_url}/vco/api/workflows/{item_id}"
+                    self._log_http_request('GET', workflow_url)
                     workflow_response = self.session.get(workflow_url)
+                    self._log_http_response(workflow_response)
+                    
                     if workflow_response.status_code == 200:
                         return workflow_response.json()
                     else:
                         # If workflow endpoint also fails, return a helpful message
                         return {
                             "error": "Schema not available",
-                            "message": f"Schema endpoint not found for workflow item {item_id}",
+                            "message": f"Schema not found in catalog item response and workflow endpoint returned {workflow_response.status_code} for item {item_id}",
                             "item_type": item_type,
                             "suggestion": "Workflows may not expose their schema through the catalog API. Try using the workflow-specific commands."
                         }
@@ -205,14 +233,14 @@ class CatalogClient:
                     # For blueprints, the schema should be available but might be at a different endpoint
                     return {
                         "error": "Schema not available", 
-                        "message": f"Schema endpoint returned 404 for blueprint item {item_id}",
+                        "message": f"Schema not found in catalog item response and schema endpoint returned 404 for blueprint item {item_id}",
                         "item_type": item_type,
                         "suggestion": "This blueprint may not have a publicly accessible schema or may require different permissions."
                     }
                 else:
                     return {
                         "error": "Schema not available",
-                        "message": f"Schema endpoint returned 404 for item {item_id} of type {item_type}",
+                        "message": f"Schema not found in catalog item response and schema endpoint returned 404 for item {item_id} of type {item_type}",
                         "item_type": item_type
                     }
             except Exception as e:
@@ -221,6 +249,7 @@ class CatalogClient:
                     "message": f"Failed to retrieve schema for item {item_id}: {str(e)}"
                 }
         
+        # For other HTTP errors, raise them
         response.raise_for_status()
         return response.json()
     
