@@ -528,6 +528,113 @@ def show_deployment_resources(ctx, deployment_id):
     elif ctx.obj['format'] == 'yaml':
         console.print(yaml.dump(resources, default_flow_style=False))
 
+@deployment.command('export-all')
+@click.option('--project', help='Filter deployments by project ID')
+@click.option('--output-dir', default='./exports', help='Directory to save export files (default: ./exports)')
+@click.option('--include-resources', is_flag=True, help='Include resource details for each deployment (slower)')
+@click.option('--no-unsynced', is_flag=True, help='Exclude deployments not linked to catalog items')
+@click.pass_context
+def export_all_deployments(ctx, project, output_dir, include_resources, no_unsynced):
+    """Export all deployments grouped by catalog item to separate JSON files.
+    
+    This command fetches all deployments and groups them by their associated
+    catalog item ID, then exports each group to a separate JSON file in the
+    specified output directory. This is useful for backup, analysis, or
+    migration purposes.
+    
+    Each catalog item's deployments are saved to a file named:
+    {catalog_item_name}_{catalog_item_id}.json
+    
+    Deployments that cannot be linked to catalog items are saved to:
+    unsynced_deployments.json (unless --no-unsynced is specified)
+    
+    An export summary with statistics is saved to:
+    export_summary.json
+    
+    Examples:
+    
+        # Export all deployments with default settings
+        vmware-vra deployment export-all
+        
+        # Export to specific directory with resource details
+        vmware-vra deployment export-all --output-dir /path/to/exports --include-resources
+        
+        # Export for specific project, excluding unsynced deployments
+        vmware-vra deployment export-all --project abc123 --no-unsynced
+    """
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
+    
+    include_unsynced = not no_unsynced
+    
+    # Progress message
+    status_parts = ["Exporting deployments grouped by catalog item"]
+    if project:
+        status_parts.append(f"(project: {project})")
+    if include_resources:
+        status_parts.append("(including resources)")
+    
+    status_msg = f"[bold blue]{' '.join(status_parts)}..."
+    
+    try:
+        with console.status(status_msg):
+            export_summary = client.export_deployments_by_catalog_item(
+                project_id=project,
+                output_dir=output_dir,
+                include_resources=include_resources,
+                include_unsynced=include_unsynced
+            )
+        
+        # Display success summary
+        console.print(f"\n[green]✅ Export completed successfully![/green]")
+        console.print(f"[cyan]Output directory: {output_dir}[/cyan]")
+        console.print(f"[cyan]Files created: {export_summary['files_created']}[/cyan]")
+        
+        stats = export_summary['statistics']
+        console.print(f"\n[bold]Export Statistics:[/bold]")
+        console.print(f"  Total deployments: {stats['total_deployments']}")
+        console.print(f"  Synced deployments: {stats['synced_deployments']}")
+        console.print(f"  Unsynced deployments: {stats['unsynced_deployments']}")
+        console.print(f"  Catalog items with deployments: {stats['catalog_items_with_deployments']}")
+        console.print(f"  Total catalog items: {stats['total_catalog_items']}")
+        
+        # Display file list
+        if export_summary['exported_files']:
+            console.print(f"\n[bold]Exported Files:[/bold]")
+            
+            # Create table for exported files
+            files_table = Table()
+            files_table.add_column("Filename", style="cyan")
+            files_table.add_column("Catalog Item", style="green")
+            files_table.add_column("Deployments", style="yellow", justify="right")
+            
+            for file_info in export_summary['exported_files']:
+                files_table.add_row(
+                    file_info['filename'],
+                    file_info['catalog_item_name'],
+                    str(file_info['deployment_count'])
+                )
+            
+            console.print(files_table)
+        
+        # Display additional info if including resources
+        if include_resources:
+            console.print(f"\n[yellow]ℹ️  Resource details included - this may have taken longer to complete[/yellow]")
+        
+        # Display info about unsynced deployments
+        if not include_unsynced and stats['unsynced_deployments'] > 0:
+            console.print(f"\n[yellow]ℹ️  {stats['unsynced_deployments']} unsynced deployments were excluded (use without --no-unsynced to include them)[/yellow]")
+        elif include_unsynced and stats['unsynced_deployments'] > 0:
+            console.print(f"\n[yellow]ℹ️  {stats['unsynced_deployments']} unsynced deployments were included in unsynced_deployments.json[/yellow]")
+        
+        console.print(f"\n[blue]💡 View export_summary.json for detailed export information[/blue]")
+        
+    except Exception as e:
+        console.print(f"\n[red]❌ Export failed: {str(e)}[/red]")
+        if ctx.obj['verbose']:
+            import traceback
+            console.print(f"[red]Full error: {traceback.format_exc()}[/red]")
+        raise click.Abort()
+
 # Tag commands
 @main.group()
 def tag():

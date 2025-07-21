@@ -1103,6 +1103,215 @@ class CatalogClient:
         
         return analysis
     
+    def export_deployments_by_catalog_item(self, project_id: Optional[str] = None, 
+                                          output_dir: str = "./exports",
+                                          include_resources: bool = False,
+                                          include_unsynced: bool = True) -> Dict[str, Any]:
+        """Export all deployments grouped by catalog item ID to separate JSON files.
+        
+        This method fetches all deployments and groups them by their associated catalog item ID,
+        then exports each group to a separate JSON file. This is useful for backup, analysis,
+        or migration purposes.
+        
+        Args:
+            project_id: Optional project ID to filter deployments
+            output_dir: Directory to save the exported JSON files (default: ./exports)
+            include_resources: Whether to include resource details for each deployment
+            include_unsynced: Whether to include deployments not linked to catalog items
+            
+        Returns:
+            Dictionary containing export summary and statistics
+        """
+        import os
+        from collections import defaultdict
+        from datetime import datetime
+        
+        # Get all deployments and catalog items
+        all_deployments = self.list_deployments(project_id=project_id)
+        catalog_items = self.list_catalog_items(project_id=project_id)
+        
+        # Create catalog item lookup for enrichment
+        catalog_item_lookup = {item.id: item for item in catalog_items}
+        
+        # Group deployments by catalog item ID
+        deployments_by_catalog_item = defaultdict(list)
+        unsynced_deployments = []
+        
+        # Process each deployment
+        for deployment in all_deployments:
+            deployment_data = dict(deployment)  # Make a copy
+            
+            # Try to determine catalog item ID using the same logic as other methods
+            catalog_item_id = None
+            
+            # Check various fields for catalog item reference
+            if deployment.get('catalogItemId'):
+                catalog_item_id = deployment.get('catalogItemId')
+            elif deployment.get('blueprintId'):
+                catalog_item_id = deployment.get('blueprintId')
+            elif deployment.get('catalogItemName'):
+                # Try to find catalog item by name
+                catalog_item_name = deployment.get('catalogItemName')
+                matching_item = next((item for item in catalog_items if item.name == catalog_item_name), None)
+                if matching_item:
+                    catalog_item_id = matching_item.id
+            else:
+                # Try name-based matching as fallback
+                deployment_name = deployment.get('name', '').lower()
+                if deployment_name:
+                    for item in catalog_items:
+                        if item.name.lower() in deployment_name or deployment_name in item.name.lower():
+                            catalog_item_id = item.id
+                            break
+            
+            # Include resource details if requested
+            if include_resources:
+                try:
+                    deployment_id = deployment.get('id')
+                    if deployment_id:
+                        resources = self.get_deployment_resources(deployment_id)
+                        deployment_data['resources'] = resources
+                        deployment_data['resource_count'] = len(resources)
+                except Exception as e:
+                    if self.verbose:
+                        print(f"Warning: Could not fetch resources for deployment {deployment_id}: {e}")
+                    deployment_data['resources'] = []
+                    deployment_data['resource_count'] = 0
+            
+            # Add catalog item information if available
+            if catalog_item_id and catalog_item_id in catalog_item_lookup:
+                catalog_item = catalog_item_lookup[catalog_item_id]
+                deployment_data['_catalog_item_info'] = {
+                    'id': catalog_item.id,
+                    'name': catalog_item.name,
+                    'type': catalog_item.type.name,
+                    'status': catalog_item.status,
+                    'version': catalog_item.version,
+                    'description': catalog_item.description
+                }
+                deployments_by_catalog_item[catalog_item_id].append(deployment_data)
+            else:
+                # Unsynced deployment
+                deployment_data['_unsynced_reason'] = self._determine_unsynced_reason(deployment, catalog_items)
+                if include_unsynced:
+                    unsynced_deployments.append(deployment_data)
+        
+        # Create output directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Export metadata
+        export_timestamp = datetime.now().isoformat()
+        total_deployments = len(all_deployments)
+        synced_deployments = sum(len(deps) for deps in deployments_by_catalog_item.values())
+        
+        export_summary = {
+            'export_timestamp': export_timestamp,
+            'export_parameters': {
+                'project_id': project_id,
+                'include_resources': include_resources,
+                'include_unsynced': include_unsynced
+            },
+            'statistics': {
+                'total_deployments': total_deployments,
+                'synced_deployments': synced_deployments,
+                'unsynced_deployments': len(unsynced_deployments),
+                'catalog_items_with_deployments': len(deployments_by_catalog_item),
+                'total_catalog_items': len(catalog_items)
+            },
+            'exported_files': []
+        }
+        
+        files_created = 0
+        
+        # Export deployments by catalog item
+        for catalog_item_id, deployments in deployments_by_catalog_item.items():
+            # Get catalog item info for filename
+            catalog_item = catalog_item_lookup.get(catalog_item_id)
+            if catalog_item:
+                # Create safe filename
+                safe_name = "".join(c for c in catalog_item.name if c.isalnum() or c in (' ', '-', '_')).rstrip()
+                safe_name = safe_name.replace(' ', '_')
+                filename = f"{safe_name}_{catalog_item_id}.json"
+            else:
+                filename = f"unknown_catalog_item_{catalog_item_id}.json"
+            
+            filepath = os.path.join(output_dir, filename)
+            
+            # Prepare export data
+            export_data = {
+                'catalog_item_id': catalog_item_id,
+                'catalog_item_info': catalog_item.dict() if catalog_item else None,
+                'export_timestamp': export_timestamp,
+                'deployment_count': len(deployments),
+                'deployments': deployments
+            }
+            
+            # Write to file
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(export_data, f, indent=2, ensure_ascii=False)
+            
+            export_summary['exported_files'].append({
+                'filename': filename,
+                'filepath': filepath,
+                'catalog_item_id': catalog_item_id,
+                'catalog_item_name': catalog_item.name if catalog_item else 'Unknown',
+                'deployment_count': len(deployments)
+            })
+            
+            files_created += 1
+        
+        # Export unsynced deployments if requested and present
+        if include_unsynced and unsynced_deployments:
+            unsynced_filename = "unsynced_deployments.json"
+            unsynced_filepath = os.path.join(output_dir, unsynced_filename)
+            
+            unsynced_export_data = {
+                'export_timestamp': export_timestamp,
+                'description': 'Deployments that could not be linked to any catalog item',
+                'deployment_count': len(unsynced_deployments),
+                'deployments': unsynced_deployments
+            }
+            
+            with open(unsynced_filepath, 'w', encoding='utf-8') as f:
+                json.dump(unsynced_export_data, f, indent=2, ensure_ascii=False)
+            
+            export_summary['exported_files'].append({
+                'filename': unsynced_filename,
+                'filepath': unsynced_filepath,
+                'catalog_item_id': None,
+                'catalog_item_name': 'Unsynced Deployments',
+                'deployment_count': len(unsynced_deployments)
+            })
+            
+            files_created += 1
+        
+        # Save export summary
+        summary_filename = "export_summary.json"
+        summary_filepath = os.path.join(output_dir, summary_filename)
+        
+        with open(summary_filepath, 'w', encoding='utf-8') as f:
+            json.dump(export_summary, f, indent=2, ensure_ascii=False)
+        
+        files_created += 1
+        
+        export_summary['files_created'] = files_created
+        
+        return export_summary
+    
+    def _determine_unsynced_reason(self, deployment: Dict[str, Any], 
+                                 catalog_items: List[CatalogItem]) -> str:
+        """Determine why a deployment is unsynced (simplified version for export)."""
+        if not deployment.get('catalogItemId') and not deployment.get('catalogItemName') and not deployment.get('blueprintId'):
+            return 'missing_catalog_references'
+        elif deployment.get('catalogItemId'):
+            return 'catalog_item_deleted'
+        elif deployment.get('blueprintId'):
+            return 'blueprint_deleted'
+        elif deployment.get('catalogItemName'):
+            return 'catalog_name_mismatch'
+        else:
+            return 'unknown'
+    
     def get_activity_timeline(self, project_id: Optional[str] = None,
                             days_back: int = 30,
                             include_statuses: Optional[List[str]] = None,
