@@ -151,6 +151,21 @@ tasks:
     cmds:
       - echo "Repository setup completed"
 
+  # Installation Tasks
+  install:tools:
+    desc: Install required development tools (gh, task)
+    cmds:
+      - |
+        if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+          echo "Running PowerShell installation script..."
+          powershell -ExecutionPolicy Bypass -File scripts/install-tools.ps1
+        else
+          echo "Running bash installation script..."
+          chmod +x scripts/install-tools.sh
+          ./scripts/install-tools.sh
+        fi
+      - echo "✅ Development tools installation completed"
+
   # Release Management
   version:patch:
     desc: Bump patch version
