@@ -283,8 +283,8 @@ def list_catalog_items(ctx, project):
             table.add_row(
                 item.id,
                 item.name,
-                item.type,
-                item.status,
+                item.type.name,
+                item.status or "N/A",
                 item.version or "N/A"
             )
         
@@ -311,8 +311,8 @@ def show_catalog_item(ctx, item_id):
         
         table.add_row("ID", item.id)
         table.add_row("Name", item.name)
-        table.add_row("Type", item.type)
-        table.add_row("Status", item.status)
+        table.add_row("Type", item.type.name)
+        table.add_row("Status", item.status or "N/A")
         table.add_row("Version", item.version or "N/A")
         table.add_row("Description", item.description or "N/A")
         
