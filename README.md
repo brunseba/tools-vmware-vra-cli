@@ -2,9 +2,9 @@
 
 [![Version](https://img.shields.io/pypi/v/vmware-vra-cli)](https://pypi.org/project/vmware-vra-cli/)
 [![Python](https://img.shields.io/pypi/pyversions/vmware-vra-cli)](https://pypi.org/project/vmware-vra-cli/)
-[![License](https://img.shields.io/github/license/brun_s/vmware-vra-cli)](https://github.com/brun_s/vmware-vra-cli/blob/main/LICENSE)
-[![Tests](https://img.shields.io/github/actions/workflow/status/brun_s/vmware-vra-cli/test.yml?branch=main&label=tests)](https://github.com/brun_s/vmware-vra-cli/actions)
-[![Documentation](https://img.shields.io/badge/docs-github--pages-blue)](https://brun_s.github.io/vmware-vra-cli)
+[![License](https://img.shields.io/github/license/brunseba/tools-vmware-vra-cli)](https://github.com/brunseba/tools-vmware-vra-cli/blob/main/LICENSE)
+[![Tests](https://img.shields.io/github/actions/workflow/status/brunseba/tools-vmware-vra-cli/test.yml?branch=main&label=tests)](https://github.com/brunseba/tools-vmware-vra-cli/actions)
+[![Documentation](https://img.shields.io/badge/docs-github--pages-blue)](https://brunseba.github.io/tools-vmware-vra-cli)
 
 A powerful Python CLI tool to interact with VMware vRealize Automation 8 via REST API. This tool enables developers and system administrators to automate VM provisioning, management, and decommissioning tasks through a simple command-line interface.
 
@@ -67,13 +67,13 @@ vra workflow run <workflow-id> --inputs '{"param": "value"}'
 
 ## Documentation
 
-Comprehensive documentation is available at: **[https://brun_s.github.io/vmware-vra-cli](https://brun_s.github.io/vmware-vra-cli)**
+Comprehensive documentation is available at: **[https://brunseba.github.io/tools-vmware-vra-cli](https://brunseba.github.io/tools-vmware-vra-cli)**
 
-- 📚 [Installation Guide](https://brun_s.github.io/vmware-vra-cli/getting-started/installation/)
-- 🚀 [Quick Start Tutorial](https://brun_s.github.io/vmware-vra-cli/getting-started/quick-start/)
-- ⚙️ [Configuration Options](https://brun_s.github.io/vmware-vra-cli/getting-started/configuration/)
-- 🔐 [Authentication Guide](https://brun_s.github.io/vmware-vra-cli/user-guide/authentication/)
-- 📖 [API Reference](https://brun_s.github.io/vmware-vra-cli/user-guide/api-reference/)
+- 📚 [Installation Guide](https://brunseba.github.io/tools-vmware-vra-cli/getting-started/installation/)
+- 🚀 [Quick Start Tutorial](https://brunseba.github.io/tools-vmware-vra-cli/getting-started/quick-start/)
+- ⚙️ [Configuration Options](https://brunseba.github.io/tools-vmware-vra-cli/getting-started/configuration/)
+- 🔐 [Authentication Guide](https://brunseba.github.io/tools-vmware-vra-cli/user-guide/authentication/)
+- 📖 [API Reference](https://brunseba.github.io/tools-vmware-vra-cli/user-guide/api-reference/)
 
 ## Use Cases
 
@@ -123,6 +123,16 @@ vra workflow list       # List available workflows
 vra workflow run <id>   # Execute a workflow
 ```
 
+### Tag Management
+```bash
+vra tag list            # List all tags
+vra tag create <key>    # Create a new tag
+vra tag show <id>       # Show tag details
+vra tag assign <resource-id> <tag-id>  # Assign tag to resource
+vra tag remove <resource-id> <tag-id>  # Remove tag from resource
+vra tag resource-tags <resource-id>    # Show resource tags
+```
+
 ## Configuration Example
 
 ```yaml
@@ -150,8 +160,8 @@ logging:
 
 ```bash
 # Clone the repository
-git clone https://github.com/brun_s/vmware-vra-cli.git
-cd vmware-vra-cli
+git clone https://github.com/brunseba/tools-vmware-vra-cli.git
+cd tools-vmware-vra-cli
 
 # Install dependencies
 uv sync --extra dev --extra docs
@@ -199,9 +209,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/brun_s/vmware-vra-cli/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/brun_s/vmware-vra-cli/discussions)
-- 📖 **Documentation**: [GitHub Pages](https://brun_s.github.io/vmware-vra-cli)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/brunseba/tools-vmware-vra-cli/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/brunseba/tools-vmware-vra-cli/discussions)
+- 📖 **Documentation**: [GitHub Pages](https://brunseba.github.io/tools-vmware-vra-cli)
 
 ## Acknowledgments
 
