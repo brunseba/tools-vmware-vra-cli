@@ -12,6 +12,7 @@ import keyring
 import yaml
 
 from vmware_vra_cli.api.catalog import CatalogClient
+from vmware_vra_cli.auth import VRAAuthenticator, TokenManager
 from vmware_vra_cli import __version__
 
 console = Console()
@@ -35,27 +36,20 @@ def get_config() -> Dict[str, Any]:
     
     return config
 
-def get_token() -> Optional[str]:
-    """Get stored authentication token."""
-    try:
-        return keyring.get_password("vmware-vra-cli", "access_token")
-    except Exception:
-        return None
-
-def store_token(token: str) -> None:
-    """Store authentication token securely."""
-    try:
-        keyring.set_password("vmware-vra-cli", "access_token", token)
-    except Exception as e:
-        console.print(f"[yellow]Warning: Could not store token securely: {e}[/yellow]")
-
 def get_catalog_client() -> CatalogClient:
-    """Get configured catalog client."""
+    """Get configured catalog client with automatic token refresh."""
     config = get_config()
-    token = get_token()
+    token = TokenManager.get_access_token()
+    
+    # Try to refresh token if access token is not available or expired
+    if not token:
+        token = TokenManager.refresh_access_token(
+            config["api_url"], 
+            config["verify_ssl"]
+        )
     
     if not token:
-        console.print("[red]No authentication token found. Please run 'vra auth login' first.[/red]")
+        console.print("[red]No valid authentication token found. Please run 'vra auth login' first.[/red]")
         raise click.Abort()
     
     return CatalogClient(
@@ -91,27 +85,32 @@ def auth():
 @click.option('--username', prompt=True, help='Username for vRA access')
 @click.option('--password', prompt=True, hide_input=True, help='Password for vRA access')
 @click.option('--url', help='vRA server URL', default=lambda: get_config()["api_url"])
-@click.option('--tenant', help='vRA tenant', default=lambda: get_config()["tenant"])
-def login(username, password, url, tenant):
+@click.option('--domain', help='Domain for multiple identity sources (optional)')
+def login(username, password, url, domain):
     """
-    Authenticate to vRA and obtain bearer token.
+    Authenticate to vRA using the two-step procedure.
+    
+    This implements the official VMware vRA authentication process:
+    1. Obtain refresh token from Identity Service API (valid for 90 days)
+    2. Exchange refresh token for access token via IaaS API (valid for 8 hours)
     """
-    auth_url = f"{url}/csp/gateway/am/api/login?access_token"
+    config = get_config()
     
     with console.status("[bold green]Authenticating..."):
         try:
-            response = requests.post(
-                auth_url, 
-                auth=HTTPBasicAuth(username, password),
-                verify=get_config()["verify_ssl"]
-            )
-            response.raise_for_status()
+            authenticator = VRAAuthenticator(url, config["verify_ssl"])
+            tokens = authenticator.authenticate(username, password, domain)
             
-            token = response.json()['access_token']
-            store_token(token)
+            # Store tokens securely
+            TokenManager.store_tokens(
+                tokens['access_token'], 
+                tokens['refresh_token']
+            )
             
             console.print("[bold green]✅ Authentication successful![/bold green]")
-            console.print("[green]🔑 Token saved securely[/green]")
+            console.print("[green]🔑 Tokens saved securely[/green]")
+            if domain:
+                console.print(f"[cyan]Domain: {domain}[/cyan]")
             
         except requests.exceptions.RequestException as e:
             console.print(f"[bold red]❌ Authentication failed: {e}[/bold red]")
@@ -119,9 +118,9 @@ def login(username, password, url, tenant):
 
 @auth.command()
 def logout():
-    """Clear stored authentication token."""
+    """Clear stored authentication tokens."""
     try:
-        keyring.delete_password("vmware-vra-cli", "access_token")
+        TokenManager.clear_tokens()
         console.print("[green]✅ Logged out successfully[/green]")
     except Exception:
         console.print("[yellow]No stored credentials found[/yellow]")
@@ -129,11 +128,31 @@ def logout():
 @auth.command()
 def status():
     """Check authentication status."""
-    token = get_token()
-    if token:
-        console.print("[green]✅ Authenticated[/green]")
+    access_token = TokenManager.get_access_token()
+    refresh_token = TokenManager.get_refresh_token()
+    
+    if access_token:
+        console.print("[green]✅ Authenticated (Access token available)[/green]")
+        if refresh_token:
+            console.print("[green]🔄 Refresh token available for automatic renewal[/green]")
+    elif refresh_token:
+        console.print("[yellow]⚠️ Only refresh token available - will obtain new access token on next use[/yellow]")
     else:
         console.print("[red]❌ Not authenticated[/red]")
+
+@auth.command()
+def refresh():
+    """Manually refresh the access token."""
+    config = get_config()
+    new_token = TokenManager.refresh_access_token(
+        config["api_url"], 
+        config["verify_ssl"]
+    )
+    
+    if new_token:
+        console.print("[green]✅ Access token refreshed successfully[/green]")
+    else:
+        console.print("[red]❌ Failed to refresh token. Please login again.[/red]")
 
 # Service Catalog commands
 @main.group()
