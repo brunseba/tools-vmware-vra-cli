@@ -1043,8 +1043,15 @@ class CatalogClient:
             trend_percentage = 0
         
         # Find peak activity period
-        peak_period = max(period_activity.keys(), key=lambda p: period_activity[p]['total_deployments'])
-        peak_activity = period_activity[peak_period]['total_deployments']
+        if period_activity:
+            peak_period = max(period_activity.keys(), key=lambda p: period_activity[p]['total_deployments'])
+            peak_activity = period_activity[peak_period]['total_deployments']
+            # If peak activity is 0 (all periods have zero activity), set to N/A
+            if peak_activity == 0:
+                peak_period = 'N/A'
+        else:
+            peak_period = 'N/A'
+            peak_activity = 0
         
         # Find most active hour
         if hourly_activity:
