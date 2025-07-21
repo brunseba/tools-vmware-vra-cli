@@ -765,14 +765,22 @@ def report():
 @report.command('activity-timeline')
 @click.option('--project', help='Filter by project ID')
 @click.option('--days-back', type=int, default=30, help='Days back for activity timeline (default: 30)')
+@click.option('--group-by', type=click.Choice(['day', 'week', 'month', 'year']), 
+              default='day', help='Group results by time period (default: day)')
 @click.option('--statuses', help='Comma-separated list of statuses to include (default: all)',
               default='CREATE_SUCCESSFUL,UPDATE_SUCCESSFUL,SUCCESSFUL,CREATE_FAILED,UPDATE_FAILED,FAILED,CREATE_INPROGRESS,UPDATE_INPROGRESS,INPROGRESS')
 @click.pass_context
-def activity_timeline_report(ctx, project, days_back, statuses):
+def activity_timeline_report(ctx, project, days_back, group_by, statuses):
     """Generate an activity timeline for service catalog items.
     
     This timeline provides a historical view of deployment activities over a specified period,
     allowing you to see patterns, peak activity periods, and trends.
+    
+    Group options:
+    - day: Daily activity (default)
+    - week: Weekly activity (shows week number and year)
+    - month: Monthly activity (shows month and year) 
+    - year: Yearly activity (shows annual totals)
     """
     client = get_catalog_client(verbose=ctx.obj['verbose'])
     
@@ -785,7 +793,8 @@ def activity_timeline_report(ctx, project, days_back, statuses):
         timeline_data = client.get_activity_timeline(
             project_id=project, 
             days_back=days_back, 
-            include_statuses=include_statuses
+            include_statuses=include_statuses,
+            group_by=group_by
         )
     
     # Display results
@@ -802,20 +811,41 @@ def activity_timeline_report(ctx, project, days_back, statuses):
         
         console.print(summary_table)
         
-        # Daily activity table
-        console.print("\n[bold green]📅 Daily Activity[/bold green]")
-        daily_table = Table(title="Daily Deployment Activity")
-        daily_table.add_column("Date", style="blue")
-        daily_table.add_column("Deployments", style="cyan", justify="right")
-        daily_table.add_column("Success", style="green", justify="right")
-        daily_table.add_column("Failed", style="red", justify="right")
-        daily_table.add_column("In Progress", style="yellow", justify="right")
-        daily_table.add_column("Unique Items", style="magenta", justify="right")
-        daily_table.add_column("Unique Projects", style="white", justify="right")
+        # Activity table with dynamic title based on grouping
+        group_titles = {
+            'day': '📅 Daily Activity',
+            'week': '📊 Weekly Activity', 
+            'month': '🗓️ Monthly Activity',
+            'year': '🗓️ Yearly Activity'
+        }
         
-        for date, data in sorted(timeline_data['daily_activity'].items()):
-            daily_table.add_row(
-                date,
+        period_titles = {
+            'day': 'Daily Deployment Activity',
+            'week': 'Weekly Deployment Activity',
+            'month': 'Monthly Deployment Activity', 
+            'year': 'Yearly Deployment Activity'
+        }
+        
+        period_labels = {
+            'day': 'Date',
+            'week': 'Week',
+            'month': 'Month',
+            'year': 'Year'
+        }
+        
+        console.print(f"\n[bold green]{group_titles[group_by]}[/bold green]")
+        activity_table = Table(title=period_titles[group_by])
+        activity_table.add_column(period_labels[group_by], style="blue")
+        activity_table.add_column("Deployments", style="cyan", justify="right")
+        activity_table.add_column("Success", style="green", justify="right")
+        activity_table.add_column("Failed", style="red", justify="right")
+        activity_table.add_column("In Progress", style="yellow", justify="right")
+        activity_table.add_column("Unique Items", style="magenta", justify="right")
+        activity_table.add_column("Unique Projects", style="white", justify="right")
+        
+        for period, data in sorted(timeline_data['period_activity'].items()):
+            activity_table.add_row(
+                period,
                 str(data['total_deployments']),
                 str(data['successful_deployments']),
                 str(data['failed_deployments']),
@@ -824,7 +854,7 @@ def activity_timeline_report(ctx, project, days_back, statuses):
                 str(data['unique_projects'])
             )
         
-        console.print(daily_table)
+        console.print(activity_table)
         
     elif ctx.obj['format'] == 'json':
         console.print(json.dumps(timeline_data, indent=2))

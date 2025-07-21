@@ -858,7 +858,8 @@ class CatalogClient:
     
     def get_activity_timeline(self, project_id: Optional[str] = None, 
                             days_back: int = 30,
-                            include_statuses: Optional[List[str]] = None) -> Dict[str, Any]:
+                            include_statuses: Optional[List[str]] = None,
+                            group_by: str = 'day') -> Dict[str, Any]:
         """Get deployment activity timeline for analytics.
         
         This method provides a timeline view of deployment activity, showing
@@ -868,6 +869,7 @@ class CatalogClient:
             project_id: Optional project ID to filter deployments
             days_back: Number of days to look back for activity (default: 30)
             include_statuses: List of deployment statuses to include (default: all)
+            group_by: How to group results ('day', 'week', 'month', 'year')
             
         Returns:
             Dictionary containing timeline data with dates, activity counts, and trends
@@ -883,8 +885,8 @@ class CatalogClient:
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days_back)
         
-        # Parse deployment timestamps and organize by date
-        daily_activity = defaultdict(lambda: {
+        # Parse deployment timestamps and organize by time period
+        period_activity = defaultdict(lambda: {
             'total_deployments': 0,
             'successful_deployments': 0,
             'failed_deployments': 0,
@@ -935,45 +937,59 @@ class CatalogClient:
                 if status not in include_statuses:
                     continue
                     
-                date_key = created_at.strftime('%Y-%m-%d')
+                # Generate period key based on group_by parameter
+                if group_by == 'day':
+                    period_key = created_at.strftime('%Y-%m-%d')
+                elif group_by == 'week':
+                    # ISO week: YYYY-W##
+                    year, week, _ = created_at.isocalendar()
+                    period_key = f"{year}-W{week:02d}"
+                elif group_by == 'month':
+                    period_key = created_at.strftime('%Y-%m')
+                elif group_by == 'year':
+                    period_key = created_at.strftime('%Y')
+                else:
+                    period_key = created_at.strftime('%Y-%m-%d')  # fallback to daily
+                
                 hour_key = created_at.strftime('%H')
                 
-                # Daily activity
-                daily_activity[date_key]['total_deployments'] += 1
-                daily_activity[date_key]['deployments'].append({
+                # Period activity
+                period_activity[period_key]['total_deployments'] += 1
+                period_activity[period_key]['deployments'].append({
                     'id': deployment.get('id'),
                     'name': deployment.get('name'),
                     'status': status,
                     'catalog_item': deployment.get('catalogItemName', 'Unknown'),
-                    'time': created_at.strftime('%H:%M:%S')
+                    'time': created_at.strftime('%H:%M:%S'),
+                    'date': created_at.strftime('%Y-%m-%d')
                 })
                 
                 # Track catalog items and projects
                 if deployment.get('catalogItemName'):
-                    daily_activity[date_key]['catalog_items'].add(deployment.get('catalogItemName'))
+                    period_activity[period_key]['catalog_items'].add(deployment.get('catalogItemName'))
                 if deployment.get('projectId'):
-                    daily_activity[date_key]['projects'].add(deployment.get('projectId'))
+                    period_activity[period_key]['projects'].add(deployment.get('projectId'))
                 
                 # Status-based counting
                 if status in success_statuses:
-                    daily_activity[date_key]['successful_deployments'] += 1
+                    period_activity[period_key]['successful_deployments'] += 1
                     successful_deployments += 1
                 elif status in failed_statuses:
-                    daily_activity[date_key]['failed_deployments'] += 1
+                    period_activity[period_key]['failed_deployments'] += 1
                     failed_deployments += 1
                 elif status in progress_statuses:
-                    daily_activity[date_key]['in_progress_deployments'] += 1
+                    period_activity[period_key]['in_progress_deployments'] += 1
                     in_progress_deployments += 1
                 
                 # Catalog item timeline
                 catalog_item_name = deployment.get('catalogItemName', 'Unknown')
-                catalog_item_timeline[catalog_item_name][date_key] += 1
+                catalog_item_timeline[catalog_item_name][period_key] += 1
                 
                 # Hourly distribution
                 hourly_activity[hour_key] += 1
                 
                 # Status timeline
-                status_timeline[status][date_key] += 1
+                status_timeline[status][period_key] += 1
                 
                 total_deployments += 1
                 
@@ -984,37 +1000,41 @@ class CatalogClient:
                 continue
         
         # Convert sets to counts for JSON serialization
-        for date_data in daily_activity.values():
-            date_data['unique_catalog_items'] = len(date_data['catalog_items'])
-            date_data['unique_projects'] = len(date_data['projects'])
-            date_data['catalog_items'] = list(date_data['catalog_items'])
-            date_data['projects'] = list(date_data['projects'])
+        for period_data in period_activity.values():
+            period_data['unique_catalog_items'] = len(period_data['catalog_items'])
+            period_data['unique_projects'] = len(period_data['projects'])
+            period_data['catalog_items'] = list(period_data['catalog_items'])
+            period_data['projects'] = list(period_data['projects'])
         
-        # Generate date range for missing days (fill gaps with zero activity)
-        current_date = start_date
-        while current_date <= end_date:
-            date_key = current_date.strftime('%Y-%m-%d')
-            if date_key not in daily_activity:
-                daily_activity[date_key] = {
-                    'total_deployments': 0,
-                    'successful_deployments': 0,
-                    'failed_deployments': 0,
-                    'in_progress_deployments': 0,
-                    'unique_catalog_items': 0,
-                    'unique_projects': 0,
-                    'catalog_items': [],
-                    'projects': [],
-                    'deployments': []
-                }
-            current_date += timedelta(days=1)
+        # Generate period range for missing periods (fill gaps with zero activity)
+        # Only fill gaps for daily grouping to avoid complexity with weeks/months
+        if group_by == 'day':
+            current_date = start_date
+            while current_date <= end_date:
+                period_key = current_date.strftime('%Y-%m-%d')
+                if period_key not in period_activity:
+                    period_activity[period_key] = {
+                        'total_deployments': 0,
+                        'successful_deployments': 0,
+                        'failed_deployments': 0,
+                        'in_progress_deployments': 0,
+                        'unique_catalog_items': 0,
+                        'unique_projects': 0,
+                        'catalog_items': [],
+                        'projects': [],
+                        'deployments': []
+                    }
+                current_date += timedelta(days=1)
         
         # Calculate trends and insights
-        sorted_dates = sorted(daily_activity.keys())
-        if len(sorted_dates) >= 2:
-            recent_activity = sum(daily_activity[date]['total_deployments'] 
-                               for date in sorted_dates[-7:])  # Last 7 days
-            previous_activity = sum(daily_activity[date]['total_deployments'] 
-                                 for date in sorted_dates[-14:-7])  # Previous 7 days
+        sorted_periods = sorted(period_activity.keys())
+        if len(sorted_periods) >= 2:
+            # Calculate trend based on first half vs second half of data
+            mid_point = len(sorted_periods) // 2
+            recent_activity = sum(period_activity[period]['total_deployments'] 
+                               for period in sorted_periods[mid_point:])  
+            previous_activity = sum(period_activity[period]['total_deployments'] 
+                                 for period in sorted_periods[:mid_point])  
             
             trend = 'increasing' if recent_activity > previous_activity else 'decreasing' if recent_activity < previous_activity else 'stable'
             trend_percentage = ((recent_activity - previous_activity) / max(previous_activity, 1)) * 100
@@ -1022,9 +1042,9 @@ class CatalogClient:
             trend = 'insufficient_data'
             trend_percentage = 0
         
-        # Find peak activity day
-        peak_day = max(daily_activity.keys(), key=lambda d: daily_activity[d]['total_deployments'])
-        peak_activity = daily_activity[peak_day]['total_deployments']
+        # Find peak activity period
+        peak_period = max(period_activity.keys(), key=lambda p: period_activity[p]['total_deployments'])
+        peak_activity = period_activity[peak_period]['total_deployments']
         
         # Find most active hour
         if hourly_activity:
@@ -1049,15 +1069,16 @@ class CatalogClient:
                 'success_rate': round(success_rate, 1),
                 'trend': trend,
                 'trend_percentage': round(trend_percentage, 1),
-                'peak_activity_day': peak_day,
+                'peak_activity_period': peak_period,
                 'peak_activity_count': peak_activity,
+                'grouping': group_by,
                 'peak_hour': f"{peak_hour}:00" if peak_hour != 'N/A' else peak_hour,
                 'peak_hour_count': peak_hour_count,
                 'unique_catalog_items': len(set(d.get('catalogItemName', 'Unknown') 
                                               for d in deployments if d.get('catalogItemName'))),
                 'unique_projects': len(set(d.get('projectId') for d in deployments if d.get('projectId')))
             },
-            'daily_activity': dict(daily_activity),
+            'period_activity': dict(period_activity),
             'catalog_item_timeline': dict(catalog_item_timeline),
             'hourly_distribution': dict(hourly_activity),
             'status_timeline': dict(status_timeline)
