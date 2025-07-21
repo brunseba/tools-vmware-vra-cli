@@ -12,6 +12,7 @@ import keyring
 import yaml
 
 from vmware_vra_cli.api.catalog import CatalogClient
+from vmware_vra_cli import __version__
 
 console = Console()
 
@@ -67,6 +68,7 @@ def get_catalog_client() -> CatalogClient:
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
 @click.option('--format', 'output_format', type=click.Choice(['table', 'json', 'yaml']), 
               default='table', help='Output format')
+@click.version_option(version=__version__, prog_name='vra-cli')
 @click.pass_context
 def main(ctx, verbose, output_format):
     """
