@@ -13,12 +13,17 @@ services:
       # Server Configuration
       - UVICORN_HOST=0.0.0.0
       - UVICORN_PORT=8000
-      - UVICORN_LOG_LEVEL=info
+      - UVICORN_LOG_LEVEL=${LOG_LEVEL:-info}
+      - UVICORN_ACCESS_LOG=true
     volumes:
       # Mount source code for development (optional)
       - ./src:/app/src:ro
       # Mount config directory for persistent configuration
       - vra-config:/home/appuser/.config/vmware-vra-cli
+      # Mount logs directory for persistent logs
+      - vra-logs:/app/logs
+      # Mount openapi output directory
+      - ./output:/app/output
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -26,7 +31,54 @@ services:
       retries: 3
       start_period: 40s
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - "com.vmware.vra.service=mcp-server"
+      - "com.vmware.vra.version=0.1.0"
+
+  # OpenAPI Generator Service
+  openapi-generator:
+    image: curlimages/curl:8.5.0
+    depends_on:
+      vra-server:
+        condition: service_healthy
+    volumes:
+      - ./output:/output
+    command: >
+      sh -c "
+        echo 'Waiting for vRA server to be ready...' &&
+        sleep 5 &&
+        echo 'Generating OpenAPI JSON...' &&
+        curl -f http://vra-server:8000/openapi.json -o /output/openapi.json &&
+        echo 'OpenAPI JSON generated successfully at /output/openapi.json' &&
+        curl -f http://vra-server:8000/openapi.json | python3 -m json.tool > /output/openapi-formatted.json 2>/dev/null || 
+        cp /output/openapi.json /output/openapi-formatted.json &&
+        echo 'Formatted OpenAPI JSON saved to /output/openapi-formatted.json'
+      "
+    profiles:
+      - tools
+
+  # Log Aggregator (optional)
+  log-viewer:
+    image: amir20/dozzle:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - DOZZLE_LEVEL=info
+      - DOZZLE_TAILSIZE=300
+    profiles:
+      - monitoring
+    labels:
+      - "com.vmware.vra.service=log-viewer"
 
 volumes:
   vra-config:
+    driver: local
+  vra-logs:
     driver: local

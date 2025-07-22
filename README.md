@@ -73,6 +73,7 @@ vra workflow run <workflow-id> --inputs '{"param": "value"}'
 
 ### MCP Server Usage
 
+#### Local Development
 ```bash
 # Start the MCP server
 vra-server
@@ -80,6 +81,30 @@ vra-server
 # Server will be available at http://localhost:8000
 # Interactive API docs: http://localhost:8000/docs
 ```
+
+#### Docker Compose (Recommended)
+```bash
+# Basic server setup
+docker compose up -d
+
+# With OpenAPI generation
+docker compose --profile tools up -d
+
+# With API documentation (Swagger UI)
+docker compose --profile docs up -d
+
+# With log monitoring
+docker compose --profile monitoring up -d
+
+# All services combined
+docker compose --profile tools --profile docs --profile monitoring up -d
+```
+
+**Available Services:**
+- **MCP Server**: `http://localhost:8000` - Main API server
+- **Swagger UI**: `http://localhost:8090` - Interactive API documentation
+- **Log Viewer**: `http://localhost:8080` - Real-time log monitoring (Dozzle)
+- **OpenAPI JSON**: `./output/openapi.json` - Generated API specification
 
 ## Documentation
 

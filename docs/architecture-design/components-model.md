@@ -24,6 +24,16 @@ graph TB
         ReportCmd[Report Commands]
     end
     
+    subgraph "MCP Server Components"
+        FastAPIApp[FastAPI Application]
+        AuthRouter[Auth Router]
+        CatalogRouter[Catalog Router]
+        DeploymentRouter[Deployment Router]
+        HealthRouter[Health Router]
+        MCPModels[Pydantic Models]
+        MCPMiddleware[API Middleware]
+    end
+    
     subgraph "Service Components"
         AuthService[Authentication Service]
         ConfigService[Configuration Service]
@@ -279,6 +289,127 @@ class DeploymentService:
 - APIClient
 - DeploymentProcessor
 - DataValidator
+
+### 3.1 MCP Server Components
+
+#### FastAPI Application
+**Responsibility**: Web server application and request handling
+
+```python
+class MCPServerApp:
+    """FastAPI MCP Server application"""
+    
+    def __init__(self):
+        self.app = FastAPI(
+            title="VMware vRA MCP Server",
+            version="0.1.0",
+            docs_url="/docs",
+            redoc_url="/redoc"
+        )
+        self._setup_middleware()
+        self._setup_routers()
+    
+    def _setup_middleware(self) -> None:
+        """Setup API middleware"""
+        pass
+    
+    def _setup_routers(self) -> None:
+        """Setup API routers"""
+        pass
+    
+    def start_server(self, host: str, port: int) -> None:
+        """Start the MCP server"""
+        pass
+```
+
+**Dependencies**:
+- FastAPI framework
+- Uvicorn ASGI server
+- API routers
+- Middleware components
+
+#### API Routers
+**Responsibility**: Route HTTP requests to appropriate service methods
+
+```python
+class AuthRouter:
+    """Authentication API router"""
+    
+    def __init__(self, auth_service: AuthService):
+        self.router = APIRouter(prefix="/auth", tags=["authentication"])
+        self.auth_service = auth_service
+        self._setup_routes()
+    
+    def _setup_routes(self) -> None:
+        """Setup authentication routes"""
+        self.router.post("/login")(self.login)
+        self.router.post("/logout")(self.logout)
+        self.router.get("/status")(self.status)
+        self.router.post("/refresh")(self.refresh)
+    
+    async def login(self, request: AuthRequest) -> AuthResponse:
+        """Handle login API request"""
+        pass
+    
+    async def logout(self) -> BaseResponse:
+        """Handle logout API request"""
+        pass
+```
+
+```python
+class CatalogRouter:
+    """Catalog API router"""
+    
+    def __init__(self, catalog_service: CatalogService):
+        self.router = APIRouter(prefix="/catalog", tags=["catalog"])
+        self.catalog_service = catalog_service
+        self._setup_routes()
+    
+    def _setup_routes(self) -> None:
+        """Setup catalog routes"""
+        self.router.get("/items")(self.list_items)
+        self.router.get("/items/{item_id}")(self.get_item)
+        self.router.get("/items/{item_id}/schema")(self.get_schema)
+        self.router.post("/items/{item_id}/request")(self.request_item)
+```
+
+**Dependencies**:
+- Service components
+- Pydantic models
+- FastAPI routing
+
+#### Pydantic Models
+**Responsibility**: Request/response data validation and serialization
+
+```python
+class AuthRequest(BaseModel):
+    """Authentication request model"""
+    username: str
+    password: str
+    url: str
+    tenant: Optional[str] = None
+    domain: Optional[str] = None
+
+class AuthResponse(BaseResponse):
+    """Authentication response model"""
+    token_stored: bool = False
+    config_saved: bool = False
+
+class CatalogItemsResponse(BaseResponse):
+    """Catalog items list response"""
+    items: List[Dict[str, Any]]
+    total_count: int
+    page_info: Optional[Dict[str, Any]] = None
+
+class DeploymentResponse(BaseResponse):
+    """Single deployment response"""
+    deployment: Dict[str, Any]
+```
+
+**Dependencies**:
+- Pydantic validation
+- Type hints
+- JSON serialization
 
 ### 4. Integration Components
 
