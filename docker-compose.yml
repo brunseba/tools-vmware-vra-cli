@@ -1,0 +1,32 @@
+services:
+  vra-server:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # VMware vRA Configuration
+      - VRA_URL=${VRA_URL:-}
+      - VRA_TENANT=${VRA_TENANT:-}
+      - VRA_DOMAIN=${VRA_DOMAIN:-}
+      - VRA_VERIFY_SSL=${VRA_VERIFY_SSL:-true}
+      
+      # Server Configuration
+      - UVICORN_HOST=0.0.0.0
+      - UVICORN_PORT=8000
+      - UVICORN_LOG_LEVEL=info
+    volumes:
+      # Mount source code for development (optional)
+      - ./src:/app/src:ro
+      # Mount config directory for persistent configuration
+      - vra-config:/home/appuser/.config/vmware-vra-cli
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+volumes:
+  vra-config:
+    driver: local

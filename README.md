@@ -34,6 +34,12 @@ A powerful Python CLI tool to interact with VMware vRealize Automation 8 via RES
 - Command-line argument overrides
 - Profile-based multi-environment support
 
+🌐 **MCP Server (NEW!)**
+- REST API server for web integrations
+- Same functionality as CLI in HTTP endpoints
+- OpenAPI documentation with Swagger UI
+- Programmatic access for automation pipelines
+
 ## Quick Start
 
 ### Installation
@@ -65,6 +71,16 @@ vra deployment list
 vra workflow run <workflow-id> --inputs '{"param": "value"}'
 ```
 
+### MCP Server Usage
+
+```bash
+# Start the MCP server
+vra-server
+
+# Server will be available at http://localhost:8000
+# Interactive API docs: http://localhost:8000/docs
+```
+
 ## Documentation
 
 Comprehensive documentation is available at: **[https://brunseba.github.io/tools-vmware-vra-cli](https://brunseba.github.io/tools-vmware-vra-cli)**
@@ -73,6 +89,7 @@ Comprehensive documentation is available at: **[https://brunseba.github.io/tools
 - 🚀 [Quick Start Tutorial](https://brunseba.github.io/tools-vmware-vra-cli/getting-started/quick-start/)
 - ⚙️ [Configuration Options](https://brunseba.github.io/tools-vmware-vra-cli/getting-started/configuration/)
 - 🔐 [Authentication Guide](https://brunseba.github.io/tools-vmware-vra-cli/user-guide/authentication/)
+- 🌐 [MCP Server Guide](docs/mcp-server.md)
 - 📖 [API Reference](https://brunseba.github.io/tools-vmware-vra-cli/user-guide/api-reference/)
 
 ## Use Cases
