@@ -115,6 +115,7 @@ Comprehensive documentation is available at: **[https://brunseba.github.io/tools
 - ⚙️ [Configuration Options](https://brunseba.github.io/tools-vmware-vra-cli/getting-started/configuration/)
 - 🔐 [Authentication Guide](https://brunseba.github.io/tools-vmware-vra-cli/user-guide/authentication/)
 - 🌐 [MCP Server Guide](docs/mcp-server.md)
+- 🔄 [Compatibility Matrix](docs/compatibility-matrix.md)
 - 📖 [API Reference](https://brunseba.github.io/tools-vmware-vra-cli/user-guide/api-reference/)
 
 ## Use Cases
