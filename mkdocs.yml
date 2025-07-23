@@ -1,5 +1,5 @@
 site_name: VMware vRA CLI
-site_description: A Python CLI tool to interact with VMware vRealize Automation 8 via REST API
+site_description: A Python CLI tool and MCP server for VMware vRealize Automation 8 automation
 site_author: Sebastien Brun
 site_url: https://brun_s.github.io/vmware-vra-cli
 
@@ -95,10 +95,15 @@ nav:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quick-start.md
     - Configuration: getting-started/configuration.md
-    - MCP Server Guide: mcp-server.md
-    - MCP Server Docker Guide: mcp-server-docker.md
     - Compatibility Matrix: compatibility-matrix.md
-  - User Guide:
+  - MCP Server:
+    - Overview: mcp-server.md
+    - Docker Deployment: mcp-server-docker.md
+    - Build & Deploy: build-deploy.md
+  - REST API Server:
+    - Overview: rest-api-server.md
+    - Docker Deployment: rest-api-server-docker.md
+  - CLI User Guide:
     - Authentication: user-guide/authentication.md
     - Service Catalog: user-guide/service-catalog.md
     - Tag Management: user-guide/tag-management.md
@@ -111,7 +116,7 @@ nav:
     - Contributing: developer-guide/contributing.md
     - Architecture: developer-guide/architecture.md
     - Testing: developer-guide/testing.md
-  - Architecture and Design:
+  - Architecture & Design:
     - Overview: architecture-design/index.md
     - Context Diagram: architecture-design/context-diagram.md
     - Architecture Overview: architecture-design/architecture-overview.md

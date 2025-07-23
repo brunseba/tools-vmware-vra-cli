@@ -1,6 +1,6 @@
-# MCP Server Docker Deployment Guide
+# REST API Server Docker Deployment Guide
 
-This guide covers deploying the VMware vRA MCP Server using Docker and Docker Compose, including development, testing, and production scenarios.
+This guide covers deploying the VMware vRA REST API Server using Docker and Docker Compose, including development, testing, and production scenarios.
 
 ## Table of Contents
 
@@ -56,7 +56,7 @@ cp .env.example .env
 # Edit .env with your configuration
 ```
 
-Start the basic MCP server:
+Start the basic REST API server:
 
 ```bash
 docker-compose up -d
@@ -71,7 +71,7 @@ For development with additional tools and services:
 docker-compose --profile tools --profile docs up -d
 
 # This includes:
-# - MCP Server
+# - REST API Server
 # - OpenAPI generator
 # - Swagger UI
 # - Log viewer (Dozzle)
