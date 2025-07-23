@@ -1205,6 +1205,311 @@ def catalog_usage_report(ctx, project, include_zero, sort_by, detailed_resources
         }
         console.print(yaml.dump(yaml_data, default_flow_style=False))
 
+@report.command('resources-usage')
+@click.option('--project', help='Filter by project ID')
+@click.option('--detailed-resources', is_flag=True, default=True,
+              help='Fetch detailed resource information (enabled by default, use --no-detailed-resources to disable)')
+@click.option('--no-detailed-resources', is_flag=True,
+              help='Skip detailed resource fetching for faster execution')
+@click.option('--sort-by', type=click.Choice(['deployment-name', 'catalog-item', 'resource-count', 'status']),
+              default='catalog-item', help='Sort deployments by field (default: catalog-item)')
+@click.option('--group-by', type=click.Choice(['catalog-item', 'resource-type', 'deployment-status']),
+              default='catalog-item', help='Group results by field (default: catalog-item)')
+@click.pass_context
+def resources_usage_report(ctx, project, detailed_resources, no_detailed_resources, sort_by, group_by):
+    """Generate a consolidated resources usage report across all deployments.
+    
+    This report provides a comprehensive view of all resources existing in each deployment,
+    showing resource types, counts, states, and their relationship to catalog items.
+    
+    The report includes:
+    - Total resource counts by type and status
+    - Resource breakdown per deployment
+    - Catalog item resource utilization
+    - Unlinked deployments and their resources
+    
+    Examples:
+    
+        # Basic resources usage report
+        vra report resources-usage
+        
+        # Fast report without detailed resource fetching
+        vra report resources-usage --no-detailed-resources
+        
+        # Report for specific project, grouped by resource type
+        vra report resources-usage --project abc123 --group-by resource-type
+        
+        # Detailed report sorted by resource count
+        vra report resources-usage --sort-by resource-count --detailed-resources
+    """
+    client = get_catalog_client(verbose=ctx.obj['verbose'])
+    
+    # Handle conflicting flags
+    if no_detailed_resources:
+        detailed_resources = False
+    
+    console.print("[bold blue]📊 Generating Resources Usage Report...[/bold blue]")
+    
+    if detailed_resources:
+        console.print("[yellow]⚠️  Detailed resource fetching enabled - this may take longer for many deployments[/yellow]")
+    else:
+        console.print("[cyan]💨 Using fast mode - resource counts will be estimated[/cyan]")
+    
+    with console.status("[bold green]Analyzing resource usage across all deployments..."):
+        report_data = client.get_resources_usage_report(
+            project_id=project,
+            include_detailed_resources=detailed_resources
+        )
+    
+    # Display results based on format
+    if ctx.obj['format'] == 'table':
+        # Summary statistics
+        summary = report_data['summary']
+        console.print("\n[bold green]📈 Resource Usage Summary[/bold green]")
+        summary_table = Table(show_header=False, box=None)
+        summary_table.add_column("Metric", style="cyan")
+        summary_table.add_column("Value", style="green")
+        summary_table.add_column("Note", style="dim")
+        
+        summary_table.add_row("Total Deployments", str(summary['total_deployments']), "All deployments in scope")
+        summary_table.add_row("Linked Deployments", str(summary['linked_deployments']), "Linked to catalog items")
+        summary_table.add_row("Unlinked Deployments", str(summary['unlinked_deployments']), "Cannot link to catalog items")
+        summary_table.add_row("", "", "")
+        summary_table.add_row("Total Resources", str(summary['total_resources']), "Across all deployments")
+        summary_table.add_row("Unique Resource Types", str(summary['unique_resource_types']), "Different resource types found")
+        summary_table.add_row("Unique Catalog Items", str(summary['unique_catalog_items']), "Catalog items with deployments")
+        
+        if summary['total_deployments'] > 0:
+            avg_resources = summary['total_resources'] / summary['total_deployments']
+            summary_table.add_row("Avg Resources per Deployment", f"{avg_resources:.1f}", "Average resource density")
+        
+        console.print(summary_table)
+        
+        # Resource type breakdown
+        if summary['resource_types']:
+            console.print("\n[bold green]🔧 Resource Type Breakdown[/bold green]")
+            resource_table = Table(title="Resources by Type")
+            resource_table.add_column("Resource Type", style="yellow")
+            resource_table.add_column("Count", style="cyan", justify="right")
+            resource_table.add_column("Percentage", style="green", justify="right")
+            
+            # Sort resource types by count
+            sorted_types = sorted(summary['resource_types'].items(), key=lambda x: x[1], reverse=True)
+            
+            for resource_type, count in sorted_types:
+                percentage = (count / summary['total_resources']) * 100 if summary['total_resources'] > 0 else 0
+                resource_table.add_row(
+                    resource_type,
+                    str(count),
+                    f"{percentage:.1f}%"
+                )
+            
+            console.print(resource_table)
+        
+        # Resource state breakdown
+        if summary['resource_states']:
+            console.print("\n[bold green]📊 Resource State Breakdown[/bold green]")
+            state_table = Table(title="Resources by State")
+            state_table.add_column("Resource State", style="magenta")
+            state_table.add_column("Count", style="cyan", justify="right")
+            state_table.add_column("Percentage", style="green", justify="right")
+            
+            # Sort resource states by count
+            sorted_states = sorted(summary['resource_states'].items(), key=lambda x: x[1], reverse=True)
+            
+            for resource_state, count in sorted_states:
+                percentage = (count / summary['total_resources']) * 100 if summary['total_resources'] > 0 else 0
+                state_table.add_row(
+                    resource_state,
+                    str(count),
+                    f"{percentage:.1f}%"
+                )
+            
+            console.print(state_table)
+        
+        # Display deployment details based on grouping
+        if group_by == 'catalog-item':
+            console.print("\n[bold green]📋 Resources by Catalog Item[/bold green]")
+            
+            if report_data['catalog_item_summary']:
+                catalog_table = Table(title="Catalog Item Resource Summary")
+                catalog_table.add_column("Catalog Item", style="green", width=30)
+                catalog_table.add_column("Type", style="yellow", width=15)
+                catalog_table.add_column("Deployments", style="cyan", justify="right")
+                catalog_table.add_column("Total Resources", style="magenta", justify="right")
+                catalog_table.add_column("Avg per Deployment", style="blue", justify="right")
+                catalog_table.add_column("Top Resource Type", style="white")
+                
+                # Sort catalog items by total resources
+                sorted_catalog_items = sorted(
+                    report_data['catalog_item_summary'].items(),
+                    key=lambda x: x[1]['total_resources'],
+                    reverse=True
+                )
+                
+                for catalog_item_id, item_summary in sorted_catalog_items:
+                    catalog_info = item_summary['catalog_item_info']
+                    if catalog_info:
+                        item_name = catalog_info['name'][:30] + "..." if len(catalog_info['name']) > 30 else catalog_info['name']
+                        item_type = catalog_info['type'].replace("com.vmw.", "").replace("vro.workflow", "Workflow").replace("blueprint", "Blueprint")
+                    else:
+                        item_name = "Unknown"
+                        item_type = "Unknown"
+                    
+                    deployment_count = item_summary['deployment_count']
+                    total_resources = item_summary['total_resources']
+                    avg_resources = total_resources / deployment_count if deployment_count > 0 else 0
+                    
+                    # Find top resource type
+                    resource_types = item_summary['resource_types']
+                    if resource_types:
+                        top_resource_type = max(resource_types.items(), key=lambda x: x[1])[0]
+                    else:
+                        top_resource_type = "N/A"
+                    
+                    catalog_table.add_row(
+                        item_name,
+                        item_type,
+                        str(deployment_count),
+                        str(total_resources),
+                        f"{avg_resources:.1f}",
+                        top_resource_type
+                    )
+                
+                console.print(catalog_table)
+        
+        elif group_by == 'resource-type':
+            console.print("\n[bold green]🔧 Deployments by Resource Type[/bold green]")
+            
+            # Group deployments by their primary resource type
+            resource_type_groups = {}
+            for deployment in report_data['deployments']:
+                if detailed_resources and 'resource_breakdown' in deployment:
+                    # Find the most common resource type in this deployment
+                    resource_breakdown = deployment['resource_breakdown']
+                    if resource_breakdown:
+                        primary_type = max(resource_breakdown.items(), key=lambda x: x[1])[0]
+                    else:
+                        primary_type = "No Resources"
+                else:
+                    primary_type = "Unknown (Fast Mode)"
+                
+                if primary_type not in resource_type_groups:
+                    resource_type_groups[primary_type] = []
+                resource_type_groups[primary_type].append(deployment)
+            
+            for resource_type, deployments in sorted(resource_type_groups.items(), key=lambda x: len(x[1]), reverse=True):
+                console.print(f"\n[bold yellow]🔧 {resource_type}[/bold yellow] ({len(deployments)} deployments)")
+                
+                type_table = Table()
+                type_table.add_column("Deployment", style="green")
+                type_table.add_column("Status", style="yellow")
+                type_table.add_column("Resources", style="cyan", justify="right")
+                type_table.add_column("Catalog Item", style="magenta")
+                
+                for deployment in deployments[:10]:  # Limit to top 10 per type
+                    catalog_item_name = "Unlinked"
+                    if deployment.get('catalog_item_info'):
+                        catalog_item_name = deployment['catalog_item_info']['name'][:20] + "..." if len(deployment['catalog_item_info']['name']) > 20 else deployment['catalog_item_info']['name']
+                    
+                    type_table.add_row(
+                        deployment['name'][:25] + "..." if len(deployment['name']) > 25 else deployment['name'],
+                        deployment['status'],
+                        str(deployment['resource_count']),
+                        catalog_item_name
+                    )
+                
+                console.print(type_table)
+                if len(deployments) > 10:
+                    console.print(f"[dim]... and {len(deployments) - 10} more deployments[/dim]")
+        
+        elif group_by == 'deployment-status':
+            console.print("\n[bold green]📊 Resources by Deployment Status[/bold green]")
+            
+            # Group deployments by status
+            status_groups = {}
+            for deployment in report_data['deployments']:
+                status = deployment['status']
+                if status not in status_groups:
+                    status_groups[status] = []
+                status_groups[status].append(deployment)
+            
+            for status, deployments in sorted(status_groups.items(), key=lambda x: len(x[1]), reverse=True):
+                total_resources_in_status = sum(d['resource_count'] for d in deployments)
+                console.print(f"\n[bold yellow]📊 {status}[/bold yellow] ({len(deployments)} deployments, {total_resources_in_status} resources)")
+                
+                status_table = Table()
+                status_table.add_column("Deployment", style="green")
+                status_table.add_column("Resources", style="cyan", justify="right")
+                status_table.add_column("Catalog Item", style="magenta")
+                status_table.add_column("Created", style="blue")
+                
+                # Sort by resource count within status
+                sorted_deployments = sorted(deployments, key=lambda x: x['resource_count'], reverse=True)
+                
+                for deployment in sorted_deployments[:10]:  # Limit to top 10 per status
+                    catalog_item_name = "Unlinked"
+                    if deployment.get('catalog_item_info'):
+                        catalog_item_name = deployment['catalog_item_info']['name'][:20] + "..." if len(deployment['catalog_item_info']['name']) > 20 else deployment['catalog_item_info']['name']
+                    
+                    created_date = "Unknown"
+                    if deployment.get('created_at'):
+                        try:
+                            from datetime import datetime
+                            import re
+                            clean_timestamp = re.sub(r'\+\d{2}:\d{2}$|Z$', '', deployment['created_at'])
+                            if '.' in clean_timestamp:
+                                clean_timestamp = clean_timestamp.split('.')[0]
+                            created_at = datetime.fromisoformat(clean_timestamp)
+                            created_date = created_at.strftime('%Y-%m-%d')
+                        except Exception:
+                            created_date = "Invalid"
+                    
+                    status_table.add_row(
+                        deployment['name'][:25] + "..." if len(deployment['name']) > 25 else deployment['name'],
+                        str(deployment['resource_count']),
+                        catalog_item_name,
+                        created_date
+                    )
+                
+                console.print(status_table)
+                if len(deployments) > 10:
+                    console.print(f"[dim]... and {len(deployments) - 10} more deployments[/dim]")
+        
+        # Show unlinked deployments if any
+        if report_data['unlinked_deployments']:
+            console.print(f"\n[bold yellow]⚠️  Unlinked Deployments ({len(report_data['unlinked_deployments'])})[/bold yellow]")
+            
+            unlinked_table = Table(title="Deployments Not Linked to Catalog Items")
+            unlinked_table.add_column("Deployment", style="green")
+            unlinked_table.add_column("Status", style="yellow")
+            unlinked_table.add_column("Resources", style="cyan", justify="right")
+            unlinked_table.add_column("Reason", style="red")
+            
+            # Sort unlinked deployments by resource count
+            sorted_unlinked = sorted(report_data['unlinked_deployments'], key=lambda x: x['resource_count'], reverse=True)
+            
+            for deployment in sorted_unlinked[:10]:  # Show top 10 unlinked deployments
+                reason = deployment.get('unlinked_reason', {}).get('primary_reason', 'unknown')
+                reason_display = reason.replace('_', ' ').title()
+                
+                unlinked_table.add_row(
+                    deployment['name'][:25] + "..." if len(deployment['name']) > 25 else deployment['name'],
+                    deployment['status'],
+                    str(deployment['resource_count']),
+                    reason_display
+                )
+            
+            console.print(unlinked_table)
+            if len(report_data['unlinked_deployments']) > 10:
+                console.print(f"[dim]... and {len(report_data['unlinked_deployments']) - 10} more unlinked deployments[/dim]")
+    
+    elif ctx.obj['format'] == 'json':
+        console.print(json.dumps(report_data, indent=2))
+    
+    elif ctx.obj['format'] == 'yaml':
+        console.print(yaml.dump(report_data, default_flow_style=False))
+
 @report.command('unsync')
 @click.option('--project', help='Filter by project ID')
 @click.option('--detailed-resources', is_flag=True, 

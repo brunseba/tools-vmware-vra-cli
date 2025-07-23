@@ -1696,3 +1696,255 @@ class CatalogClient:
             'hourly_distribution': dict(hourly_activity),
             'status_timeline': dict(status_timeline)
         }
+    
+    def get_resources_usage_report(self, project_id: Optional[str] = None, 
+                                  include_detailed_resources: bool = True) -> Dict[str, Any]:
+        """Generate a comprehensive resources usage report across all deployments.
+        
+        This method analyzes all resources existing in each deployment, providing detailed
+        information about resource types, counts, states, and their relationship to catalog items.
+        
+        Args:
+            project_id: Optional project ID to filter deployments
+            include_detailed_resources: Whether to fetch detailed resource information for each deployment
+                                      (True = more detailed but slower, False = faster with basic counts)
+        
+        Returns:
+            Dictionary containing comprehensive resource usage data including:
+            - summary: Overall statistics and counts
+            - deployments: List of deployments with their resource information
+            - catalog_item_summary: Resource utilization grouped by catalog item
+            - unlinked_deployments: Deployments that cannot be linked to catalog items
+        """
+        from rich.console import Console
+        from collections import defaultdict, Counter
+        console = Console()
+        
+        # Get all deployments
+        deployments = self.list_deployments(project_id=project_id)
+        
+        # Get all catalog items for matching
+        catalog_items = self.list_catalog_items()
+        catalog_items_dict = {item.id: item for item in catalog_items}
+        
+        # Initialize data structures
+        deployment_data = []
+        catalog_item_summary = defaultdict(lambda: {
+            'deployment_count': 0,
+            'total_resources': 0,
+            'resource_types': Counter(),
+            'resource_states': Counter(),
+            'catalog_item_info': None
+        })
+        
+        resource_type_counter = Counter()
+        resource_state_counter = Counter()
+        unlinked_deployments = []
+        
+        # Process each deployment
+        for i, deployment in enumerate(deployments):
+            deployment_id = deployment.get('id')
+            deployment_name = deployment.get('name', 'Unknown')
+            deployment_status = deployment.get('status', 'Unknown')
+            catalog_item_id = deployment.get('catalogItemId')
+            catalog_item_name = deployment.get('catalogItemName')
+            created_at = deployment.get('createdAt')
+            
+            if self.verbose:
+                console.print(f"Processing deployment {i+1}/{len(deployments)}: {deployment_name}")
+            
+            # Initialize deployment data
+            deployment_info = {
+                'id': deployment_id,
+                'name': deployment_name,
+                'status': deployment_status,
+                'catalog_item_id': catalog_item_id,
+                'catalog_item_name': catalog_item_name,
+                'created_at': created_at,
+                'resource_count': 0,
+                'catalog_item_info': None
+            }
+            
+            # Get catalog item information
+            if catalog_item_id and catalog_item_id in catalog_items_dict:
+                catalog_item = catalog_items_dict[catalog_item_id]
+                deployment_info['catalog_item_info'] = {
+                    'id': catalog_item.id,
+                    'name': catalog_item.name,
+                    'type': catalog_item.type.name,
+                    'status': catalog_item.status
+                }
+            
+            # Get resources for this deployment
+            resource_count = 0
+            resource_breakdown = Counter()
+            resource_state_breakdown = Counter()
+            
+            if include_detailed_resources:
+                try:
+                    resources = self.get_deployment_resources(deployment_id)
+                    resource_count = len(resources)
+                    
+                    # Analyze resource details
+                    for resource in resources:
+                        resource_type = resource.get('type', 'Unknown')
+                        resource_state = resource.get('state', resource.get('status', 'Unknown'))
+                        
+                        resource_breakdown[resource_type] += 1
+                        resource_state_breakdown[resource_state] += 1
+                        resource_type_counter[resource_type] += 1
+                        resource_state_counter[resource_state] += 1
+                    
+                    deployment_info['resource_breakdown'] = dict(resource_breakdown)
+                    deployment_info['resource_states'] = dict(resource_state_breakdown)
+                    
+                except Exception as e:
+                    # If resource fetching fails, use basic count estimation
+                    if self.verbose:
+                        console.print(f"Warning: Could not fetch resources for deployment {deployment_name}: {e}")
+                    
+                    # Try to estimate resource count from deployment properties
+                    resource_count = self._estimate_resource_count(deployment)
+                    deployment_info['resource_breakdown'] = {'Unknown': resource_count}
+                    deployment_info['resource_states'] = {'Unknown': resource_count}
+            else:
+                # Fast mode: estimate resource count without detailed fetching
+                resource_count = self._estimate_resource_count(deployment)
+                deployment_info['resource_breakdown'] = {'Estimated': resource_count}
+                deployment_info['resource_states'] = {'Estimated': resource_count}
+                resource_type_counter['Estimated'] += resource_count
+                resource_state_counter['Estimated'] += resource_count
+            
+            deployment_info['resource_count'] = resource_count
+            deployment_data.append(deployment_info)
+            
+            # Update catalog item summary
+            if catalog_item_id and catalog_item_id in catalog_items_dict:
+                catalog_item = catalog_items_dict[catalog_item_id]
+                summary = catalog_item_summary[catalog_item_id]
+                summary['deployment_count'] += 1
+                summary['total_resources'] += resource_count
+                summary['catalog_item_info'] = {
+                    'id': catalog_item.id,
+                    'name': catalog_item.name,
+                    'type': catalog_item.type.name,
+                    'status': catalog_item.status
+                }
+                
+                if include_detailed_resources and 'resource_breakdown' in deployment_info:
+                    for resource_type, count in deployment_info['resource_breakdown'].items():
+                        summary['resource_types'][resource_type] += count
+                    for resource_state, count in deployment_info['resource_states'].items():
+                        summary['resource_states'][resource_state] += count
+            else:
+                # Track unlinked deployments
+                deployment_info['unlinked_reason'] = self._analyze_unlink_reason(deployment, catalog_items_dict)
+                unlinked_deployments.append(deployment_info)
+        
+        # Calculate summary statistics
+        total_deployments = len(deployments)
+        total_resources = sum(d['resource_count'] for d in deployment_data)
+        linked_deployments = total_deployments - len(unlinked_deployments)
+        unique_resource_types = len(resource_type_counter)
+        unique_catalog_items = len([k for k, v in catalog_item_summary.items() if v['deployment_count'] > 0])
+        
+        return {
+            'summary': {
+                'total_deployments': total_deployments,
+                'linked_deployments': linked_deployments,
+                'unlinked_deployments': len(unlinked_deployments),
+                'total_resources': total_resources,
+                'unique_resource_types': unique_resource_types,
+                'unique_catalog_items': unique_catalog_items,
+                'resource_types': dict(resource_type_counter),
+                'resource_states': dict(resource_state_counter),
+                'average_resources_per_deployment': round(total_resources / max(total_deployments, 1), 2)
+            },
+            'deployments': deployment_data,
+            'catalog_item_summary': dict(catalog_item_summary),
+            'unlinked_deployments': unlinked_deployments
+        }
+    
+    def _estimate_resource_count(self, deployment: Dict[str, Any]) -> int:
+        """Estimate resource count for a deployment without fetching detailed resources.
+        
+        This method uses heuristics based on deployment properties to estimate
+        the number of resources, useful for fast mode operation.
+        
+        Args:
+            deployment: Deployment data dictionary
+            
+        Returns:
+            Estimated number of resources
+        """
+        # Basic heuristic: most simple deployments have 1-3 resources
+        # More complex deployments might have more based on certain indicators
+        
+        base_count = 1  # At least one resource (usually the main VM/container)
+        
+        # Look for indicators of complexity
+        deployment_name = deployment.get('name', '').lower()
+        catalog_item_name = deployment.get('catalogItemName', '').lower()
+        
+        # Heuristics based on naming patterns
+        complexity_indicators = [
+            'cluster', 'load-balancer', 'lb', 'database', 'db', 'multi-tier',
+            'ha', 'high-availability', 'distributed', 'micro', 'service'
+        ]
+        
+        complexity_score = 0
+        for indicator in complexity_indicators:
+            if indicator in deployment_name or indicator in catalog_item_name:
+                complexity_score += 1
+        
+        # Estimate based on complexity
+        if complexity_score >= 3:
+            return base_count + 4  # Complex deployment
+        elif complexity_score >= 1:
+            return base_count + 2  # Moderate complexity
+        else:
+            return base_count  # Simple deployment
+    
+    def _analyze_unlink_reason(self, deployment: Dict[str, Any], 
+                              catalog_items_dict: Dict[str, CatalogItem]) -> Dict[str, Any]:
+        """Analyze why a deployment cannot be linked to a catalog item.
+        
+        Args:
+            deployment: Deployment data dictionary
+            catalog_items_dict: Dictionary of catalog items by ID
+            
+        Returns:
+            Dictionary containing analysis of why the deployment is unlinked
+        """
+        catalog_item_id = deployment.get('catalogItemId')
+        catalog_item_name = deployment.get('catalogItemName')
+        
+        if not catalog_item_id and not catalog_item_name:
+            return {
+                'primary_reason': 'missing_catalog_references',
+                'details': 'No catalog item ID or name found in deployment'
+            }
+        elif catalog_item_id and catalog_item_id not in catalog_items_dict:
+            return {
+                'primary_reason': 'catalog_item_deleted',
+                'details': f'Catalog item ID {catalog_item_id} no longer exists'
+            }
+        elif catalog_item_name and not catalog_item_id:
+            # Try to find by name
+            matching_items = [item for item in catalog_items_dict.values() 
+                            if item.name.lower() == catalog_item_name.lower()]
+            if not matching_items:
+                return {
+                    'primary_reason': 'catalog_name_mismatch',
+                    'details': f'No catalog item found with name "{catalog_item_name}"'
+                }
+            else:
+                return {
+                    'primary_reason': 'weak_name_association',
+                    'details': f'Found potential matches by name but no direct ID link'
+                }
+        else:
+            return {
+                'primary_reason': 'unknown',
+                'details': 'Could not determine why deployment is unlinked'
+            }
