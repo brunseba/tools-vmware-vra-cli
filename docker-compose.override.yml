@@ -1,0 +1,48 @@
+# Docker Compose override file for development and additional services
+# This file is automatically loaded by docker-compose
+
+services:
+  vra-server:
+    # Development overrides
+    environment:
+      # Enable debug logging in development
+      - UVICORN_LOG_LEVEL=debug
+      - UVICORN_RELOAD=true
+    volumes:
+      # Enable hot reload in development
+      - ./src:/app/src
+
+  # Swagger UI for API documentation
+  swagger-ui:
+    image: swaggerapi/swagger-ui:v5.10.5
+    ports:
+      - "8090:8080"
+    environment:
+      - SWAGGER_JSON=/openapi/openapi.json
+      - BASE_URL=/swagger-ui
+    volumes:
+      - ./output:/openapi:ro
+    depends_on:
+      openapi-generator:
+        condition: service_completed_successfully
+    profiles:
+      - docs
+    labels:
+      - "com.vmware.vra.service=api-docs"
+
+  # Redis for session storage (optional)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    profiles:
+      - cache
+    labels:
+      - "com.vmware.vra.service=cache"
+
+volumes:
+  redis-data:
+    driver: local

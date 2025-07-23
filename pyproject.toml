@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.8.0,<0.9.0"]
+build-backend = "uv_build"
 
 [project]
 name = "vmware-vra-cli"
@@ -8,13 +8,13 @@ version = "0.10.0"
 description = "A Python CLI tool to interact with VMware vRealize Automation 8 via REST API"
 readme = "README.md"
 requires-python = ">=3.10"
+license = "MIT"
 authors = [
     { name = "Sebastien Brun", email = "brun_s@example.com" }
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -27,7 +27,11 @@ dependencies = [
     "pydantic>=2.0.0",
     "rich>=13.0.0",
     "keyring>=24.0.0",
-    "pyyaml>=6.0.0"
+    "pyyaml>=6.0.0",
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "python-multipart>=0.0.6",
+    "httpx>=0.25.0"
 ]
 
 [project.optional-dependencies]
@@ -50,6 +54,7 @@ docs = [
 
 [project.scripts]
 vra = "vmware_vra_cli.cli:main"
+vra-server = "vmware_vra_cli.app:main"
 
 [project.urls]
 Homepage = "https://github.com/brun_s/vmware-vra-cli"
@@ -57,8 +62,8 @@ Repository = "https://github.com/brun_s/vmware-vra-cli.git"
 Issues = "https://github.com/brun_s/vmware-vra-cli/issues"
 Documentation = "https://brun_s.github.io/vmware-vra-cli"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/vmware_vra_cli"]
+[tool.uv]
+package = true
 
 [tool.black]
 line-length = 88

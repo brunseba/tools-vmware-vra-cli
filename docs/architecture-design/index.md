@@ -23,6 +23,8 @@ This section provides comprehensive technical documentation for the VMware vRA C
 
 The VMware vRA CLI is a comprehensive command-line interface tool designed to interact with VMware vRealize Automation environments. It provides a rich set of commands for managing service catalogs, deployments, workflows, and system configuration through a secure, authenticated API layer.
 
+In addition to the CLI interface, the system now includes an **MCP Server** (Model Context Protocol) component that provides the same functionality through a RESTful web API, enabling programmatic access and integration with other systems.
+
 ### Key Architectural Principles
 
 1. **Modular Design**: Separation of concerns with distinct modules for authentication, API clients, CLI commands, and configuration management
@@ -33,15 +35,27 @@ The VMware vRA CLI is a comprehensive command-line interface tool designed to in
 
 ### Technology Stack
 
-- **Language**: Python 3.8+
+#### Core Technologies
+- **Language**: Python 3.10+
 - **CLI Framework**: Click
 - **HTTP Client**: Requests with retry mechanisms
 - **Authentication**: Custom VMware vRA authentication flow
 - **Configuration**: JSON-based persistent configuration
 - **Security**: System keyring integration
+
+#### MCP Server Technologies
+- **Web Framework**: FastAPI
+- **ASGI Server**: Uvicorn
+- **Data Validation**: Pydantic
+- **API Documentation**: OpenAPI/Swagger
+- **Containerization**: Docker & Docker Compose
+- **Log Aggregation**: Dozzle
+
+#### Development & Deployment
 - **Documentation**: MkDocs with Material theme
 - **Testing**: pytest with comprehensive test coverage
 - **Packaging**: Python wheels with automated CI/CD
+- **Build System**: uv for dependency management
 
 ## Getting Started
 

@@ -34,6 +34,12 @@ A powerful Python CLI tool to interact with VMware vRealize Automation 8 via RES
 - Command-line argument overrides
 - Profile-based multi-environment support
 
+🌐 **MCP Server (NEW!)**
+- REST API server for web integrations
+- Same functionality as CLI in HTTP endpoints
+- OpenAPI documentation with Swagger UI
+- Programmatic access for automation pipelines
+
 ## Quick Start
 
 ### Installation
@@ -65,6 +71,41 @@ vra deployment list
 vra workflow run <workflow-id> --inputs '{"param": "value"}'
 ```
 
+### MCP Server Usage
+
+#### Local Development
+```bash
+# Start the MCP server
+vra-server
+
+# Server will be available at http://localhost:8000
+# Interactive API docs: http://localhost:8000/docs
+```
+
+#### Docker Compose (Recommended)
+```bash
+# Basic server setup
+docker compose up -d
+
+# With OpenAPI generation
+docker compose --profile tools up -d
+
+# With API documentation (Swagger UI)
+docker compose --profile docs up -d
+
+# With log monitoring
+docker compose --profile monitoring up -d
+
+# All services combined
+docker compose --profile tools --profile docs --profile monitoring up -d
+```
+
+**Available Services:**
+- **MCP Server**: `http://localhost:8000` - Main API server
+- **Swagger UI**: `http://localhost:8090` - Interactive API documentation
+- **Log Viewer**: `http://localhost:8080` - Real-time log monitoring (Dozzle)
+- **OpenAPI JSON**: `./output/openapi.json` - Generated API specification
+
 ## Documentation
 
 Comprehensive documentation is available at: **[https://brunseba.github.io/tools-vmware-vra-cli](https://brunseba.github.io/tools-vmware-vra-cli)**
@@ -73,6 +114,8 @@ Comprehensive documentation is available at: **[https://brunseba.github.io/tools
 - 🚀 [Quick Start Tutorial](https://brunseba.github.io/tools-vmware-vra-cli/getting-started/quick-start/)
 - ⚙️ [Configuration Options](https://brunseba.github.io/tools-vmware-vra-cli/getting-started/configuration/)
 - 🔐 [Authentication Guide](https://brunseba.github.io/tools-vmware-vra-cli/user-guide/authentication/)
+- 🌐 [MCP Server Guide](docs/mcp-server.md)
+- 🔄 [Compatibility Matrix](docs/compatibility-matrix.md)
 - 📖 [API Reference](https://brunseba.github.io/tools-vmware-vra-cli/user-guide/api-reference/)
 
 ## Use Cases

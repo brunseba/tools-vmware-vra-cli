@@ -95,6 +95,8 @@ nav:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quick-start.md
     - Configuration: getting-started/configuration.md
+    - MCP Server Guide: mcp-server.md
+    - Compatibility Matrix: compatibility-matrix.md
   - User Guide:
     - Authentication: user-guide/authentication.md
     - Service Catalog: user-guide/service-catalog.md

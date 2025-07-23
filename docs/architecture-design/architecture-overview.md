@@ -10,14 +10,18 @@ The VMware vRA CLI follows a layered architecture pattern with clear separation 
 graph TB
     subgraph "Presentation Layer"
         CLI[CLI Commands]
+        WebAPI[MCP Server API]
         Output[Output Formatters]
         Help[Help System]
+        Swagger[OpenAPI/Swagger]
     end
     
     subgraph "Application Layer"
         Commands[Command Handlers]
+        APIRouters[API Routers]
         Validation[Input Validation]
         Orchestration[Business Logic]
+        Middleware[API Middleware]
     end
     
     subgraph "Service Layer"
@@ -26,6 +30,7 @@ graph TB
         WorkflowSvc[Workflow Service]
         AuthSvc[Authentication Service]
         ConfigSvc[Configuration Service]
+        HealthSvc[Health Service]
     end
     
     subgraph "Integration Layer"
@@ -33,6 +38,7 @@ graph TB
         TokenMgr[Token Manager]
         ConfigMgr[Config Manager]
         OutputMgr[Output Manager]
+        ErrorHandler[Error Handler]
     end
     
     subgraph "Infrastructure Layer"
@@ -40,17 +46,22 @@ graph TB
         Keyring[Keyring Interface]
         FileSystem[File System]
         Logging[Logging System]
+        WebServer[FastAPI Server]
     end
     
     subgraph "External Systems"
         vRA[VMware vRA APIs]
         OS[Operating System]
         Storage[Local Storage]
+        DockerInfra[Docker Infrastructure]
     end
     
     CLI --> Commands
+    WebAPI --> APIRouters
+    APIRouters --> Middleware
     Output --> Commands
     Help --> Commands
+    Swagger --> WebAPI
     
     Commands --> CatalogSvc
     Commands --> DeploymentSvc
@@ -58,20 +69,30 @@ graph TB
     Commands --> AuthSvc
     Commands --> ConfigSvc
     
+    APIRouters --> CatalogSvc
+    APIRouters --> DeploymentSvc
+    APIRouters --> WorkflowSvc
+    APIRouters --> AuthSvc
+    APIRouters --> HealthSvc
+    
     CatalogSvc --> APIClient
     DeploymentSvc --> APIClient
     WorkflowSvc --> APIClient
     AuthSvc --> TokenMgr
     ConfigSvc --> ConfigMgr
+    HealthSvc --> APIClient
     
     APIClient --> HTTP
     TokenMgr --> Keyring
     ConfigMgr --> FileSystem
     OutputMgr --> Output
+    ErrorHandler --> Logging
     
+    WebServer --> WebAPI
     HTTP --> vRA
     Keyring --> OS
     FileSystem --> Storage
+    WebServer --> DockerInfra
 ```
 
 ## Architectural Patterns
@@ -167,6 +188,15 @@ class YAMLOutputStrategy(OutputStrategy):
 - **Streaming Output**: Support for large dataset streaming
 - **Template System**: Custom output templates and formatting
 
+### 6. MCP Server (Model Context Protocol)
+- **FastAPI Framework**: High-performance, modern web framework for building APIs
+- **RESTful API Design**: Clean, intuitive REST endpoints mirroring CLI functionality
+- **OpenAPI Integration**: Automatic schema generation and interactive documentation
+- **Pydantic Models**: Type-safe request/response models with validation
+- **Docker Support**: Containerized deployment with Docker Compose orchestration
+- **Health Monitoring**: Built-in health checks and monitoring endpoints
+- **Log Management**: Structured logging with Docker log aggregation
+
 ## Design Principles
 
 ### 1. Single Responsibility Principle
@@ -260,6 +290,55 @@ sequenceDiagram
     ConfigManager-->>ConfigService: Parsed config
     ConfigService->>ConfigService: Merge priorities
     ConfigService-->>CLI: Final configuration
+```
+
+### 4. MCP Server Request Flow
+```mermaid
+sequenceDiagram
+    participant Client
+    participant FastAPI
+    participant Router
+    participant Middleware
+    participant Service
+    participant APIClient
+    participant vRA
+    
+    Client->>FastAPI: HTTP Request
+    FastAPI->>Middleware: Request validation
+    Middleware->>Router: Route to endpoint
+    Router->>Service: Business logic
+    Service->>APIClient: vRA API call
+    APIClient->>vRA: HTTP request
+    vRA-->>APIClient: HTTP response
+    APIClient-->>Service: Processed data
+    Service-->>Router: Service result
+    Router-->>Middleware: Response data
+    Middleware-->>FastAPI: Formatted response
+    FastAPI-->>Client: HTTP Response
+```
+
+### 5. Docker Compose Orchestration Flow
+```mermaid
+sequenceDiagram
+    participant User
+    participant DockerCompose
+    participant MCPServer
+    participant OpenAPIGen
+    participant SwaggerUI
+    participant LogViewer
+    
+    User->>DockerCompose: docker compose up --profile tools,docs,monitoring
+    DockerCompose->>MCPServer: Start main server
+    MCPServer->>MCPServer: Health check passes
+    DockerCompose->>OpenAPIGen: Generate OpenAPI JSON
+    OpenAPIGen->>MCPServer: Fetch /openapi.json
+    MCPServer-->>OpenAPIGen: OpenAPI specification
+    OpenAPIGen->>OpenAPIGen: Format and save
+    DockerCompose->>SwaggerUI: Start documentation UI
+    SwaggerUI->>OpenAPIGen: Load OpenAPI file
+    DockerCompose->>LogViewer: Start log monitoring
+    LogViewer->>DockerCompose: Connect to Docker daemon
+    DockerCompose-->>User: All services ready
 ```
 
 ## Error Handling Strategy

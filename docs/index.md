@@ -123,6 +123,8 @@ Get up and running in minutes:
 1. **[Installation](getting-started/installation.md)** - Install the CLI tool
 2. **[Quick Start](getting-started/quick-start.md)** - Your first VM in 5 minutes
 3. **[Configuration](getting-started/configuration.md)** - Configure for your environment
+4. **[MCP Server Guide](mcp-server.md)** - REST API server for web integrations
+5. **[Compatibility Matrix](compatibility-matrix.md)** - CLI and MCP Server feature comparison
 
 ## Support
 
