@@ -1,12 +1,13 @@
-# VMware vRA CLI
+# VMware vRA CLI & MCP Server
 
 [![Version](https://img.shields.io/pypi/v/vmware-vra-cli)](https://pypi.org/project/vmware-vra-cli/)
 [![Python](https://img.shields.io/pypi/pyversions/vmware-vra-cli)](https://pypi.org/project/vmware-vra-cli/)
 [![License](https://img.shields.io/github/license/brunseba/tools-vmware-vra-cli)](https://github.com/brunseba/tools-vmware-vra-cli/blob/main/LICENSE)
 [![Tests](https://img.shields.io/github/actions/workflow/status/brunseba/tools-vmware-vra-cli/test.yml?branch=main&label=tests)](https://github.com/brunseba/tools-vmware-vra-cli/actions)
+[![MCP Compatible](https://img.shields.io/badge/MCP-2025--06--28-blue.svg)](https://modelcontextprotocol.io/)
 [![Documentation](https://img.shields.io/badge/docs-github--pages-blue)](https://brunseba.github.io/tools-vmware-vra-cli)
 
-A powerful Python CLI tool to interact with VMware vRealize Automation 8 via REST API. This tool enables developers and system administrators to automate VM provisioning, management, and decommissioning tasks through a simple command-line interface.
+A comprehensive Python toolkit for VMware vRealize Automation 8 automation, featuring a powerful CLI, a fully compliant **Model Context Protocol (MCP) server** for LLM integration, and a traditional REST API server. This toolkit enables developers, system administrators, and AI assistants to automate VM provisioning, management, and infrastructure operations through multiple interfaces.
 
 ## Features
 

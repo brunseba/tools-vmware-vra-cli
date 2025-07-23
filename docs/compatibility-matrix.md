@@ -1,12 +1,13 @@
-# Server-CLI Compatibility Matrix
+# Multi-Interface Compatibility Matrix
 
-This document provides a comprehensive compatibility analysis between the VMware vRA MCP Server and CLI components.
+This document provides a comprehensive compatibility analysis between all VMware vRA interfaces: CLI, MCP Server, and REST API Server.
 
 ## Overview
 
-The VMware vRA project provides two primary interfaces:
-- **CLI**: Command-line interface (`vra`) for interactive terminal usage
-- **MCP Server**: REST API server (`vra-server`) for programmatic access and web integrations
+The VMware vRA project provides three complementary interfaces:
+- **🖥️ CLI**: Command-line interface (`vra`) for interactive terminal usage
+- **🤖 MCP Server**: Model Context Protocol server for AI assistant integration (Claude Desktop, VS Code Continue, etc.)
+- **🌐 REST API Server**: Traditional HTTP REST API server for web application integration
 
 Both components have a **tightly coupled, shared-codebase architecture**:
 - **Same Package**: Both are part of the same `vmware-vra-cli` package
@@ -17,35 +18,80 @@ Both components have a **tightly coupled, shared-codebase architecture**:
 ## Component Architecture
 
 ```mermaid
-graph TB
-    subgraph "External Access"
-        CLI[CLI Interface<br/>vra command]
-        MCP[MCP Server<br/>REST API]
-        Client[MCP Client<br/>Python/HTTP]
+flowchart TB
+    subgraph "Client Interfaces"
+        CLI["🖥️ CLI Interface<br/>vra command"]
+        MCP["🤖 MCP Server<br/>JSON-RPC 2.0 via stdio"]
+        REST["🌐 REST API Server<br/>HTTP/HTTPS endpoints"]
+    end
+    
+    subgraph "AI Assistants & Tools"
+        CLAUDE["Claude Desktop"]
+        VSCODE["VS Code Continue"]
+        CUSTOM["Custom LLM Clients"]
+    end
+    
+    subgraph "Web Applications"
+        WEBAPP["Web Apps"]
+        AUTOMATION["Automation Tools"]
+        DASHBOARD["Dashboards"]
     end
     
     subgraph "Shared Core"
-        Auth[Authentication<br/>vmware_vra_cli.auth]
-        API[API Clients<br/>vmware_vra_cli.api]
-        Config[Configuration<br/>vmware_vra_cli.config]
+        AUTH["Authentication<br/>vmware_vra_cli.auth"]
+        API["API Clients<br/>vmware_vra_cli.api"]
+        CONFIG["Configuration<br/>vmware_vra_cli.config"]
+        TOOLS["Tool Registry<br/>MCP Tools"]
+        RESOURCES["Resource Manager<br/>Dynamic Discovery"]
     end
     
-    subgraph "VMware vRA"
-        vRA[vRA Server<br/>REST API]
+    subgraph "VMware vRA 8"
+        CSP["Cloud Services Platform"]
+        CAT["Service Catalog"]
+        DEP["Deployment Service"]
+        RES["Resource Management"]
+        VRO["vRealize Orchestrator"]
     end
     
-    CLI --> Auth
+    %% Client connections
+    CLI --> AUTH
     CLI --> API
-    CLI --> Config
+    CLI --> CONFIG
     
-    MCP --> Auth
+    MCP --> AUTH
     MCP --> API
-    MCP --> Config
+    MCP --> TOOLS
+    MCP --> RESOURCES
     
-    Client --> MCP
+    REST --> AUTH
+    REST --> API
+    REST --> CONFIG
     
-    Auth --> vRA
-    API --> vRA
+    %% AI Assistant connections
+    CLAUDE -.->|stdio| MCP
+    VSCODE -.->|stdio| MCP
+    CUSTOM -.->|stdio| MCP
+    
+    %% Web Application connections
+    WEBAPP -.->|HTTP/HTTPS| REST
+    AUTOMATION -.->|HTTP/HTTPS| REST
+    DASHBOARD -.->|HTTP/HTTPS| REST
+    
+    %% Core service connections
+    AUTH --> CSP
+    API --> CAT
+    API --> DEP
+    API --> RES
+    API --> VRO
+    
+    style CLI fill:#e3f2fd
+    style MCP fill:#f3e5f5
+    style REST fill:#e8f5e8
+    style AUTH fill:#fff3e0
+    style API fill:#fce4ec
+    style CLAUDE fill:#dbeafe
+    style VSCODE fill:#dcfce7
+    style WEBAPP fill:#fef3c7
 ```
 
 ## Version Compatibility Analysis
@@ -64,20 +110,65 @@ graph TB
 
 ### Core Features (Perfect Compatibility)
 
-| Feature Category | CLI Support | Server Support | Compatibility | Implementation |
-|------------------|-------------|----------------|---------------|----------------|
-| **Authentication** | ✅ Full | ✅ Full | ✅ **Perfect** | Uses same `VRAAuthenticator` and `TokenManager` |
-| **Configuration** | ✅ Full | ✅ Inherited | ✅ **Perfect** | Server uses same config system |
-| **Catalog Operations** | ✅ Full | ✅ Full | ✅ **Perfect** | Server routes to CLI's `CatalogClient` |
-| **Deployment Management** | ✅ Full | ✅ Full | ✅ **Perfect** | Shared implementation |
+| Feature Category | CLI Support | MCP Server Support | REST API Support | Compatibility | Implementation |
+|------------------|-------------|-------------------|------------------|---------------|----------------|
+| **Authentication** | ✅ Full | ✅ Full | ✅ Full | ✅ **Perfect** | Uses same `VRAAuthenticator` and `TokenManager` |
+| **Configuration** | ✅ Full | ✅ Inherited | ✅ Inherited | ✅ **Perfect** | All use same config system |
+| **Catalog Operations** | ✅ Full | ✅ Full | ✅ Full | ✅ **Perfect** | Shared implementation via CLI's `CatalogClient` |
+| **Deployment Management** | ✅ Full | ✅ Full | ✅ Full | ✅ **Perfect** | Shared implementation |
 
-### Advanced Features (Incomplete Compatibility)
+### MCP Server Specific Features
 
-| Feature Category | CLI Support | Server Support | Compatibility | Status |
-|------------------|-------------|----------------|---------------|--------|
-| **Tag Management** | ✅ Full | ❌ Models Only | ⚠️ **Incomplete** | Server has Pydantic models but no routes |
-| **Workflow Operations** | ✅ Full | ❌ Models Only | ⚠️ **Incomplete** | Server has Pydantic models but no routes |
-| **Reporting** | ✅ Full | ❌ Models Only | ⚠️ **Incomplete** | Server has Pydantic models but no routes |
+| MCP Feature | Status | Description | AI Assistant Integration |
+|-------------|--------|-------------|-------------------------|
+| **Protocol Compliance** | ✅ **Full MCP 2025-06-28** | JSON-RPC 2.0 over stdio transport | ✅ Claude Desktop, VS Code Continue |
+| **Dynamic Resource Discovery** | ✅ **Implemented** | Real-time vRA resource enumeration | ✅ Context-aware AI interactions |
+| **Tool Registry** | ✅ **15+ Tools** | Comprehensive vRA operations toolkit | ✅ Natural language to API translation |
+| **Smart Context Filtering** | ✅ **Implemented** | Intelligent resource context for AI | ✅ Relevant information delivery |
+| **Error Handling** | ✅ **Production Ready** | Comprehensive error handling and logging | ✅ User-friendly error messages |
+| **Security** | ✅ **Token-based** | Secure authentication with auto-refresh | ✅ Secure credential handling |
+
+### Advanced Features (Mixed Compatibility)
+
+| Feature Category | CLI Support | MCP Server Support | REST API Support | Compatibility | Status |
+|------------------|-------------|-------------------|------------------|---------------|--------|
+| **Tag Management** | ✅ Full | ✅ **Complete** | ❌ Models Only | ⚠️ **Mixed** | MCP has full tool support |
+| **Workflow Operations** | ✅ Full | ✅ **Complete** | ❌ Models Only | ⚠️ **Mixed** | MCP has full tool support |
+| **Reporting** | ✅ Full | ✅ **Complete** | ❌ Models Only | ⚠️ **Mixed** | MCP has full tool support |
+| **Resource Export** | ✅ Full | ✅ **Complete** | ❌ Missing | ⚠️ **Mixed** | MCP supports deployment export |
+| **Batch Operations** | ✅ Full | ⚠️ **Limited** | ❌ Missing | ⚠️ **Incomplete** | Single operations only in MCP |
+
+## MCP Tools Mapping
+
+### ✅ Available MCP Tools
+
+| MCP Tool Name | CLI Equivalent | Description | Status |
+|---------------|----------------|-------------|--------|
+| `authenticate` | `vra auth login` | Authenticate with vRA using credentials | ✅ **Available** |
+| `list_catalog_items` | `vra catalog list` | List available catalog items | ✅ **Available** |
+| `get_catalog_item` | `vra catalog show <id>` | Get details of a specific catalog item | ✅ **Available** |
+| `get_catalog_item_schema` | `vra catalog schema <id>` | Get request form schema for catalog item | ✅ **Available** |
+| `request_catalog_item` | `vra catalog request <id>` | Request deployment from catalog item | ✅ **Available** |
+| `list_deployments` | `vra deployment list` | List all deployments | ✅ **Available** |
+| `get_deployment` | `vra deployment show <id>` | Get details of a specific deployment | ✅ **Available** |
+| `delete_deployment` | `vra deployment delete <id>` | Delete a deployment | ✅ **Available** |
+| `get_deployment_resources` | `vra deployment resources <id>` | Get resources for a deployment | ✅ **Available** |
+| `list_projects` | `vra project list` | List available projects | ✅ **Available** |
+| `create_tag` | `vra tag create` | Create a new tag | ✅ **Available** |
+| `list_tags` | `vra tag list` | List all tags | ✅ **Available** |
+| `assign_tag` | `vra tag assign` | Assign tag to resource | ✅ **Available** |
+| `generate_resources_report` | `vra report resources-usage` | Generate resource usage report | ✅ **Available** |
+| `export_all_deployments` | `vra deployment export` | Export all deployments to JSON | ✅ **Available** |
+
+### 🔄 Tool-to-Resource Mapping
+
+| Resource Type | Associated Tools | Dynamic Discovery |
+|---------------|------------------|-------------------|
+| **Catalog Items** | `list_catalog_items`, `get_catalog_item`, `get_catalog_item_schema` | ✅ Real-time enumeration |
+| **Deployments** | `list_deployments`, `get_deployment`, `delete_deployment` | ✅ Real-time enumeration |
+| **Projects** | `list_projects` | ✅ Real-time enumeration |
+| **Tags** | `list_tags`, `create_tag`, `assign_tag` | ✅ Real-time enumeration |
+| **Resources** | `get_deployment_resources` | ✅ Dynamic per deployment |
 
 ## API Endpoint Mapping
 
