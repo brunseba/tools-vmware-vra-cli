@@ -31,13 +31,17 @@ dependencies = [
     "fastapi>=0.104.0",
     "uvicorn>=0.24.0",
     "python-multipart>=0.0.6",
-    "httpx>=0.25.0"
+    "httpx>=0.25.0",
+    "mcp>=1.0.0",
+    "websockets>=12.0",
+    "anyio>=4.0.0"
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
     "requests-mock>=1.11.0",
     "black>=23.0.0",
     "isort>=5.0.0",
@@ -54,7 +58,8 @@ docs = [
 
 [project.scripts]
 vra = "vmware_vra_cli.cli:main"
-vra-server = "vmware_vra_cli.app:main"
+vra-rest-server = "vmware_vra_cli.app:main"
+vra-mcp-server = "vmware_vra_cli.mcp_server.server:main"
 
 [project.urls]
 Homepage = "https://github.com/brun_s/vmware-vra-cli"
@@ -90,3 +95,4 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 addopts = "-v --cov=src --cov-report=term-missing --cov-report=html"
+asyncio_mode = "auto"

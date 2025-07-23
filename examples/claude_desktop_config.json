@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "vmware-vra": {
+      "command": "vra-mcp-server",
+      "args": ["--transport", "stdio"],
+      "env": {
+        "VRA_URL": "https://vra.example.com",
+        "VRA_TENANT": "vsphere.local",
+        "VRA_VERIFY_SSL": "true"
+      }
+    }
+  }
+}

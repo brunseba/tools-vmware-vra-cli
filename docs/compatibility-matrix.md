@@ -1,6 +1,6 @@
-# MCP App & CLI Compatibility Matrix
+# Server-CLI Compatibility Matrix
 
-This document provides a comprehensive compatibility matrix showing the usage relationships between the VMware vRA CLI and MCP Server components.
+This document provides a comprehensive compatibility analysis between the VMware vRA MCP Server and CLI components.
 
 ## Overview
 
@@ -8,7 +8,11 @@ The VMware vRA project provides two primary interfaces:
 - **CLI**: Command-line interface (`vra`) for interactive terminal usage
 - **MCP Server**: REST API server (`vra-server`) for programmatic access and web integrations
 
-Both interfaces provide equivalent functionality through different access patterns, sharing the same underlying business logic and vRA API integration.
+Both components have a **tightly coupled, shared-codebase architecture**:
+- **Same Package**: Both are part of the same `vmware-vra-cli` package
+- **Shared Core Libraries**: Server directly imports and uses the same API clients, authentication, and configuration modules as the CLI
+- **Unified Dependencies**: Both use identical dependency versions from the same `pyproject.toml`
+- **Zero API Drift**: Server routes directly call CLI implementation, ensuring consistency
 
 ## Component Architecture
 
@@ -44,92 +48,160 @@ graph TB
     API --> vRA
 ```
 
-## Compatibility Matrix
+## Version Compatibility Analysis
 
-### 🔐 Authentication & Security
+| Component | Current Version | Status | Notes |
+|-----------|----------------|--------|-------|
+| **Package Version** | 0.11.0 | ✅ **Current** | From `pyproject.toml` |
+| **CLI Version** | 0.10.0 | ⚠️ **Outdated** | In `__init__.py` - needs sync |
+| **Server Version** | 0.1.0 | ⚠️ **Inconsistent** | Hardcoded in `app.py` |
+| **Python Support** | ≥3.10 | ✅ **Identical** | Same requirements |
 
-| Feature | CLI | MCP Server | MCP Client | Compatibility | Notes |
-|---------|-----|------------|------------|---------------|-------|
-| Bearer Token Auth | ✅ | ✅ | ✅ | 100% | Shared `VRAAuthenticator` class |
-| Keyring Storage | ✅ | ✅ | ✅ | 100% | Secure credential storage via system keyring |
-| SSL/TLS Support | ✅ | ✅ | ✅ | 100% | Custom CA certificate support |
-| Token Refresh | ✅ | ✅ | ✅ | 100% | Automatic refresh token handling |
-| Multi-domain | ✅ | ✅ | ✅ | 100% | Identity source domain specification |
-| Session Management | ✅ | ✅ | ✅ | 100% | Login/logout operations |
+!!! warning "Version Inconsistency"
+    The package, CLI, and server components show different version numbers. This should be synchronized to avoid confusion.
 
-### ⚙️ Configuration Management
+## Functional Compatibility Matrix
 
-| Feature | CLI | MCP Server | MCP Client | Compatibility | Notes |
-|---------|-----|------------|------------|---------------|-------|
-| Environment Variables | ✅ | ✅ | ✅ | 100% | `VRA_*` prefix support |
-| Config File | ✅ | ✅ | ✅ | 100% | Shared `config.py` module |
-| Runtime Override | ✅ | ✅ | ✅ | 100% | Parameter-level configuration |
-| Profile Support | ✅ | ✅ | ✅ | 100% | Multi-environment management |
-| Validation | ✅ | ✅ | ✅ | 100% | Pydantic model validation |
-| Dynamic Updates | ✅ | ✅ | ✅ | 100% | Real-time configuration changes |
+### Core Features (Perfect Compatibility)
 
-### 📚 Service Catalog Operations
+| Feature Category | CLI Support | Server Support | Compatibility | Implementation |
+|------------------|-------------|----------------|---------------|----------------|
+| **Authentication** | ✅ Full | ✅ Full | ✅ **Perfect** | Uses same `VRAAuthenticator` and `TokenManager` |
+| **Configuration** | ✅ Full | ✅ Inherited | ✅ **Perfect** | Server uses same config system |
+| **Catalog Operations** | ✅ Full | ✅ Full | ✅ **Perfect** | Server routes to CLI's `CatalogClient` |
+| **Deployment Management** | ✅ Full | ✅ Full | ✅ **Perfect** | Shared implementation |
 
-| Feature | CLI | MCP Server | MCP Client | Compatibility | Notes |
-|---------|-----|------------|------------|---------------|-------|
-| List Catalog Items | ✅ | ✅ | ✅ | 100% | Pagination, filtering, project scoping |
-| Get Item Details | ✅ | ✅ | ✅ | 100% | Full metadata and properties |
-| Request Schema | ✅ | ✅ | ✅ | 100% | JSON schema for input validation |
-| Request Catalog Item | ✅ | ✅ | ✅ | 100% | Deployment creation with inputs |
-| Schema Export | ✅ | ✅ | ✅ | 100% | Bulk schema export to files |
-| Input Validation | ✅ | ✅ | ✅ | 100% | Pre-request validation |
+### Advanced Features (Incomplete Compatibility)
 
-### 🚀 Deployment Management
+| Feature Category | CLI Support | Server Support | Compatibility | Status |
+|------------------|-------------|----------------|---------------|--------|
+| **Tag Management** | ✅ Full | ❌ Models Only | ⚠️ **Incomplete** | Server has Pydantic models but no routes |
+| **Workflow Operations** | ✅ Full | ❌ Models Only | ⚠️ **Incomplete** | Server has Pydantic models but no routes |
+| **Reporting** | ✅ Full | ❌ Models Only | ⚠️ **Incomplete** | Server has Pydantic models but no routes |
 
-| Feature | CLI | MCP Server | MCP Client | Compatibility | Notes |
-|---------|-----|------------|------------|---------------|-------|
-| List Deployments | ✅ | ✅ | ✅ | 100% | Status filtering, pagination |
-| Get Deployment | ✅ | ✅ | ✅ | 100% | Full deployment details |
-| Delete Deployment | ✅ | ✅ | ✅ | 100% | Confirmation workflow |
-| Resource Listing | ✅ | ✅ | ✅ | 100% | Deployment resource details |
-| Bulk Export | ✅ | ✅ | ✅ | 100% | Export by catalog item grouping |
-| Status Monitoring | ✅ | ✅ | ✅ | 100% | Real-time status updates |
+## API Endpoint Mapping
 
-### 🔖 Tag Management
+### ✅ Implemented Endpoints
 
-| Feature | CLI | MCP Server | MCP Client | Compatibility | Notes |
-|---------|-----|------------|------------|---------------|-------|
-| List Tags | ✅ | ✅ | ✅ | 100% | Search and pagination support |
-| Create Tag | ✅ | ✅ | ✅ | 100% | Key-value-description model |
-| Update Tag | ✅ | ✅ | ✅ | 100% | Partial update support |
-| Delete Tag | ✅ | ✅ | ✅ | 100% | Confirmation workflow |
-| Assign to Resource | ✅ | ✅ | ✅ | 100% | Deployment and catalog item tagging |
-| Remove from Resource | ✅ | ✅ | ✅ | 100% | Tag removal operations |
-| List Resource Tags | ✅ | ✅ | ✅ | 100% | Resource tag enumeration |
+| CLI Command | Server Endpoint | HTTP Method | Status |
+|-------------|----------------|-------------|--------|
+| `vra auth login` | `/auth/login` | POST | ✅ **Implemented** |
+| `vra auth logout` | `/auth/logout` | POST | ✅ **Implemented** |
+| `vra auth status` | `/auth/status` | GET | ✅ **Implemented** |
+| `vra auth refresh` | `/auth/refresh` | POST | ✅ **Implemented** |
+| `vra catalog list` | `/catalog/items` | GET | ✅ **Implemented** |
+| `vra catalog show <id>` | `/catalog/items/{id}` | GET | ✅ **Implemented** |
+| `vra catalog schema <id>` | `/catalog/items/{id}/schema` | GET | ✅ **Implemented** |
+| `vra catalog request <id>` | `/catalog/items/{id}/request` | POST | ✅ **Implemented** |
+| `vra deployment list` | `/deployments` | GET | ✅ **Implemented** |
+| `vra deployment show <id>` | `/deployments/{id}` | GET | ✅ **Implemented** |
+| `vra deployment delete <id>` | `/deployments/{id}` | DELETE | ✅ **Implemented** |
+| `vra deployment resources <id>` | `/deployments/{id}/resources` | GET | ✅ **Implemented** |
 
-### ⚡ Workflow Operations
+### ❌ Missing Endpoints
 
-| Feature | CLI | MCP Server | MCP Client | Compatibility | Notes |
-|---------|-----|------------|------------|---------------|-------|
-| List Workflows | ✅ | ✅ | ✅ | 100% | vRO workflow discovery |
-| Execute Workflow | ✅ | ✅ | ✅ | 100% | Parameter passing and execution |
-| Monitor Execution | ✅ | ✅ | ✅ | 100% | Execution state tracking |
-| Input Parsing | ✅ | ✅ | ✅ | 100% | JSON/YAML input support |
+| CLI Command | Expected Server Endpoint | HTTP Method | Status |
+|-------------|-------------------------|-------------|--------|
+| `vra tag list` | `/tags` | GET | ❌ **Missing Route** |
+| `vra tag show <id>` | `/tags/{id}` | GET | ❌ **Missing Route** |
+| `vra tag create` | `/tags` | POST | ❌ **Missing Route** |
+| `vra tag update <id>` | `/tags/{id}` | PUT | ❌ **Missing Route** |
+| `vra tag delete <id>` | `/tags/{id}` | DELETE | ❌ **Missing Route** |
+| `vra tag assign` | `/tags/assign` | POST | ❌ **Missing Route** |
+| `vra tag remove` | `/tags/remove` | POST | ❌ **Missing Route** |
+| `vra tag resource-tags <id>` | `/resources/{id}/tags` | GET | ❌ **Missing Route** |
+| `vra workflow list` | `/workflows` | GET | ❌ **Missing Route** |
+| `vra workflow run <id>` | `/workflows/{id}/run` | POST | ❌ **Missing Route** |
+| `vra report activity-timeline` | `/reports/activity-timeline` | GET | ❌ **Missing Route** |
+| `vra report catalog-usage` | `/reports/catalog-usage` | GET | ❌ **Missing Route** |
+| `vra report resources-usage` | `/reports/resources-usage` | GET | ❌ **Missing Route** |
+| `vra report unsync` | `/reports/unsync` | GET | ❌ **Missing Route** |
 
-### 📊 Reporting & Analytics
+## Dependency Compatibility
 
-| Feature | CLI | MCP Server | MCP Client | Compatibility | Notes |
-|---------|-----|------------|------------|---------------|-------|
-| Activity Timeline | ✅ | ✅ | ✅ | 100% | Time-based deployment analysis |
-| Catalog Usage | ✅ | ✅ | ✅ | 100% | Usage statistics and success rates |
-| Unsync Report | ✅ | ✅ | ✅ | 100% | Unlinked deployment analysis |
-| Export Capabilities | ✅ | ✅ | ✅ | 100% | JSON/YAML/Table output formats |
+### Shared Dependencies
 
-### 🎨 Output & Formatting
+| Dependency | Version | Usage | Compatibility |
+|------------|---------|-------|---------------|
+| **Pydantic** | ≥2.0.0 | Data validation | ✅ **Perfect** - Both use same version |
+| **Requests** | ≥2.31.0 | HTTP client | ✅ **Perfect** - Core shared library |
+| **Keyring** | ≥24.0.0 | Secure token storage | ✅ **Perfect** - Authentication layer |
+| **PyYAML** | ≥6.0.0 | Configuration parsing | ✅ **Perfect** - Config system |
+| **HTTPx** | ≥0.25.0 | Async HTTP client | ✅ **Perfect** - Server operations |
 
-| Feature | CLI | MCP Server | MCP Client | Compatibility | Notes |
-|---------|-----|------------|------------|---------------|-------|
-| Table Format | ✅ | ❌ | ❌ | N/A | CLI-specific rich formatting |
-| JSON Format | ✅ | ✅ | ✅ | 100% | Standard JSON responses |
-| YAML Format | ✅ | ✅ | ✅ | 100% | Human-readable YAML |
-| Rich Console | ✅ | ❌ | ❌ | N/A | CLI-specific terminal styling |
-| Progress Indicators | ✅ | ❌ | ❌ | N/A | CLI-specific user experience |
-| Error Formatting | ✅ | ✅ | ✅ | 100% | Structured error responses |
+### Component-Specific Dependencies
+
+| Dependency | Version | Component | Purpose | Compatibility |
+|------------|---------|-----------|---------|---------------|
+| **FastAPI** | ≥0.104.0 | Server Only | Web framework | ✅ **No Conflict** |
+| **Uvicorn** | ≥0.24.0 | Server Only | ASGI server | ✅ **No Conflict** |
+| **Click** | ≥8.0.0 | CLI Only | Command interface | ✅ **No Conflict** |
+| **Rich** | ≥13.0.0 | CLI Only | Terminal output | ✅ **No Conflict** |
+| **Python-multipart** | ≥0.0.6 | Server Only | Form data handling | ✅ **No Conflict** |
+
+## Compatibility Score: 85/100
+
+| Category | Score | Max | Percentage | Notes |
+|----------|-------|-----|------------|-------|
+| **Core Functionality** | 25 | 25 | 100% | Perfect compatibility for auth, config, catalog, deployments |
+| **Architecture** | 20 | 20 | 100% | Shared codebase ensures consistency |
+| **API Coverage** | 15 | 25 | 60% | Missing advanced features (tags, workflows, reports) |
+| **Dependencies** | 20 | 20 | 100% | No conflicts, appropriate separation |
+| **Version Management** | 5 | 10 | 50% | Version inconsistencies across components |
+
+## Issues and Recommendations
+
+### 🚨 Critical Issues
+
+#### 1. Version Synchronization
+**Problem**: Package (0.11.0) ≠ CLI (0.10.0) ≠ Server (0.1.0)
+
+**Impact**: User confusion, deployment issues, support complications
+
+**Solution**:
+```python
+# Update src/vmware_vra_cli/__init__.py
+__version__ = "0.11.0"
+
+# Update src/vmware_vra_cli/app.py
+from vmware_vra_cli import __version__
+app = FastAPI(title="VMware vRA MCP Server", version=__version__)
+```
+
+#### 2. Incomplete Server Implementation
+**Problem**: Missing routers for tags, workflows, and reports
+
+**Impact**: Feature gap between CLI and server capabilities
+
+**Solution**: Implement missing router modules:
+- `src/vmware_vra_cli/server/routers/tags.py`
+- `src/vmware_vra_cli/server/routers/workflows.py`
+- `src/vmware_vra_cli/server/routers/reports.py`
+
+### ⚠️ Medium Priority Issues
+
+#### 3. Documentation Gaps
+**Problem**: No compatibility information in user documentation
+
+**Solution**: 
+- Add compatibility matrix to main documentation
+- Include version requirements in installation guides
+- Document feature parity expectations
+
+#### 4. Testing Coverage
+**Problem**: No automated compatibility testing
+
+**Solution**:
+- Add compatibility tests in CI/CD pipeline
+- Test server-CLI feature parity
+- Validate version synchronization
+
+### ✅ Strengths to Maintain
+
+1. **Shared Codebase Architecture**: Ensures consistency and reduces maintenance overhead
+2. **Perfect Core Compatibility**: Authentication, configuration, and core operations work identically
+3. **Clean Dependency Separation**: No conflicts between CLI and server dependencies
+4. **Unified Configuration**: Single configuration system works for both components
 
 ## Usage Patterns
 

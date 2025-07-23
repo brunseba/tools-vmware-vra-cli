@@ -34,11 +34,17 @@ A powerful Python CLI tool to interact with VMware vRealize Automation 8 via RES
 - Command-line argument overrides
 - Profile-based multi-environment support
 
-🌐 **MCP Server (NEW!)**
-- REST API server for web integrations
+🌐 **REST API Server**
+- HTTP REST API server for web integrations
 - Same functionality as CLI in HTTP endpoints
 - OpenAPI documentation with Swagger UI
 - Programmatic access for automation pipelines
+
+🤖 **MCP Server (NEW!)**
+- True Model Context Protocol (MCP) compliant server
+- LLM integration for AI-powered infrastructure management
+- JSON-RPC 2.0 over stdio transport
+- Compatible with Claude Desktop, VS Code Continue, and custom MCP clients
 
 ## Quick Start
 
@@ -71,12 +77,12 @@ vra deployment list
 vra workflow run <workflow-id> --inputs '{"param": "value"}'
 ```
 
-### MCP Server Usage
+### REST API Server Usage
 
 #### Local Development
 ```bash
-# Start the MCP server
-vra-server
+# Start the REST API server
+vra-rest-server
 
 # Server will be available at http://localhost:8000
 # Interactive API docs: http://localhost:8000/docs
@@ -101,10 +107,37 @@ docker compose --profile tools --profile docs --profile monitoring up -d
 ```
 
 **Available Services:**
-- **MCP Server**: `http://localhost:8000` - Main API server
+- **REST API Server**: `http://localhost:8000` - Main API server
 - **Swagger UI**: `http://localhost:8090` - Interactive API documentation
 - **Log Viewer**: `http://localhost:8080` - Real-time log monitoring (Dozzle)
 - **OpenAPI JSON**: `./output/openapi.json` - Generated API specification
+
+### MCP Server Usage
+
+#### Local Development
+```bash
+# Start the MCP server
+vra-mcp-server
+
+# Server communicates via JSON-RPC 2.0 over stdio
+# Compatible with Claude Desktop, VS Code Continue, etc.
+```
+
+#### Claude Desktop Integration
+Add to your Claude Desktop configuration:
+```json
+{
+  "mcpServers": {
+    "vmware-vra": {
+      "command": "vra-mcp-server",
+      "env": {
+        "VRA_URL": "https://vra.company.com",
+        "VRA_TENANT": "vsphere.local"
+      }
+    }
+  }
+}
+```
 
 ## Documentation
 
@@ -114,9 +147,10 @@ Comprehensive documentation is available at: **[https://brunseba.github.io/tools
 - 🚀 [Quick Start Tutorial](https://brunseba.github.io/tools-vmware-vra-cli/getting-started/quick-start/)
 - ⚙️ [Configuration Options](https://brunseba.github.io/tools-vmware-vra-cli/getting-started/configuration/)
 - 🔐 [Authentication Guide](https://brunseba.github.io/tools-vmware-vra-cli/user-guide/authentication/)
-- 🌐 [MCP Server Guide](docs/mcp-server.md)
+- 🌐 [REST API Server Guide](docs/rest-api-server.md)
+- 🤖 [MCP Server Guide](docs/mcp-server.md)
 - 🔄 [Compatibility Matrix](docs/compatibility-matrix.md)
-- 📖 [API Reference](https://brunseba.github.io/tools-vmware-vra-cli/user-guide/api-reference/)
+- 📚 [API Reference](https://brunseba.github.io/tools-vmware-vra-cli/user-guide/api-reference/)
 
 ## Use Cases
 

@@ -554,6 +554,11 @@ vmware-vra deployment export-all \
     --output-dir "$OUTPUT_DIR/exports" \
     --include-resources
 
+# Generate resources usage report
+echo "📊 Generating resources usage report..."
+vmware-vra report resources-usage --detailed-resources \
+    --format json > "$OUTPUT_DIR/resources-usage.json"
+
 # Generate HTML dashboard
 cat << 'EOF' > "$OUTPUT_DIR/dashboard.html"
 <!DOCTYPE html>

@@ -1,16 +1,16 @@
-"""FastAPI app for MCP server based on vmware-vra-cli."""
+"""FastAPI app for REST API server based on vmware-vra-cli."""
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
-from vmware_vra_cli.server.models import HealthResponse, ErrorResponse
-from vmware_vra_cli.server.routers import auth, catalog, deployments
+from vmware_vra_cli.rest_server.models import HealthResponse, ErrorResponse
+from vmware_vra_cli.rest_server.routers import auth, catalog, deployments
 
 import uvicorn
 import time
 
-app = FastAPI(title="VMware vRA MCP Server", version="0.1.0")
+app = FastAPI(title="VMware vRA REST API Server", version="0.1.0")
 
 # Include routers
 app.include_router(auth.router)
@@ -41,7 +41,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 # Root endpoint
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the VMware vRA MCP Server!"}
+    return {"message": "Welcome to the VMware vRA REST API Server!"}
 
 # Health check endpoint
 @app.get("/health", response_model=HealthResponse)

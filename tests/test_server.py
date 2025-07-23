@@ -1,4 +1,4 @@
-"""Tests for MCP server."""
+"""Tests for REST API server."""
 
 import pytest
 from fastapi.testclient import TestClient

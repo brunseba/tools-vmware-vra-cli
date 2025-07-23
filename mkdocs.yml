@@ -96,12 +96,14 @@ nav:
     - Quick Start: getting-started/quick-start.md
     - Configuration: getting-started/configuration.md
     - MCP Server Guide: mcp-server.md
+    - MCP Server Docker Guide: mcp-server-docker.md
     - Compatibility Matrix: compatibility-matrix.md
   - User Guide:
     - Authentication: user-guide/authentication.md
     - Service Catalog: user-guide/service-catalog.md
     - Tag Management: user-guide/tag-management.md
     - Deployment Export: user-guide/deployment-export.md
+    - Resources Usage Reporting: user-guide/resources-usage-guide.md
     - CLI Reference: user-guide/cli-reference.md
     - Practical Examples: user-guide/examples.md
     - Troubleshooting: user-guide/troubleshooting.md

@@ -16,7 +16,8 @@ A powerful Python CLI tool to interact with VMware vRealize Automation 8 via RES
     - **Deployment Export**: Export all deployments grouped by catalog item for backup, migration, and analytics
     - **Tag Management**: Comprehensive tagging system for resource organization and governance
     - **Workflow Operations**: Execute and monitor vRealize Orchestrator workflows
-    - **Analytics & Reporting**: Generate usage reports, activity timelines, and unsynced deployment analysis
+    - **Analytics & Reporting**: Generate usage reports, activity timelines, resources usage analysis, and unsynced deployment analysis
+    - **Resource Usage Monitoring**: Consolidated view of all resources across deployments with detailed breakdown by type and status
     - **Configuration Management**: Flexible configuration options with environment variables and config files
     - **Rich Output**: Beautiful terminal output with colors and progress indicators
     - **Secure Credential Storage**: Integration with system keyring for secure credential management
@@ -54,6 +55,9 @@ vra catalog request <catalog-item-id> --project <project-id> --name "dev-vm-001"
 
 # List deployments
 vra deployment list
+
+# Generate resource usage report
+vra report resources-usage --group-by resource-type
 
 # Create and assign tags
 vra tag create "environment" --value "development" --description "Dev environment"

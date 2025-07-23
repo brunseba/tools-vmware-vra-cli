@@ -1,0 +1,45 @@
+{
+  "models": [
+    {
+      "title": "GPT-4",
+      "provider": "openai",
+      "model": "gpt-4",
+      "apiKey": "your_openai_api_key"
+    }
+  ],
+  "contextProviders": [
+    {
+      "name": "files",
+      "params": {}
+    },
+    {
+      "name": "code",
+      "params": {}
+    }
+  ],
+  "slashCommands": [
+    {
+      "name": "edit",
+      "description": "Edit selected code"
+    },
+    {
+      "name": "comment",
+      "description": "Add comments to code"
+    }
+  ],
+  "experimental": {
+    "mcp": {
+      "servers": [
+        {
+          "name": "vmware-vra",
+          "description": "VMware vRealize Automation integration",
+          "command": ["vra-mcp-server", "--transport", "stdio"],
+          "env": {
+            "VRA_URL": "https://vra.example.com",
+            "VRA_TENANT": "vsphere.local"
+          }
+        }
+      ]
+    }
+  }
+}
