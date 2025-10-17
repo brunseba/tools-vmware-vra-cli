@@ -2,13 +2,13 @@
 
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
-from vmware_vra_cli.server.models import (
+from vmware_vra_cli.rest_server.models import (
     DeploymentsResponse,
     DeploymentResponse,
     DeploymentResourcesResponse,
     BaseResponse,
 )
-from vmware_vra_cli.server.utils import get_catalog_client, handle_client_error
+from vmware_vra_cli.rest_server.utils import get_catalog_client, handle_client_error
 
 router = APIRouter(prefix="/deployments", tags=["deployments"])
 

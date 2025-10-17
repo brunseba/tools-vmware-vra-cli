@@ -1,7 +1,7 @@
 """Authentication endpoints for MCP server."""
 
 from fastapi import APIRouter, HTTPException, status
-from vmware_vra_cli.server.models import (
+from vmware_vra_cli.rest_server.models import (
     AuthRequest,
     AuthResponse,
     BaseResponse,
