@@ -1,0 +1,49 @@
+{
+  "catalog_item_info": {
+    "id": "2445d114-df1b-3bf5-9015-55d4110e939e",
+    "name": "Data disk - Add",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "isHA": {
+        "type": "boolean",
+        "title": "isHA"
+      },
+      "vmName": {
+        "type": "string",
+        "title": "vmName"
+      },
+      "diskName": {
+        "type": "string",
+        "title": "diskName"
+      },
+      "diskSize": {
+        "type": "number",
+        "title": "diskSize"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName"
+      },
+      "datastoreCluster": {
+        "type": "string",
+        "title": "datastoreCluster"
+      },
+      "storagePerformance": {
+        "type": "string",
+        "title": "storagePerformance"
+      }
+    },
+    "required": []
+  }
+}

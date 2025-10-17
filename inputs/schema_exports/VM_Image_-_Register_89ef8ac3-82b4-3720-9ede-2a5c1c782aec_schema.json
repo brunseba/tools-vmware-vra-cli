@@ -1,0 +1,49 @@
+{
+  "catalog_item_info": {
+    "id": "89ef8ac3-82b4-3720-9ede-2a5c1c782aec",
+    "name": "VM Image - Register",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmId": {
+        "type": "string",
+        "title": "vmId"
+      },
+      "osType": {
+        "type": "string",
+        "title": "osType"
+      },
+      "imgType": {
+        "type": "string",
+        "title": "imgType"
+      },
+      "isCustLic": {
+        "type": "boolean",
+        "title": "isCustLic"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      },
+      "vmImageName": {
+        "type": "string",
+        "title": "vmImageName"
+      },
+      "pathToSrcImage": {
+        "type": "string",
+        "title": "pathToSrcImage"
+      },
+      "isFromExistingVM": {
+        "type": "boolean",
+        "title": "isFromExistingVM"
+      }
+    },
+    "required": []
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "catalog_item_info": {
+    "id": "0dd2244a-20a3-3678-ae5d-e6e8d7b7b746",
+    "name": "Application Security Group - Remove",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "asgId": {
+        "type": "string",
+        "title": "asgId"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      }
+    },
+    "required": []
+  }
+}

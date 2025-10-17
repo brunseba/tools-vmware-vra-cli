@@ -1,0 +1,62 @@
+{
+  "catalog_item_info": {
+    "id": "ea117735-7f1c-3c7f-bd59-3d36bb7925fb",
+    "name": "Inter ASG FW Rule - Create",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "protocol": {
+        "type": "string",
+        "title": "Protocol",
+        "enum": [
+          "TCP",
+          "UDP",
+          "ICMP",
+          "TCP/UDP"
+        ]
+      },
+      "regionId": {
+        "type": "string",
+        "title": "Region",
+        "enum": [
+          "MOP"
+        ],
+        "default": ""
+      },
+      "ruleName": {
+        "type": "string",
+        "title": "Rule Name"
+      },
+      "portrange": {
+        "type": "string",
+        "title": "Destination Ports"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId",
+        "default": ""
+      },
+      "sourceASG": {
+        "type": "string",
+        "title": "sourceASG",
+        "$data": "/data/vro-actions/fr.kyndryl.library.presentation/getKPCListOfIds?isPublished=false&regionId={{regionId}}&type=applicationSecurityGroup&projectId={{projectId}}"
+      },
+      "destinationASG": {
+        "type": "string",
+        "title": "Destination ASG Name",
+        "$data": "/data/vro-actions/fr.kyndryl.library.presentation/getKPCListOfIds?isPublished=false&regionId={{regionId}}&type=applicationSecurityGroup&projectId={{projectId}}"
+      },
+      "extAddressArray": {
+        "type": "string",
+        "title": "extAddressArray"
+      }
+    },
+    "required": []
+  }
+}

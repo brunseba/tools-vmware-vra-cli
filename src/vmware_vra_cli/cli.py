@@ -14,6 +14,7 @@ import yaml
 from vmware_vra_cli.api.catalog import CatalogClient
 from vmware_vra_cli.auth import VRAAuthenticator, TokenManager
 from vmware_vra_cli.config import get_config, save_login_config, config_manager
+from vmware_vra_cli.commands.generic_catalog import schema_catalog
 from vmware_vra_cli import __version__
 
 console = Console()
@@ -151,6 +152,9 @@ def refresh():
 def config():
     """Configuration management operations."""
     pass
+
+# Add schema catalog commands
+main.add_command(schema_catalog)
 
 @config.command('show')
 @click.pass_context

@@ -1,0 +1,33 @@
+{
+  "catalog_item_info": {
+    "id": "366125f3-7f43-3973-a24f-bb02dc88a311",
+    "name": "Data disk - Delete",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmName": {
+        "type": "string",
+        "title": "vmName"
+      },
+      "diskName": {
+        "type": "string",
+        "title": "diskName"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName"
+      }
+    },
+    "required": []
+  }
+}

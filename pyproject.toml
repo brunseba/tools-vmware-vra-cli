@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "vmware-vra-cli"
-version = "0.11.0"
+version = "0.12.0"
 description = "A Python CLI tool to interact with VMware vRealize Automation 8 via REST API"
 readme = "README.md"
 requires-python = ">=3.10"

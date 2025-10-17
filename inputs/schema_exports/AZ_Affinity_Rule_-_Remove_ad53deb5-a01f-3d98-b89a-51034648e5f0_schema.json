@@ -1,0 +1,25 @@
+{
+  "catalog_item_info": {
+    "id": "ad53deb5-a01f-3d98-b89a-51034648e5f0",
+    "name": "AZ Affinity Rule - Remove",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "tenantId": {
+        "type": "string",
+        "title": "tenantId"
+      },
+      "affinityRuleId": {
+        "type": "string",
+        "title": "affinityRuleId"
+      }
+    },
+    "required": []
+  }
+}

@@ -133,7 +133,7 @@ extra:
     provider: mike
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/brun_s/vmware-vra-cli
+      link: https://github.com/brunseba/tools-vmware-vra-cli
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/vmware-vra-cli/
 

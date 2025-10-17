@@ -1,0 +1,37 @@
+{
+  "catalog_item_info": {
+    "id": "e8b251eb-bc4a-3dc8-88d0-5ffba48bf7c6",
+    "name": "Inventory - List all resources of type",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "objectId": {
+        "type": "string",
+        "title": "objectId"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      },
+      "toAddress": {
+        "type": "string",
+        "title": "toAddress"
+      },
+      "csvTextArea": {
+        "type": "string",
+        "title": "csvTextArea"
+      }
+    },
+    "required": []
+  }
+}

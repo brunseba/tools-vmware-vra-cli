@@ -1,0 +1,53 @@
+{
+  "catalog_item_info": {
+    "id": "86c73043-386c-3f94-af40-7dbde006300c",
+    "name": "Disk - Resize",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmName": {
+        "type": "string",
+        "title": "vmName"
+      },
+      "diskName": {
+        "type": "string",
+        "title": "diskName"
+      },
+      "diskSize": {
+        "type": "number",
+        "title": "diskSize"
+      },
+      "diskType": {
+        "type": "string",
+        "title": "diskType"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName"
+      },
+      "currentDiskSize": {
+        "type": "number",
+        "title": "currentDiskSize"
+      },
+      "datastoreCluster": {
+        "type": "string",
+        "title": "datastoreCluster"
+      },
+      "storagePerformance": {
+        "type": "string",
+        "title": "storagePerformance"
+      }
+    },
+    "required": []
+  }
+}

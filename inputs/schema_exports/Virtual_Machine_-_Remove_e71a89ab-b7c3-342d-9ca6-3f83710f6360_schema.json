@@ -1,0 +1,35 @@
+{
+  "catalog_item_info": {
+    "id": "e71a89ab-b7c3-342d-9ca6-3f83710f6360",
+    "name": "Virtual Machine - Remove",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmName": {
+        "type": "string",
+        "title": "vmName",
+        "$data": "/data/vro-actions/fr.kyndryl.library.presentation/getKPCListOfIds?isPublished=false&regionId={{regionId}}&type=virtualMachine&projectId={{projectId}}"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "Region",
+        "enum": [
+          "MOP"
+        ],
+        "default": "MOP"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId",
+        "default": ""
+      }
+    },
+    "required": []
+  }
+}

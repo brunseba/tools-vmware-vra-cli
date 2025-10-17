@@ -1,0 +1,33 @@
+{
+  "catalog_item_info": {
+    "id": "e6f00dbc-dab4-3662-8c80-ca317c492517",
+    "name": "Public IP addresses - Add a set of 5",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "newIPs": {
+        "type": "array",
+        "title": "newIPs",
+        "items": {
+          "type": "string",
+          "title": "newIPs"
+        }
+      },
+      "region": {
+        "type": "string",
+        "title": "region"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName"
+      }
+    },
+    "required": []
+  }
+}

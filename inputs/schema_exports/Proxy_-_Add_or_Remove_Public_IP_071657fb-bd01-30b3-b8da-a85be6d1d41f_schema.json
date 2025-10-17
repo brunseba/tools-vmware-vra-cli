@@ -1,0 +1,37 @@
+{
+  "catalog_item_info": {
+    "id": "071657fb-bd01-30b3-b8da-a85be6d1d41f",
+    "name": "Proxy - Add or Remove Public IP",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmName": {
+        "type": "string",
+        "title": "vmName"
+      },
+      "publicIp": {
+        "type": "array",
+        "title": "publicIp",
+        "items": {
+          "type": "string",
+          "title": "publicIp"
+        }
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      }
+    },
+    "required": []
+  }
+}

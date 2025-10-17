@@ -1,0 +1,41 @@
+{
+  "catalog_item_info": {
+    "id": "20ad7aaf-8838-3339-979f-39486ed37682",
+    "name": "Routing Zone - Create",
+    "type": "VMware Aria Automation Templates",
+    "status": null,
+    "version": null,
+    "description": ""
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "encrypted": false,
+    "properties": {
+      "Region": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Region",
+        "description": "Enter Region of deployment",
+        "$data": "/data/vro-actions/fr.kyndryl.library.presentation/getKPCListOfRegions?projectId={{Tenant-Name}}"
+      },
+      "RZ-Number": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Routing Zone Name",
+        "description": "Enter a RZ Name as 3 digits from 001 to 999",
+        "pattern": "^00[1-9]|0[1-9]\\d|[1-9]\\d\\d$"
+      },
+      "Tenant-Name": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Tenant Name",
+        "default": "testcustomer"
+      }
+    },
+    "required": [
+      "RZ-Number",
+      "Region"
+    ]
+  }
+}

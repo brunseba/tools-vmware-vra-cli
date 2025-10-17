@@ -1,0 +1,42 @@
+{
+  "catalog_item_info": {
+    "id": "9252e8d9-07ce-36e2-bf32-8821b8ce6f30",
+    "name": "Backup Policy - Associate VMs",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "policyId": {
+        "type": "string",
+        "title": "policyId"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId",
+        "$data": "/data/vro-actions/fr.kyndryl.library.presentation/getKPCListOfRegions?isNotYetInTenant=false&projectId={{tenantName}}"
+      },
+      "listOfVms": {
+        "type": "array",
+        "title": "listOfVms",
+        "items": {
+          "type": "string",
+          "title": "listOfVms"
+        }
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName"
+      }
+    },
+    "required": []
+  }
+}

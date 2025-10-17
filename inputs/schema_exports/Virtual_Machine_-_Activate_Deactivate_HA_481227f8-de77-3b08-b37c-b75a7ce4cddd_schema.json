@@ -1,0 +1,33 @@
+{
+  "catalog_item_info": {
+    "id": "481227f8-de77-3b08-b37c-b75a7ce4cddd",
+    "name": "Virtual Machine - Activate, Deactivate HA",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "isHA": {
+        "type": "boolean",
+        "title": "isHA"
+      },
+      "vmId": {
+        "type": "string",
+        "title": "vmId"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      }
+    },
+    "required": []
+  }
+}

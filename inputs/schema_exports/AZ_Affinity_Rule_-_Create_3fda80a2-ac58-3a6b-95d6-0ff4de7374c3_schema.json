@@ -1,0 +1,73 @@
+{
+  "catalog_item_info": {
+    "id": "3fda80a2-ac58-3a6b-95d6-0ff4de7374c3",
+    "name": "AZ Affinity Rule - Create",
+    "type": "VMware Aria Automation Templates",
+    "status": null,
+    "version": null,
+    "description": ""
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "encrypted": false,
+    "properties": {
+      "Region": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Region",
+        "description": "Enter Region of deployment",
+        "$data": "/data/vro-actions/fr.kyndryl.library.presentation/getKPCListOfRegions?projectId={{Tenant-Name}}"
+      },
+      "Rule-Name": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Affinity Rule Name",
+        "pattern": "^[a-z0-9A-Z@#$_]+$"
+      },
+      "Tenant-Name": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Tenant Name",
+        "default": "testcustomer"
+      },
+      "Affinity-Type": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Affinity Type",
+        "description": "Specify if this is an AZ affinity or AZ anti-affinity rule",
+        "enum": [
+          "AZ affinity",
+          "AZ anti-affinity"
+        ]
+      },
+      "Array-Same-Az-VMs": {
+        "type": "array",
+        "encrypted": false,
+        "title": "VMs to be in the same AZ",
+        "description": "List of VMs which must be in the same AZ",
+        "items": {
+          "type": "string",
+          "encrypted": false
+        }
+      },
+      "Array-Other-Az-VMs": {
+        "type": "array",
+        "encrypted": false,
+        "title": "VMs to be in the other AZ",
+        "description": "List of VMs which must be in the other AZ, in case of anti-affinity rule",
+        "items": {
+          "type": "string",
+          "encrypted": false
+        }
+      }
+    },
+    "required": [
+      "Rule-Name",
+      "Affinity-Type",
+      "Region",
+      "Array-Same-Az-VMs",
+      "Array-Other-Az-VMs"
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "catalog_item_info": {
+    "id": "d29f93a1-392f-38bc-b837-be52e9fceef4",
+    "name": "Virtual Machine - Mount-Unmount ISO",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmId": {
+        "type": "string",
+        "title": "vmId"
+      },
+      "mount": {
+        "type": "boolean",
+        "title": "mount"
+      },
+      "bootIsoId": {
+        "type": "string",
+        "title": "bootIsoId"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName"
+      }
+    },
+    "required": []
+  }
+}

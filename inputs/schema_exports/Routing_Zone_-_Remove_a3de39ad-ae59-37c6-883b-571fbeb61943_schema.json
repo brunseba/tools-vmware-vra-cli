@@ -1,0 +1,29 @@
+{
+  "catalog_item_info": {
+    "id": "a3de39ad-ae59-37c6-883b-571fbeb61943",
+    "name": "Routing Zone - Remove",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "rzId": {
+        "type": "string",
+        "title": "rzId"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      }
+    },
+    "required": []
+  }
+}

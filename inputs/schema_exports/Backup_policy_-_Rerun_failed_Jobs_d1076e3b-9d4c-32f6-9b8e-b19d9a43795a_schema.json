@@ -1,0 +1,41 @@
+{
+  "catalog_item_info": {
+    "id": "d1076e3b-9d4c-32f6-9b8e-b19d9a43795a",
+    "name": "Backup policy - Rerun failed Jobs",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "mailId": {
+        "type": "string",
+        "title": "mailId"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      },
+      "jobSelected": {
+        "type": "array",
+        "title": "jobSelected",
+        "items": {
+          "type": "string",
+          "title": "jobSelected"
+        }
+      },
+      "backupPolicyId": {
+        "type": "string",
+        "title": "backupPolicyId"
+      }
+    },
+    "required": []
+  }
+}

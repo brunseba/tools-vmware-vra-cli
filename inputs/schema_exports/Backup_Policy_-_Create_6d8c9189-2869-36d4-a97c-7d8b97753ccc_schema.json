@@ -1,0 +1,93 @@
+{
+  "catalog_item_info": {
+    "id": "6d8c9189-2869-36d4-a97c-7d8b97753ccc",
+    "name": "Backup Policy - Create",
+    "type": "VMware Aria Automation Templates",
+    "status": null,
+    "version": null,
+    "description": ""
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "encrypted": false,
+    "properties": {
+      "Region": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Region",
+        "description": "Enter Region of deployment"
+      },
+      "Tenant-Name": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Tenant Name"
+      },
+      "backupMethod": {
+        "type": "string",
+        "encrypted": false
+      },
+      "Backup-Window": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Backup Window",
+        "enum": [
+          "1-7",
+          "7-13",
+          "13-19",
+          "19-1"
+        ]
+      },
+      "Backup-Frequency": {
+        "type": "array",
+        "encrypted": false,
+        "title": "Backup Frequency",
+        "items": {
+          "type": "string",
+          "encrypted": false
+        }
+      },
+      "Backup-Schedules": {
+        "type": "array",
+        "encrypted": false,
+        "title": "Backup Types",
+        "items": {
+          "type": "object",
+          "encrypted": false
+        }
+      },
+      "Retention-Period": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Retention Period"
+      },
+      "BackupPolicy-Name": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Backup Policy Name"
+      },
+      "Retention-Frequency": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Retention Frequency",
+        "enum": [
+          "Daily",
+          "Weekly",
+          "Monthly",
+          "Yearly"
+        ]
+      }
+    },
+    "required": [
+      "BackupPolicy-Name",
+      "Tenant-Name",
+      "Backup-Window",
+      "Backup-Frequency",
+      "Retention-Frequency",
+      "Region",
+      "backupMethod",
+      "Backup-Schedules",
+      "Retention-Period"
+    ]
+  }
+}

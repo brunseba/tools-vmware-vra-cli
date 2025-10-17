@@ -1,0 +1,49 @@
+{
+  "catalog_item_info": {
+    "id": "6b89a61a-ba38-3153-82a0-586d6eef1912",
+    "name": "Tag - Add Modify Remove",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "tagName": {
+        "type": "string",
+        "title": "tagName"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      },
+      "tagFilter": {
+        "type": "string",
+        "title": "tagFilter"
+      },
+      "resourceList": {
+        "type": "array",
+        "title": "resourceList",
+        "items": {
+          "type": "string",
+          "title": "resourceList"
+        }
+      },
+      "resourceType": {
+        "type": "string",
+        "title": "resourceType"
+      },
+      "tagOperation": {
+        "type": "string",
+        "title": "tagOperation"
+      }
+    },
+    "required": []
+  }
+}

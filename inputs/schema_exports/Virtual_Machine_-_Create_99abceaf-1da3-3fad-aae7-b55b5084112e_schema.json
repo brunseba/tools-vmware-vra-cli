@@ -1,0 +1,112 @@
+{
+  "catalog_item_info": {
+    "id": "99abceaf-1da3-3fad-aae7-b55b5084112e",
+    "name": "Virtual Machine - Create",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "region": {
+        "type": "string",
+        "title": "Region",
+        "enum": [
+          "MOP"
+        ]
+      },
+      "vmName": {
+        "type": "string",
+        "title": "Name for the VM",
+        "maxLength": 15,
+        "minLength": 1
+      },
+      "asgName": {
+        "type": "string",
+        "title": "Application Security Group",
+        "$data": "/data/vro-actions/fr.kyndryl.library.presentation/getKPCListOfIds?isPublished=false&regionId={{region}}&type=applicationSecurityGroup&projectId={{tenantName}}"
+      },
+      "imageID": {
+        "type": "string",
+        "title": "imageID"
+      },
+      "nsgName": {
+        "type": "string",
+        "title": "nsgName",
+        "$dynamicDefault": "/data/vro-actions/fr.kyndryl.library.configuration/getNsgFromAsg?asgKey={{asgName}}&projectId={{tenantName}}"
+      },
+      "vCPUSize": {
+        "type": "number",
+        "title": "Number of vCPUs",
+        "maximum": 72.0,
+        "minimum": 1.0
+      },
+      "vRAMSize": {
+        "type": "number",
+        "title": "vRAM Size (GiB)",
+        "maximum": 400.0,
+        "minimum": 1.0
+      },
+      "bootIsoId": {
+        "type": "string",
+        "title": "bootIsoId"
+      },
+      "imageName": {
+        "type": "string",
+        "title": "Name of VM Image to use",
+        "default": "KPC-Win2K22"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      },
+      "osDiskSize": {
+        "type": "number",
+        "title": "OS Disk Size (GiB)",
+        "maximum": 1023.0,
+        "minimum": 1.0,
+        "default": 90.0
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName",
+        "$dynamicDefault": "/data/vro-actions/fr.kyndryl.library.vraRestapi/getProjectNameFromIdInAllTenants?projectID={{projectId}}"
+      },
+      "isBootOnIso": {
+        "type": "boolean",
+        "title": "isBootOnIso"
+      },
+      "isAdminSplit": {
+        "type": "boolean",
+        "title": "isAdminSplit",
+        "$dynamicDefault": "/data/vro-actions/fr.kyndryl.library.configuration/isNsgAdminSplit?nsgKey={{nsgName}}&projectId={{tenantName}}"
+      },
+      "affinityListId": {
+        "type": "string",
+        "title": "affinityListId"
+      },
+      "affinityRuleId": {
+        "type": "string",
+        "title": "affinityRuleId"
+      },
+      "customerLicense": {
+        "type": "boolean",
+        "title": "Customer License"
+      },
+      "operatingSystem": {
+        "type": "string",
+        "title": "Operating System"
+      },
+      "highAvailability": {
+        "type": "boolean",
+        "title": "High Availability"
+      }
+    },
+    "required": [
+      "vmName"
+    ]
+  }
+}

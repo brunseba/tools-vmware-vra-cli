@@ -1,0 +1,30 @@
+{
+  "catalog_item_info": {
+    "id": "9d77db62-b212-34c2-9e28-33ac77ceb7bc",
+    "name": "Tenant - Delete Failed Deployment",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "depId": {
+        "type": "string",
+        "title": "depId"
+      },
+      "depName": {
+        "type": "string",
+        "title": "depName",
+        "$data": "/data/vro-actions/fr.kyndryl.library.presentation/getKPCListOfFailedDeployments?regionId={{regionId}}&projectId={{projectId}}&filterString={{filterString}}"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      }
+    },
+    "required": []
+  }
+}
