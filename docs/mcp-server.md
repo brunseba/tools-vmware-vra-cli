@@ -181,6 +181,81 @@ Delete a deployment.
 - `deployment_id` (string, required): Deployment ID
 - `confirm` (boolean, optional): Confirm deletion (default: true)
 
+### Schema Catalog Tools (NEW!)
+
+Advanced schema-driven catalog operations with persistent cache support.
+
+#### `vra_schema_load_schemas`
+Load catalog schemas from JSON files into persistent cache.
+
+**Parameters:**
+- `pattern` (string, optional): File pattern to match schema files (default: "*_schema.json")
+- `force_reload` (boolean, optional): Force reload even if already loaded (default: false)
+
+#### `vra_schema_list_schemas`
+List available catalog schemas from cache.
+
+**Parameters:**
+- `item_type` (string, optional): Filter by catalog item type
+- `name_filter` (string, optional): Filter by name (case-insensitive substring match)
+
+#### `vra_schema_search_schemas`
+Search catalog schemas by name or description.
+
+**Parameters:**
+- `query` (string, required): Search query (case-insensitive)
+
+#### `vra_schema_show_schema`
+Show detailed schema information for a catalog item.
+
+**Parameters:**
+- `catalog_item_id` (string, required): Catalog item ID
+
+#### `vra_schema_execute_schema`
+Execute a catalog item using its schema with AI-guided input collection.
+
+**Parameters:**
+- `catalog_item_id` (string, required): Catalog item ID
+- `project_id` (string, required): vRA project ID
+- `deployment_name` (string, optional): Custom deployment name
+- `inputs` (object, optional): Input values dictionary
+- `dry_run` (boolean, optional): Validate inputs without executing (default: false)
+
+**Example:**
+```json
+{
+  "name": "vra_schema_execute_schema",
+  "arguments": {
+    "catalog_item_id": "99abceaf-1da3-3fad-aae7-b55b5084112e",
+    "project_id": "dev-project",
+    "inputs": {
+      "vmName": "web-server-001",
+      "vCPUSize": 4,
+      "vRAMSize": 8,
+      "region": "MOP"
+    },
+    "dry_run": false
+  }
+}
+```
+
+#### `vra_schema_generate_template`
+Generate input template for a catalog item.
+
+**Parameters:**
+- `catalog_item_id` (string, required): Catalog item ID
+- `project_id` (string, required): vRA project ID
+
+#### `vra_schema_clear_cache`
+Clear the persistent schema registry cache.
+
+**Parameters:** None
+
+#### `vra_schema_registry_status`
+Show schema registry status and statistics.
+
+**Parameters:** None
+
 ## Available Resources
 
 The MCP server exposes the following resources:
