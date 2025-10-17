@@ -2,6 +2,7 @@
 
 import json
 import glob
+import pickle
 from pathlib import Path
 from typing import Dict, List, Optional, Iterator
 from rich.console import Console
@@ -15,14 +16,56 @@ console = Console()
 class SchemaRegistry:
     """Registry for managing catalog item schemas."""
     
-    def __init__(self, schema_dirs: Optional[List[Path]] = None):
+    def __init__(self, schema_dirs: Optional[List[Path]] = None, cache_dir: Optional[Path] = None):
         """Initialize schema registry.
         
         Args:
             schema_dirs: List of directories to search for schema files
+            cache_dir: Directory to store persistent cache (defaults to ~/.vmware-vra-cli/cache)
         """
         self.schema_dirs = schema_dirs or []
+        self.cache_dir = cache_dir or Path.home() / ".vmware-vra-cli" / "cache"
+        self.cache_file = self.cache_dir / "schema_registry.pkl"
         self._schemas: Dict[str, CatalogItemSchema] = {}
+        self._loaded = False
+        
+        # Ensure cache directory exists
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Load from cache if available
+        self._load_from_cache()
+    
+    def _load_from_cache(self) -> None:
+        """Load schemas from persistent cache."""
+        if self.cache_file.exists():
+            try:
+                with open(self.cache_file, 'rb') as f:
+                    cache_data = pickle.load(f)
+                    self._schemas = cache_data.get('schemas', {})
+                    self.schema_dirs = cache_data.get('schema_dirs', self.schema_dirs)
+                    self._loaded = True
+            except Exception as e:
+                console.print(f"[yellow]Warning: Could not load cache: {e}[/yellow]")
+                self._schemas = {}
+                self._loaded = False
+    
+    def _save_to_cache(self) -> None:
+        """Save schemas to persistent cache."""
+        try:
+            cache_data = {
+                'schemas': self._schemas,
+                'schema_dirs': self.schema_dirs
+            }
+            with open(self.cache_file, 'wb') as f:
+                pickle.dump(cache_data, f)
+        except Exception as e:
+            console.print(f"[yellow]Warning: Could not save cache: {e}[/yellow]")
+    
+    def clear_cache(self) -> None:
+        """Clear persistent cache."""
+        if self.cache_file.exists():
+            self.cache_file.unlink()
+        self._schemas.clear()
         self._loaded = False
         
     def add_schema_directory(self, path: Path) -> None:
@@ -73,6 +116,7 @@ class SchemaRegistry:
                         console.print(f"[red]Error loading {schema_file.name}: {e}[/red]")
                         
         self._loaded = True
+        self._save_to_cache()
         console.print(f"[green]✅ Loaded {loaded_count} catalog schemas[/green]")
         return loaded_count
     

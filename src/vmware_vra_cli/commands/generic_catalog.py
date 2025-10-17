@@ -395,3 +395,10 @@ def export_inputs_template(output_file: Path, catalog_item_id: str, project_id: 
         console.print(f"[green]✅ Input template exported to: {output_file}[/green]")
     except Exception as e:
         console.print(f"[red]Error writing template file: {e}[/red]")
+
+
+@schema_catalog.command()
+def clear_cache():
+    """Clear the schema registry cache."""
+    registry.clear_cache()
+    console.print("[green]✅ Schema cache cleared[/green]")
