@@ -31,8 +31,8 @@ class SchemaEngine:
         fields = []
         dependencies = {}
         
-        for prop_name, prop_def in schema.schema.properties.items():
-            field = self._create_form_field(prop_name, prop_def, schema.schema.required)
+        for prop_name, prop_def in schema.schema_definition.properties.items():
+            field = self._create_form_field(prop_name, prop_def, schema.schema_definition.required)
             fields.append(field)
             
             # Extract dependencies from dynamic sources
@@ -145,17 +145,17 @@ class SchemaEngine:
         processed_inputs = {}
         
         # Check required fields
-        for required_field in schema.schema.required:
+        for required_field in schema.schema_definition.required:
             if required_field not in inputs or inputs[required_field] is None:
                 errors.append(f"Required field '{required_field}' is missing")
         
         # Validate each input
         for field_name, value in inputs.items():
-            if field_name not in schema.schema.properties:
+            if field_name not in schema.schema_definition.properties:
                 warnings.append(f"Unknown field '{field_name}' will be ignored")
                 continue
                 
-            prop = schema.schema.properties[field_name]
+            prop = schema.schema_definition.properties[field_name]
             field_errors = self._validate_field_value(field_name, value, prop)
             errors.extend(field_errors)
             
@@ -261,15 +261,15 @@ class SchemaEngine:
             Request payload dictionary
         """
         payload = {
-            "deploymentName": context.deployment_name or f"deployment-{context.schema.catalog_item_info.name.lower().replace(' ', '-')}",
+            "deploymentName": context.deployment_name or f"deployment-{context.catalog_schema.catalog_item_info.name.lower().replace(' ', '-')}",
             "projectId": context.project_id,
-            "catalogItemId": context.schema.catalog_item_info.id,
+            "catalogItemId": context.catalog_schema.catalog_item_info.id,
             "inputs": context.inputs
         }
         
         # Add version if available
-        if context.schema.catalog_item_info.version:
-            payload["catalogItemVersion"] = context.schema.catalog_item_info.version
+        if context.catalog_schema.catalog_item_info.version:
+            payload["catalogItemVersion"] = context.catalog_schema.catalog_item_info.version
         
         return payload
     
@@ -286,7 +286,7 @@ class SchemaEngine:
         """
         resolved = {}
         
-        for prop_name, prop in schema.schema.properties.items():
+        for prop_name, prop in schema.schema_definition.properties.items():
             # Skip if we already have a value
             if prop_name in current_inputs:
                 continue
@@ -327,7 +327,7 @@ class SchemaEngine:
         Returns:
             Summary dictionary
         """
-        schema = context.schema
+        schema = context.catalog_schema
         return {
             "catalog_item": {
                 "name": schema.catalog_item_info.name,

@@ -56,7 +56,7 @@ class CatalogItemSchema(BaseModel):
     """Complete catalog item schema export."""
     catalog_item_info: CatalogItemInfo
     export_timestamp: datetime
-    schema: JsonSchema
+    schema_definition: JsonSchema = Field(alias="schema")
     
     class Config:
         """Pydantic configuration."""
@@ -101,7 +101,7 @@ class ValidationResult(BaseModel):
 
 class ExecutionContext(BaseModel):
     """Context for schema-based execution."""
-    schema: CatalogItemSchema
+    catalog_schema: CatalogItemSchema
     inputs: Dict[str, Any]
     project_id: str
     deployment_name: Optional[str] = None
