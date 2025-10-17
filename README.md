@@ -13,9 +13,10 @@ A comprehensive Python toolkit for VMware vRealize Automation 8 automation, feat
 
 ✨ **Service Catalog Integration**
 - List, view, and request catalog items
+- **Generic schema-driven catalog operations** with persistent cache
 - Manage deployments (create, monitor, delete)
 - Execute and monitor workflows
-- Schema validation and interactive requests
+- Interactive forms with rich validation
 
 🔐 **Authentication & Security**
 - Secure bearer token authentication
@@ -185,6 +186,15 @@ vra catalog list        # List available catalog items
 vra catalog show <id>   # Show catalog item details
 vra catalog schema <id> # Show item request schema
 vra catalog request <id> # Request a catalog item
+```
+
+### Generic Schema Catalog (NEW!)
+```bash
+vra schema-catalog load-schemas          # Load & cache schemas
+vra schema-catalog list-schemas          # List cached schemas
+vra schema-catalog search-schemas "VM"   # Search schemas
+vra schema-catalog execute-schema <id>   # Interactive execution
+vra schema-catalog clear-cache           # Clear persistent cache
 ```
 
 ### Deployments

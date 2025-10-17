@@ -122,11 +122,12 @@ Once dependencies are installed, you'll have these CLI commands:
 
 ```bash
 # Schema management
-vra schema-catalog load-schemas --schema-dir ./inputs/schema_exports
-vra schema-catalog list-schemas
-vra schema-catalog search-schemas "Virtual Machine"
+vra schema-catalog load-schemas                    # Auto-discover and load schemas
+vra schema-catalog list-schemas                    # List cached schemas
+vra schema-catalog search-schemas "Virtual Machine" # Search cached schemas
 vra schema-catalog show-schema 99abceaf-1da3-3fad-aae7-b55b5084112e
-vra schema-catalog status
+vra schema-catalog status                          # Show cache status
+vra schema-catalog clear-cache                     # Clear persistent cache
 
 # Execution commands
 vra schema-catalog execute-schema 99abceaf-1da3-3fad-aae7-b55b5084112e --project-id my-project
@@ -143,6 +144,7 @@ vra schema-catalog export-inputs-template template.json 99abceaf-1da3-3fad-aae7-
 
 ### ✅ **Core Features**
 - [x] **Schema Registry**: Multi-directory loading with pattern matching
+- [x] **Persistent Cache**: Schemas cached at `~/.vmware-vra-cli/cache/`
 - [x] **Schema Engine**: JSON Schema interpretation with validation
 - [x] **Form Builder**: Rich interactive input collection
 - [x] **CLI Integration**: Dynamic command registration
@@ -207,7 +209,57 @@ python3 test_generic_catalog.py
 
 ---
 
-## 🛠️ **Production Deployment Steps**
+## 🛠️ **Troubleshooting**
+
+### **Schema Cache Issues**
+
+**Problem**: `No schemas found matching criteria` after loading
+```bash
+# Solution: Clear cache and reload
+vra schema-catalog clear-cache
+vra schema-catalog load-schemas
+vra schema-catalog list-schemas
+```
+
+**Problem**: Schemas not updating after changes
+```bash
+# Solution: Force cache refresh
+vra schema-catalog clear-cache
+vra schema-catalog load-schemas --pattern "*_schema.json"
+```
+
+**Problem**: Cache permissions or corruption
+```bash
+# Solution: Remove cache directory manually
+rm -rf ~/.vmware-vra-cli/cache/
+vra schema-catalog load-schemas
+```
+
+### **Schema Loading Issues**
+
+**Problem**: Schemas not found in expected locations
+```bash
+# Check default search paths:
+# 1. ./inputs/schema_exports/
+# 2. ./schemas/
+# 3. ~/.vmware-vra-cli/schemas/
+
+# Verify schema files exist
+ls -la inputs/schema_exports/*_schema.json
+```
+
+**Problem**: Pydantic field warnings
+```bash
+# These warnings are resolved in the latest version:
+# "Field name 'schema' shadows an attribute in parent 'BaseModel'"
+
+# Update to latest version:
+pipx install -e . --force
+```
+
+---
+
+## 🚀 **Production Deployment Steps**
 
 ### **1. Environment Setup**
 ```bash

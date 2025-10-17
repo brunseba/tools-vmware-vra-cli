@@ -6,12 +6,17 @@ The VMware vRA CLI now supports **generic, schema-driven catalog operations** th
 
 ### 1. Load Your Schemas
 ```bash
-# Load schemas from your exported schema directory
-vra schema-catalog load-schemas --schema-dir ./inputs/schema_exports
+# Load schemas from your exported schema directory (auto-discovers directories)
+vra schema-catalog load-schemas
 
 # Load with custom pattern
 vra schema-catalog load-schemas --pattern "*_schema.json"
+
+# Clear cache if needed
+vra schema-catalog clear-cache
 ```
+
+**💾 Persistent Cache**: Schemas are automatically cached at `~/.vmware-vra-cli/cache/` and persist across CLI sessions. You only need to load once!
 
 ### 2. Explore Available Items
 ```bash
@@ -126,16 +131,26 @@ done
 
 ### Schema Registry Management
 ```bash
-# Check registry status
+# Check registry status and cache info
 vra schema-catalog status
 
-# Load from multiple directories
-vra schema-catalog load-schemas --schema-dir /path/to/schemas1
-vra schema-catalog load-schemas --schema-dir /path/to/schemas2
+# Load schemas (auto-discovers directories)
+vra schema-catalog load-schemas
 
-# Reload schemas (useful during development)
+# Clear persistent cache
+vra schema-catalog clear-cache
+
+# Reload schemas after clearing cache
 vra schema-catalog load-schemas --pattern "*_schema.json"
+
+# Cache location: ~/.vmware-vra-cli/cache/schema_registry.pkl
 ```
+
+**💡 Cache Behavior**:
+- Schemas persist between CLI sessions automatically
+- Cache is loaded on first command execution
+- Use `clear-cache` when schemas change or for troubleshooting
+- Cache includes both schema data and directory paths
 
 ### Input Validation Features
 - **Type validation**: Automatic type conversion (string, number, boolean, array)
