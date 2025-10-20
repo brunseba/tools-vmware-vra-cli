@@ -135,7 +135,7 @@ export const createMockDeployment = (overrides = {}) => ({
   ...overrides,
 })
 
-export const createMockApiResponse = <T>(data: T, overrides = {}) => ({
+export const createMockApiResponse = <T extends object>(data: T, overrides = {}) => ({
   success: true,
   message: 'Success',
   timestamp: new Date().toISOString(),

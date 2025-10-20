@@ -71,9 +71,11 @@ export const PermissionGuard: React.FC<PermissionGuardProps> = ({
             <>
               <br />Required permissions ({requireAll ? 'all' : 'any'}): 
               <br />
-              {permissions.map(p => <code key={p}>{p}</code>).reduce((prev, curr, index) => 
-                prev.concat(index < permissions.length - 1 ? ', ' : '', curr)
-              )}
+              {permissions.map(p => <code key={p}>{p}</code>).reduce((prev, curr, index) => [
+                ...prev,
+                index < permissions.length - 1 ? ', ' : '',
+                curr
+              ], [] as React.ReactNode[])}
             </>
           )}
         </Typography>

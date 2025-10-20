@@ -2,15 +2,13 @@
 # This file is automatically loaded by docker-compose
 
 services:
-  vra-server:
-    # Development overrides
+  # Backend service development overrides
+  backend:
     environment:
       # Enable debug logging in development
-      - UVICORN_LOG_LEVEL=debug
-      - UVICORN_RELOAD=true
-    volumes:
-      # Enable hot reload in development
-      - ./src:/app/src
+      - LOG_LEVEL=debug
+      - NODE_ENV=development
+    # Volumes for hot reload are already defined in main compose
 
   # Swagger UI for API documentation
   swagger-ui:
@@ -21,28 +19,17 @@ services:
       - SWAGGER_JSON=/openapi/openapi.json
       - BASE_URL=/swagger-ui
     volumes:
-      - ./output:/openapi:ro
-    depends_on:
-      openapi-generator:
-        condition: service_completed_successfully
+      - ./backend/docs:/openapi:ro
     profiles:
       - docs
     labels:
-      - "com.vmware.vra.service=api-docs"
+      - "org.opencontainers.image.title=VMware vRA CLI API Documentation"
+      - "org.opencontainers.image.description=Swagger UI for vRA CLI API"
+      - "org.opencontainers.image.vendor=VMware"
 
-  # Redis for session storage (optional)
+  # Override redis with development settings
   redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    command: redis-server --appendonly yes
-    profiles:
-      - cache
     labels:
-      - "com.vmware.vra.service=cache"
-
-volumes:
-  redis-data:
-    driver: local
+      - "org.opencontainers.image.title=VMware vRA CLI Redis Cache"
+      - "org.opencontainers.image.description=Redis cache for vRA CLI development"
+      - "org.opencontainers.image.vendor=VMware"

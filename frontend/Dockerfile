@@ -13,12 +13,16 @@ LABEL org.opencontainers.image.documentation="https://github.com/your-org/tools-
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
-COPY tsconfig.json ./
-COPY vite.config.ts ./
+COPY package.json ./
 
 # Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+RUN npm install --prefer-offline --no-audit --no-fund && npm cache clean --force
+
+# Copy config files
+COPY tsconfig.json ./
+COPY tsconfig.node.json ./
+COPY tsconfig.prod.json ./
+COPY vite.config.ts ./
 
 # Copy source code
 COPY src/ ./src/
@@ -27,6 +31,44 @@ COPY index.html ./
 
 # Build the application
 RUN npm run build
+
+# Development stage for hot reload (airgap-compatible)
+FROM node:18-alpine AS development
+
+# Add OpenContainer labels for development image
+LABEL org.opencontainers.image.title="VMware vRA Web UI - Development"
+LABEL org.opencontainers.image.description="Development environment for VMware vRealize Automation frontend (airgap-compatible)"
+LABEL org.opencontainers.image.vendor="VMware vRA CLI Team"
+
+# Install system dependencies for airgap environment
+RUN apk add --no-cache wget
+
+# Set working directory
+WORKDIR /app
+
+# Copy and install dependencies (for airgap compatibility)
+COPY package.json ./
+RUN npm install --prefer-offline --no-audit --no-fund
+
+# Copy configuration files
+COPY tsconfig.json ./
+COPY tsconfig.node.json ./
+COPY vite.config.ts ./
+COPY index.html ./
+
+# Copy source code (will be overridden by volume mounts in development)
+COPY src/ ./src/
+COPY public/ ./public/
+
+# Expose Vite dev server port
+EXPOSE 5173
+
+# Health check for development server
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:5173/ || exit 1
+
+# Start development server (dependencies already installed)
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
 # Production stage with nginx
 FROM nginx:alpine AS production
@@ -64,6 +106,9 @@ USER nginx-user
 
 # Expose port
 EXPOSE 8080
+
+# Create a simple health check endpoint
+RUN echo '<!DOCTYPE html><html><body>OK</body></html>' > /usr/share/nginx/html/health
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

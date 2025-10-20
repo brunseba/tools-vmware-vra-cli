@@ -278,7 +278,7 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({
             label={field.title}
             value={value}
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            multiline={field.maxLength && field.maxLength > 100}
+            multiline={Boolean(field.maxLength && field.maxLength > 100)}
             rows={field.maxLength && field.maxLength > 100 ? 3 : 1}
             inputProps={{
               minLength: field.minLength,

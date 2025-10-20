@@ -2,9 +2,8 @@ services:
   # Backend API service
   backend:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
-      target: development
     ports:
       - "3000:3000"
     environment:
@@ -19,15 +18,13 @@ services:
       - REDIS_URL=redis://redis:6379
       - LOG_LEVEL=${LOG_LEVEL:-info}
     volumes:
-      - ./backend/src:/app/src
-      - ./backend/package.json:/app/package.json
-      - ./backend/package-lock.json:/app/package-lock.json
+      - ./src:/app/src
+      - ./pyproject.toml:/app/pyproject.toml
+      - ./uv.lock:/app/uv.lock
     depends_on:
       - redis
-    networks:
-      - vra-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD", "curl", "--connect-timeout", "5", "--max-time", "10", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -49,14 +46,14 @@ services:
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
-      - ./frontend/package.json:/app/package.json
-      - ./frontend/package-lock.json:/app/package-lock.json
-      - ./frontend/vite.config.ts:/app/vite.config.ts
-      - ./frontend/tsconfig.json:/app/tsconfig.json
+      # Configuration files are baked into image for airgap compatibility
+      # - ./frontend/package.json:/app/package.json
+      # - ./frontend/vite.config.ts:/app/vite.config.ts
+      # - ./frontend/tsconfig.json:/app/tsconfig.json
+      # - ./frontend/tsconfig.node.json:/app/tsconfig.node.json
+      # - ./frontend/index.html:/app/index.html
     depends_on:
       - backend
-    networks:
-      - vra-network
 
   # Redis for caching and session storage
   redis:
@@ -65,8 +62,6 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
-    networks:
-      - vra-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
@@ -85,8 +80,6 @@ services:
     depends_on:
       - frontend
       - backend
-    networks:
-      - vra-network
     profiles:
       - production
 
@@ -103,15 +96,10 @@ services:
     profiles:
       - monitoring
     labels:
-      - "com.vmware.vra.service=log-viewer"
+      - "org.opencontainers.image.title=VMware vRA CLI Log Viewer"
+      - "org.opencontainers.image.description=Log aggregator for vRA CLI development"
+      - "org.opencontainers.image.vendor=VMware"
 
 volumes:
   redis-data:
     driver: local
-
-networks:
-  vra-network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
