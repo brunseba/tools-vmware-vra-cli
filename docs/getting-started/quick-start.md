@@ -180,8 +180,8 @@ This will prompt you through all the options step by step.
 Now that you've created your first VM, explore more features:
 
 1. **[Authentication Guide](../user-guide/authentication.md)** - Advanced authentication options
-2. **[VM Management](../user-guide/vm-management.md)** - Complete VM lifecycle management  
-3. **[API Reference](../user-guide/api-reference.md)** - Full command reference
+2. **[CLI Reference](../user-guide/cli-reference.md)** - Complete command reference
+3. **[Examples](../user-guide/examples.md)** - Usage examples and patterns
 4. **[Configuration](configuration.md)** - Customize your CLI experience
 
 ## Quick Reference

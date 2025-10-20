@@ -283,4 +283,4 @@ Bearer tokens are JWT tokens with the following structure:
 }
 ```
 
-For more advanced authentication scenarios, see the [API Reference](api-reference.md).
+For more advanced authentication scenarios, see the [CLI Reference](cli-reference.md).

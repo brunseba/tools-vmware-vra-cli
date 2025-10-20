@@ -251,7 +251,7 @@ Choose your preferred interface and get up and running in minutes:
 1. **[Installation](getting-started/installation.md)** - Install the CLI tool
 2. **[Quick Start](getting-started/quick-start.md)** - Your first VM in 5 minutes
 3. **[Configuration](getting-started/configuration.md)** - Configure for your environment
-4. **[CLI Reference](cli-reference.md)** - Complete command reference
+4. **[CLI Reference](user-guide/cli-reference.md)** - Complete command reference
 
 ### 🤖 **MCP Server for AI Assistants**
 1. **[MCP Server Setup](mcp-server/setup.md)** - Install and configure the MCP server
