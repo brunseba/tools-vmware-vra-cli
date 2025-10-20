@@ -17,6 +17,7 @@ A comprehensive Python toolkit for VMware vRealize Automation 8 automation, feat
 - Manage deployments (create, monitor, delete)
 - Execute and monitor workflows
 - Interactive forms with rich validation
+- **Advanced Analytics & Reporting** with timeline analysis and resource insights
 
 🔐 **Authentication & Security**
 - Secure bearer token authentication
@@ -203,6 +204,14 @@ vra deployment list     # List all deployments
 vra deployment show <id> # Show deployment details
 vra deployment delete <id> # Delete a deployment
 vra deployment resources <id> # Show deployment resources
+```
+
+### Reports & Analytics (NEW!)
+```bash
+vra report activity-timeline    # Deployment activity over time
+vra report catalog-usage        # Catalog item usage statistics
+vra report resources-usage      # Comprehensive resource analysis
+vra report unsync               # Unsynced deployments analysis
 ```
 
 ### Workflows
