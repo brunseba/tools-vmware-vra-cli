@@ -7,6 +7,8 @@ import {
   Card,
   CardContent,
   LinearProgress,
+  Skeleton,
+  Alert,
 } from '@mui/material'
 import {
   Dashboard as DashboardIcon,
@@ -15,15 +17,75 @@ import {
   Timeline,
   TrendingUp,
 } from '@mui/icons-material'
+import { useCatalogStats } from '@/hooks/useCatalog'
+import { useDeploymentStats } from '@/hooks/useDeployments'
+import { useSettingsStore } from '@/store/settingsStore'
 
 export const DashboardPage: React.FC = () => {
-  // Mock data for now - will be replaced with real API calls
-  const metrics = {
-    totalCatalogItems: 156,
-    totalDeployments: 89,
-    activeDeployments: 23,
-    successRate: 94.2,
+  const { settings } = useSettingsStore()
+  
+  // Fetch real data
+  const { 
+    data: catalogStats, 
+    isLoading: catalogLoading, 
+    error: catalogError 
+  } = useCatalogStats(settings.defaultProject)
+  
+  const { 
+    data: deploymentStats, 
+    isLoading: deploymentLoading, 
+    error: deploymentError 
+  } = useDeploymentStats(settings.defaultProject)
+
+  const isLoading = catalogLoading || deploymentLoading
+  const hasError = catalogError || deploymentError
+
+  if (hasError) {
+    return (
+      <Box sx={{ flexGrow: 1, p: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+          <DashboardIcon sx={{ mr: 1, fontSize: 32 }} />
+          <Typography variant="h4" component="h1">
+            Dashboard
+          </Typography>
+        </Box>
+        
+        <Alert severity="error">
+          Failed to load dashboard data. Please check your connection and authentication.
+        </Alert>
+      </Box>
+    )
   }
+
+  const renderMetricCard = (icon: React.ReactNode, title: string, value: number | string, subtitle: string, showProgress = false) => (
+    <Card>
+      <CardContent>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          {icon}
+          <Typography variant="h6" component="h2">
+            {title}
+          </Typography>
+        </Box>
+        {isLoading ? (
+          <Skeleton variant="text" width="60%" height={48} />
+        ) : (
+          <Typography variant="h3" component="p" sx={{ fontWeight: 'bold' }}>
+            {typeof value === 'number' && showProgress ? `${value.toFixed(1)}%` : value}
+          </Typography>
+        )}
+        <Typography variant="body2" color="text.secondary">
+          {subtitle}
+        </Typography>
+        {showProgress && !isLoading && typeof value === 'number' && (
+          <LinearProgress
+            variant="determinate"
+            value={value}
+            sx={{ mt: 1, height: 6, borderRadius: 3 }}
+          />
+        )}
+      </CardContent>
+    </Card>
+  )
 
   return (
     <Box sx={{ flexGrow: 1, p: 3 }}>
@@ -34,87 +96,49 @@ export const DashboardPage: React.FC = () => {
         </Typography>
       </Box>
 
+      {!settings.defaultProject && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          No default project configured. Some metrics may be limited. Configure a default project in settings for better insights.
+        </Alert>
+      )}
+
       <Grid container spacing={3}>
         {/* Metrics Cards */}
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <CloudQueue sx={{ color: 'primary.main', mr: 1 }} />
-                <Typography variant="h6" component="h2">
-                  Catalog Items
-                </Typography>
-              </Box>
-              <Typography variant="h3" component="p" sx={{ fontWeight: 'bold' }}>
-                {metrics.totalCatalogItems}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Available for deployment
-              </Typography>
-            </CardContent>
-          </Card>
+          {renderMetricCard(
+            <CloudQueue sx={{ color: 'primary.main', mr: 1 }} />,
+            'Catalog Items',
+            catalogStats?.totalItems || 0,
+            'Available for deployment'
+          )}
         </Grid>
 
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Assignment sx={{ color: 'success.main', mr: 1 }} />
-                <Typography variant="h6" component="h2">
-                  Deployments
-                </Typography>
-              </Box>
-              <Typography variant="h3" component="p" sx={{ fontWeight: 'bold' }}>
-                {metrics.totalDeployments}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Total deployments
-              </Typography>
-            </CardContent>
-          </Card>
+          {renderMetricCard(
+            <Assignment sx={{ color: 'success.main', mr: 1 }} />,
+            'Deployments',
+            deploymentStats?.totalDeployments || 0,
+            'Total deployments'
+          )}
         </Grid>
 
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Timeline sx={{ color: 'warning.main', mr: 1 }} />
-                <Typography variant="h6" component="h2">
-                  Active
-                </Typography>
-              </Box>
-              <Typography variant="h3" component="p" sx={{ fontWeight: 'bold' }}>
-                {metrics.activeDeployments}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Currently running
-              </Typography>
-            </CardContent>
-          </Card>
+          {renderMetricCard(
+            <Timeline sx={{ color: 'warning.main', mr: 1 }} />,
+            'Active',
+            deploymentStats?.activeDeployments || 0,
+            'Currently running'
+          )}
         </Grid>
 
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <TrendingUp sx={{ color: 'success.main', mr: 1 }} />
-                <Typography variant="h6" component="h2">
-                  Success Rate
-                </Typography>
-              </Box>
-              <Typography variant="h3" component="p" sx={{ fontWeight: 'bold' }}>
-                {metrics.successRate}%
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Last 30 days
-              </Typography>
-              <LinearProgress
-                variant="determinate"
-                value={metrics.successRate}
-                sx={{ mt: 1, height: 6, borderRadius: 3 }}
-              />
-            </CardContent>
-          </Card>
+          {renderMetricCard(
+            <TrendingUp sx={{ color: 'success.main', mr: 1 }} />,
+            'Success Rate',
+            deploymentStats?.successRate || 0,
+            'Recent deployments',
+            true
+          )}
         </Grid>
 
         {/* Recent Activity */}
