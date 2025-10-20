@@ -24,11 +24,13 @@ import {
 } from '@mui/icons-material'
 import { useAuthStore } from '@/store/authStore'
 import { useSettingsStore } from '@/store/settingsStore'
+import { useLogin } from '@/hooks/useAuth'
 import { AuthRequest } from '@/types/api'
 
 export const LoginForm: React.FC = () => {
-  const { login, isLoading, error, clearError } = useAuthStore()
+  const { error, clearError } = useAuthStore()
   const { toggleDarkMode, theme } = useSettingsStore()
+  const loginMutation = useLogin()
   
   const [credentials, setCredentials] = useState<AuthRequest>({
     username: '',
@@ -53,20 +55,25 @@ export const LoginForm: React.FC = () => {
     if (error) {
       clearError()
     }
+    if (loginMutation.isError) {
+      loginMutation.reset()
+    }
   }
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     
     try {
-      await login(credentials)
+      await loginMutation.mutateAsync(credentials)
     } catch (err) {
-      // Error is handled by the store
+      // Error handling is done in the mutation hook
       console.error('Login failed:', err)
     }
   }
 
   const isValidForm = credentials.username && credentials.password && credentials.url
+  const isLoading = loginMutation.isPending
+  const loginError = error || (loginMutation.isError ? loginMutation.error?.message : null)
 
   return (
     <Box
@@ -93,9 +100,9 @@ export const LoginForm: React.FC = () => {
             </Typography>
           </Box>
 
-          {error && (
+          {loginError && (
             <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
+              {loginError}
             </Alert>
           )}
 

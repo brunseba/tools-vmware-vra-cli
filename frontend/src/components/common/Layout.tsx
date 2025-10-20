@@ -34,6 +34,7 @@ import {
 } from '@mui/icons-material'
 import { useAuthStore } from '@/store/authStore'
 import { useSettingsStore } from '@/store/settingsStore'
+import { useLogout } from '@/hooks/useAuth'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -54,8 +55,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   
-  const { user, logout } = useAuthStore()
+  const { user } = useAuthStore()
   const { toggleDarkMode, theme: appTheme } = useSettingsStore()
+  const logoutMutation = useLogout()
   
   const [drawerOpen, setDrawerOpen] = useState(!isMobile)
   const [profileMenuAnchor, setProfileMenuAnchor] = useState<null | HTMLElement>(null)
@@ -74,8 +76,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleLogout = async () => {
     handleProfileMenuClose()
-    await logout()
-    navigate('/login')
+    await logoutMutation.mutateAsync()
   }
 
   const handleNavigation = (path: string) => {

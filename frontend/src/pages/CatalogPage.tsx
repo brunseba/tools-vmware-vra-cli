@@ -1,8 +1,12 @@
 import React from 'react'
 import { Box, Typography } from '@mui/material'
 import { StoreMallDirectory } from '@mui/icons-material'
+import { CatalogBrowser } from '@/components/catalog/CatalogBrowser'
+import { useSettingsStore } from '@/store/settingsStore'
 
 export const CatalogPage: React.FC = () => {
+  const { settings } = useSettingsStore()
+
   return (
     <Box sx={{ flexGrow: 1, p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -12,14 +16,9 @@ export const CatalogPage: React.FC = () => {
         </Typography>
       </Box>
 
-      <Box sx={{ textAlign: 'center', py: 8 }}>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          Service Catalog Browser
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Catalog item browser and deployment interface will be implemented here
-        </Typography>
-      </Box>
+      <CatalogBrowser 
+        projectId={settings.defaultProject}
+      />
     </Box>
   )
 }
