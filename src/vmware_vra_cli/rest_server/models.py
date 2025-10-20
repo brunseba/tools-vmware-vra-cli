@@ -231,6 +231,11 @@ class WorkflowRunResponse(BaseResponse):
     state: str
 
 
+class WorkflowSchemaResponse(BaseResponse):
+    """Response model for workflow schema."""
+    workflow_schema: Dict[str, Any]
+
+
 class ActivityTimelineRequest(BaseModel):
     """Request model for activity timeline report."""
     project_id: Optional[str] = None
@@ -268,6 +273,11 @@ class UnsyncReportRequest(BaseModel):
 class UnsyncReportResponse(BaseResponse):
     """Response model for unsync report."""
     unsync_data: Dict[str, Any]
+
+
+class ResourcesUsageResponse(BaseResponse):
+    """Response model for resources usage report."""
+    report_data: Dict[str, Any]
 
 
 class HealthResponse(BaseResponse):
