@@ -277,6 +277,117 @@ class VraToolsHandler:
                     "type": "object",
                     "properties": {}
                 }
+            ),
+            # Reporting Tools
+            Tool(
+                name="vra_report_activity_timeline",
+                description="Generate deployment activity timeline report",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "project_id": {"type": "string", "description": "Filter by project ID"},
+                        "days_back": {"type": "integer", "default": 30, "minimum": 1, "maximum": 365, "description": "Days back for activity timeline"},
+                        "group_by": {"type": "string", "enum": ["day", "week", "month", "year"], "default": "day", "description": "Group results by time period"},
+                        "statuses": {"type": "string", "default": "CREATE_SUCCESSFUL,UPDATE_SUCCESSFUL,SUCCESSFUL,CREATE_FAILED,UPDATE_FAILED,FAILED,CREATE_INPROGRESS,UPDATE_INPROGRESS,INPROGRESS", "description": "Comma-separated list of statuses to include"}
+                    }
+                }
+            ),
+            Tool(
+                name="vra_report_catalog_usage",
+                description="Generate catalog usage report with deployment statistics",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "project_id": {"type": "string", "description": "Filter by project ID"},
+                        "include_zero": {"type": "boolean", "default": False, "description": "Include catalog items with zero deployments"},
+                        "sort_by": {"type": "string", "enum": ["deployments", "resources", "name"], "default": "deployments", "description": "Sort results by field"},
+                        "detailed_resources": {"type": "boolean", "default": False, "description": "Fetch exact resource counts (slower but more accurate)"}
+                    }
+                }
+            ),
+            Tool(
+                name="vra_report_resources_usage",
+                description="Generate comprehensive resources usage report",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "project_id": {"type": "string", "description": "Filter by project ID"},
+                        "detailed_resources": {"type": "boolean", "default": True, "description": "Fetch detailed resource information"},
+                        "sort_by": {"type": "string", "enum": ["deployment-name", "catalog-item", "resource-count", "status"], "default": "catalog-item", "description": "Sort deployments by field"},
+                        "group_by": {"type": "string", "enum": ["catalog-item", "resource-type", "deployment-status"], "default": "catalog-item", "description": "Group results by field"}
+                    }
+                }
+            ),
+            Tool(
+                name="vra_report_unsync",
+                description="Generate report of deployments not linked to catalog items",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "project_id": {"type": "string", "description": "Filter by project ID"},
+                        "detailed_resources": {"type": "boolean", "default": False, "description": "Fetch exact resource counts (slower but more accurate)"},
+                        "reason_filter": {"type": "string", "description": "Filter by specific reason (e.g., missing_catalog_references, catalog_item_deleted)"}
+                    }
+                }
+            ),
+            # Workflow Tools
+            Tool(
+                name="vra_list_workflows",
+                description="List available vRealize Orchestrator workflows",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "page_size": {"type": "integer", "default": 100, "minimum": 1, "maximum": 2000, "description": "Number of items per page"},
+                        "first_page_only": {"type": "boolean", "default": False, "description": "Fetch only the first page"}
+                    }
+                }
+            ),
+            Tool(
+                name="vra_get_workflow_schema",
+                description="Get workflow input/output schema",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "workflow_id": {"type": "string", "description": "Workflow ID"}
+                    },
+                    "required": ["workflow_id"]
+                }
+            ),
+            Tool(
+                name="vra_run_workflow",
+                description="Execute a workflow with given inputs",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "workflow_id": {"type": "string", "description": "Workflow ID"},
+                        "inputs": {"type": "object", "description": "Input parameters for the workflow"}
+                    },
+                    "required": ["workflow_id"]
+                }
+            ),
+            Tool(
+                name="vra_get_workflow_run",
+                description="Get workflow execution details",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "workflow_id": {"type": "string", "description": "Workflow ID"},
+                        "execution_id": {"type": "string", "description": "Execution ID"}
+                    },
+                    "required": ["workflow_id", "execution_id"]
+                }
+            ),
+            Tool(
+                name="vra_cancel_workflow_run",
+                description="Cancel a running workflow execution",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "workflow_id": {"type": "string", "description": "Workflow ID"},
+                        "execution_id": {"type": "string", "description": "Execution ID"}
+                    },
+                    "required": ["workflow_id", "execution_id"]
+                }
             )
         ]
     
@@ -318,6 +429,26 @@ class VraToolsHandler:
                 return await self._handle_schema_clear_cache(arguments)
             elif name == "vra_schema_registry_status":
                 return await self._handle_schema_registry_status(arguments)
+            # Reporting Tools
+            elif name == "vra_report_activity_timeline":
+                return await self._handle_report_activity_timeline(arguments)
+            elif name == "vra_report_catalog_usage":
+                return await self._handle_report_catalog_usage(arguments)
+            elif name == "vra_report_resources_usage":
+                return await self._handle_report_resources_usage(arguments)
+            elif name == "vra_report_unsync":
+                return await self._handle_report_unsync(arguments)
+            # Workflow Tools
+            elif name == "vra_list_workflows":
+                return await self._handle_list_workflows(arguments)
+            elif name == "vra_get_workflow_schema":
+                return await self._handle_get_workflow_schema(arguments)
+            elif name == "vra_run_workflow":
+                return await self._handle_run_workflow(arguments)
+            elif name == "vra_get_workflow_run":
+                return await self._handle_get_workflow_run(arguments)
+            elif name == "vra_cancel_workflow_run":
+                return await self._handle_cancel_workflow_run(arguments)
             else:
                 return ToolResult(
                     content=[{
@@ -1046,6 +1177,620 @@ class VraToolsHandler:
                 content=[{
                     "type": "text",
                     "text": f"Failed to get registry status: {str(e)}"
+                }],
+                isError=True
+            )
+    
+    # Reporting Handler Methods
+    
+    async def _handle_report_activity_timeline(self, arguments: Dict[str, Any]) -> ToolResult:
+        """Handle activity timeline report request."""
+        client = self._get_catalog_client()
+        if not client:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": "Not authenticated. Please run vra_authenticate first."
+                }],
+                isError=True
+            )
+        
+        try:
+            project_id = arguments.get("project_id")
+            days_back = arguments.get("days_back", 30)
+            group_by = arguments.get("group_by", "day")
+            statuses = arguments.get("statuses", "CREATE_SUCCESSFUL,UPDATE_SUCCESSFUL,SUCCESSFUL,CREATE_FAILED,UPDATE_FAILED,FAILED,CREATE_INPROGRESS,UPDATE_INPROGRESS,INPROGRESS")
+            
+            # Convert status string to list
+            include_statuses = [status.strip().upper() for status in statuses.split(',')]
+            
+            timeline_data = client.get_activity_timeline(
+                project_id=project_id,
+                days_back=days_back,
+                include_statuses=include_statuses,
+                group_by=group_by
+            )
+            
+            # Format the response nicely
+            summary = timeline_data['summary']
+            response_text = f"📈 Activity Timeline Report ({days_back} days, grouped by {group_by})\n\n"
+            response_text += f"📊 Summary:\n"
+            response_text += f"• Total deployments: {summary['total_deployments']}\n"
+            response_text += f"• Successful: {summary['successful_deployments']}\n"
+            response_text += f"• Failed: {summary['failed_deployments']}\n"
+            response_text += f"• In progress: {summary['in_progress_deployments']}\n"
+            response_text += f"• Success rate: {summary['success_rate']}%\n"
+            response_text += f"• Trend: {summary['trend']} ({summary['trend_percentage']}%)\n"
+            response_text += f"• Peak activity: {summary['peak_activity_period']} ({summary['peak_activity_count']} deployments)\n"
+            response_text += f"• Peak hour: {summary['peak_hour']} ({summary['peak_hour_count']} deployments)\n"
+            response_text += f"• Unique catalog items: {summary['unique_catalog_items']}\n"
+            response_text += f"• Unique projects: {summary['unique_projects']}\n\n"
+            
+            # Add detailed activity data
+            response_text += f"📅 Period Activity:\n"
+            for period, data in sorted(timeline_data['period_activity'].items()):
+                response_text += f"• {period}: {data['total_deployments']} deployments (✅{data['successful_deployments']} ❌{data['failed_deployments']} ⏳{data['in_progress_deployments']})\n"
+            
+            response_text += f"\n🔍 Full Data:\n{json.dumps(timeline_data, indent=2)}"
+            
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": response_text
+                }]
+            )
+            
+        except Exception as e:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": f"Failed to generate activity timeline report: {str(e)}"
+                }],
+                isError=True
+            )
+    
+    async def _handle_report_catalog_usage(self, arguments: Dict[str, Any]) -> ToolResult:
+        """Handle catalog usage report request."""
+        client = self._get_catalog_client()
+        if not client:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": "Not authenticated. Please run vra_authenticate first."
+                }],
+                isError=True
+            )
+        
+        try:
+            project_id = arguments.get("project_id")
+            include_zero = arguments.get("include_zero", False)
+            sort_by = arguments.get("sort_by", "deployments")
+            detailed_resources = arguments.get("detailed_resources", False)
+            
+            usage_stats = client.get_catalog_usage_stats(
+                project_id=project_id,
+                fetch_resource_counts=detailed_resources
+            )
+            
+            # Filter out zero deployments unless requested
+            if not include_zero:
+                usage_stats = [stats for stats in usage_stats if stats['deployment_count'] > 0]
+            
+            # Sort results
+            if sort_by == 'deployments':
+                usage_stats.sort(key=lambda x: x['deployment_count'], reverse=True)
+            elif sort_by == 'resources':
+                usage_stats.sort(key=lambda x: x['resource_count'], reverse=True)
+            elif sort_by == 'name':
+                usage_stats.sort(key=lambda x: x['catalog_item'].name.lower())
+            
+            # Get summary statistics
+            all_deployments = client.list_deployments(project_id=project_id)
+            total_catalog_deployments = sum(stat['deployment_count'] for stat in usage_stats)
+            total_catalog_resources = sum(stat['resource_count'] for stat in usage_stats)
+            active_items = len([s for s in usage_stats if s['deployment_count'] > 0])
+            
+            # Format response
+            response_text = f"📊 Catalog Usage Report\n\n"
+            response_text += f"📈 Summary:\n"
+            response_text += f"• Total catalog items shown: {len(usage_stats)}\n"
+            response_text += f"• Active items (with deployments): {active_items}\n"
+            response_text += f"• Total deployments (system-wide): {len(all_deployments)}\n"
+            response_text += f"• Catalog-linked deployments: {total_catalog_deployments}\n"
+            response_text += f"• Unlinked deployments: {len(all_deployments) - total_catalog_deployments}\n"
+            response_text += f"• Total resources: {total_catalog_resources}\n"
+            if active_items > 0:
+                avg_deployments = total_catalog_deployments / active_items
+                response_text += f"• Average deployments per active item: {avg_deployments:.1f}\n"
+            response_text += f"\n📋 Catalog Items (sorted by {sort_by}):\n"
+            
+            for i, stat in enumerate(usage_stats[:20]):  # Limit to top 20
+                item = stat['catalog_item']
+                response_text += f"{i+1}. {item.name}\n"
+                response_text += f"   • Deployments: {stat['deployment_count']} (✅{stat['success_count']} ❌{stat['failed_count']} ⏳{stat['in_progress_count']})\n"
+                response_text += f"   • Resources: {stat['resource_count']}\n"
+                response_text += f"   • Success rate: {stat['success_rate']:.1f}%\n"
+                response_text += f"   • Type: {item.type.name}\n\n"
+            
+            if len(usage_stats) > 20:
+                response_text += f"... and {len(usage_stats) - 20} more items\n\n"
+            
+            # Convert to JSON-serializable format for full data
+            catalog_items_data = []
+            for stat in usage_stats:
+                catalog_items_data.append({
+                    'id': stat['catalog_item'].id,
+                    'name': stat['catalog_item'].name,
+                    'type': stat['catalog_item'].type.name,
+                    'deployment_count': stat['deployment_count'],
+                    'resource_count': stat['resource_count'],
+                    'success_count': stat['success_count'],
+                    'failed_count': stat['failed_count'],
+                    'in_progress_count': stat['in_progress_count'],
+                    'success_rate': stat['success_rate'],
+                    'status_breakdown': stat['status_counts']
+                })
+            
+            response_text += f"🔍 Full Data:\n{json.dumps(catalog_items_data, indent=2)}"
+            
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": response_text
+                }]
+            )
+            
+        except Exception as e:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": f"Failed to generate catalog usage report: {str(e)}"
+                }],
+                isError=True
+            )
+    
+    async def _handle_report_resources_usage(self, arguments: Dict[str, Any]) -> ToolResult:
+        """Handle resources usage report request."""
+        client = self._get_catalog_client()
+        if not client:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": "Not authenticated. Please run vra_authenticate first."
+                }],
+                isError=True
+            )
+        
+        try:
+            project_id = arguments.get("project_id")
+            detailed_resources = arguments.get("detailed_resources", True)
+            sort_by = arguments.get("sort_by", "catalog-item")
+            group_by = arguments.get("group_by", "catalog-item")
+            
+            report_data = client.get_resources_usage_report(
+                project_id=project_id,
+                include_detailed_resources=detailed_resources
+            )
+            
+            summary = report_data['summary']
+            
+            # Format response
+            response_text = f"🔧 Resources Usage Report\n\n"
+            response_text += f"📈 Summary:\n"
+            response_text += f"• Total deployments: {summary['total_deployments']}\n"
+            response_text += f"• Linked deployments: {summary['linked_deployments']}\n"
+            response_text += f"• Unlinked deployments: {summary['unlinked_deployments']}\n"
+            response_text += f"• Total resources: {summary['total_resources']}\n"
+            response_text += f"• Unique resource types: {summary['unique_resource_types']}\n"
+            response_text += f"• Unique catalog items: {summary['unique_catalog_items']}\n"
+            if summary['total_deployments'] > 0:
+                avg_resources = summary['total_resources'] / summary['total_deployments']
+                response_text += f"• Average resources per deployment: {avg_resources:.1f}\n"
+            
+            # Resource type breakdown
+            if summary.get('resource_types'):
+                response_text += f"\n🔧 Resource Types:\n"
+                sorted_types = sorted(summary['resource_types'].items(), key=lambda x: x[1], reverse=True)
+                for resource_type, count in sorted_types[:10]:  # Top 10
+                    percentage = (count / summary['total_resources']) * 100 if summary['total_resources'] > 0 else 0
+                    response_text += f"• {resource_type}: {count} ({percentage:.1f}%)\n"
+            
+            # Resource state breakdown
+            if summary.get('resource_states'):
+                response_text += f"\n📊 Resource States:\n"
+                sorted_states = sorted(summary['resource_states'].items(), key=lambda x: x[1], reverse=True)
+                for resource_state, count in sorted_states:
+                    percentage = (count / summary['total_resources']) * 100 if summary['total_resources'] > 0 else 0
+                    response_text += f"• {resource_state}: {count} ({percentage:.1f}%)\n"
+            
+            response_text += f"\n🔍 Full Report Data:\n{json.dumps(report_data, indent=2)}"
+            
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": response_text
+                }]
+            )
+            
+        except Exception as e:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": f"Failed to generate resources usage report: {str(e)}"
+                }],
+                isError=True
+            )
+    
+    async def _handle_report_unsync(self, arguments: Dict[str, Any]) -> ToolResult:
+        """Handle unsync report request."""
+        client = self._get_catalog_client()
+        if not client:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": "Not authenticated. Please run vra_authenticate first."
+                }],
+                isError=True
+            )
+        
+        try:
+            project_id = arguments.get("project_id")
+            detailed_resources = arguments.get("detailed_resources", False)
+            reason_filter = arguments.get("reason_filter")
+            
+            unsync_data = client.get_unsynced_deployments(
+                project_id=project_id,
+                fetch_resource_counts=detailed_resources
+            )
+            
+            # Apply reason filter if specified
+            if reason_filter:
+                filtered_deployments = []
+                for unsync in unsync_data['unsynced_deployments']:
+                    if unsync['analysis']['primary_reason'] == reason_filter:
+                        filtered_deployments.append(unsync)
+                
+                unsync_data['unsynced_deployments'] = filtered_deployments
+                unsync_data['summary']['unsynced_deployments'] = len(filtered_deployments)
+                unsync_data['summary']['unsynced_percentage'] = (
+                    len(filtered_deployments) / max(unsync_data['summary']['total_deployments'], 1) * 100
+                )
+            
+            summary = unsync_data['summary']
+            
+            # Format response
+            response_text = f"🔍 Unsynced Deployments Report\n\n"
+            response_text += f"📊 Summary:\n"
+            response_text += f"• Total deployments: {summary['total_deployments']}\n"
+            response_text += f"• Linked deployments: {summary['linked_deployments']}\n"
+            response_text += f"• ⚠️  Unsynced deployments: {summary['unsynced_deployments']}\n"
+            response_text += f"• Unsynced percentage: {summary['unsynced_percentage']:.1f}%\n"
+            response_text += f"• Unsynced resources: {summary['total_unsynced_resources']}\n"
+            response_text += f"• Total catalog items: {summary['catalog_items_count']}\n"
+            
+            if reason_filter:
+                response_text += f"• 🔎 Filtered by reason: {reason_filter}\n"
+            
+            # Reason breakdown
+            if unsync_data.get('reason_groups'):
+                response_text += f"\n🔍 Root Causes:\n"
+                for reason, count in sorted(unsync_data['reason_groups'].items(), key=lambda x: x[1], reverse=True):
+                    reason_display = reason.replace('_', ' ').title()
+                    response_text += f"• {reason_display}: {count}\n"
+            
+            # Status breakdown
+            if unsync_data.get('status_breakdown'):
+                response_text += f"\n📈 Status Breakdown:\n"
+                for status, count in sorted(unsync_data['status_breakdown'].items(), key=lambda x: x[1], reverse=True):
+                    response_text += f"• {status}: {count}\n"
+            
+            # Sample unsynced deployments
+            if unsync_data['unsynced_deployments']:
+                response_text += f"\n📋 Sample Unsynced Deployments (first 10):\n"
+                for i, unsync in enumerate(unsync_data['unsynced_deployments'][:10]):
+                    deployment = unsync['deployment']
+                    analysis = unsync['analysis']
+                    response_text += f"{i+1}. {deployment.get('name', 'Unknown')} (ID: {deployment.get('id', 'N/A')})\n"
+                    response_text += f"   • Status: {deployment.get('status', 'N/A')}\n"
+                    response_text += f"   • Resources: {unsync['resource_count']}\n"
+                    response_text += f"   • Reason: {analysis['primary_reason'].replace('_', ' ').title()}\n"
+                    if analysis.get('suggestions'):
+                        response_text += f"   • Suggestion: {analysis['suggestions'][0]}\n"
+                    response_text += "\n"
+                
+                if len(unsync_data['unsynced_deployments']) > 10:
+                    remaining = len(unsync_data['unsynced_deployments']) - 10
+                    response_text += f"... and {remaining} more unsynced deployments\n"
+            else:
+                response_text += f"\n✅ No unsynced deployments found! All deployments are properly linked.\n"
+            
+            response_text += f"\n🔍 Full Data:\n{json.dumps(unsync_data, indent=2)}"
+            
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": response_text
+                }]
+            )
+            
+        except Exception as e:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": f"Failed to generate unsync report: {str(e)}"
+                }],
+                isError=True
+            )
+    
+    # Workflow Handler Methods
+    
+    async def _handle_list_workflows(self, arguments: Dict[str, Any]) -> ToolResult:
+        """Handle list workflows request."""
+        client = self._get_catalog_client()
+        if not client:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": "Not authenticated. Please run vra_authenticate first."
+                }],
+                isError=True
+            )
+        
+        try:
+            page_size = arguments.get("page_size", 100)
+            first_page_only = arguments.get("first_page_only", False)
+            
+            workflows = client.list_workflows(
+                page_size=page_size,
+                fetch_all=not first_page_only
+            )
+            
+            # Format response
+            response_text = f"🔄 Available Workflows\n\n"
+            response_text += f"Found {len(workflows)} workflows:\n\n"
+            
+            for i, workflow in enumerate(workflows[:20]):  # Limit display to first 20
+                # Extract workflow info from the link structure
+                workflow_id = workflow.get('id', 'N/A')
+                workflow_name = workflow.get('name', 'Unknown')
+                workflow_description = workflow.get('description', 'No description')
+                
+                response_text += f"{i+1}. {workflow_name}\n"
+                response_text += f"   • ID: {workflow_id}\n"
+                response_text += f"   • Description: {workflow_description}\n\n"
+            
+            if len(workflows) > 20:
+                response_text += f"... and {len(workflows) - 20} more workflows\n\n"
+            
+            response_text += f"🔍 Full Data:\n{json.dumps(workflows, indent=2)}"
+            
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": response_text
+                }]
+            )
+            
+        except Exception as e:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": f"Failed to list workflows: {str(e)}"
+                }],
+                isError=True
+            )
+    
+    async def _handle_get_workflow_schema(self, arguments: Dict[str, Any]) -> ToolResult:
+        """Handle get workflow schema request."""
+        client = self._get_catalog_client()
+        if not client:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": "Not authenticated. Please run vra_authenticate first."
+                }],
+                isError=True
+            )
+        
+        try:
+            workflow_id = arguments["workflow_id"]
+            schema = client.get_workflow_schema(workflow_id)
+            
+            # Format the schema nicely
+            response_text = f"🔧 Workflow Schema: {workflow_id}\n\n"
+            
+            if schema.get('name'):
+                response_text += f"Name: {schema['name']}\n"
+            if schema.get('description'):
+                response_text += f"Description: {schema['description']}\n"
+            if schema.get('version'):
+                response_text += f"Version: {schema['version']}\n"
+            
+            # Input parameters
+            input_params = schema.get('input-parameters', [])
+            if input_params:
+                response_text += f"\n📥 Input Parameters ({len(input_params)}):\n"
+                for param in input_params:
+                    param_name = param.get('name', 'Unknown')
+                    param_type = param.get('type', 'Unknown')
+                    param_desc = param.get('description', 'No description')
+                    response_text += f"• {param_name} ({param_type}): {param_desc}\n"
+            
+            # Output parameters
+            output_params = schema.get('output-parameters', [])
+            if output_params:
+                response_text += f"\n📤 Output Parameters ({len(output_params)}):\n"
+                for param in output_params:
+                    param_name = param.get('name', 'Unknown')
+                    param_type = param.get('type', 'Unknown')
+                    param_desc = param.get('description', 'No description')
+                    response_text += f"• {param_name} ({param_type}): {param_desc}\n"
+            
+            response_text += f"\n🔍 Full Schema:\n{json.dumps(schema, indent=2)}"
+            
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": response_text
+                }]
+            )
+            
+        except Exception as e:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": f"Failed to get workflow schema: {str(e)}"
+                }],
+                isError=True
+            )
+    
+    async def _handle_run_workflow(self, arguments: Dict[str, Any]) -> ToolResult:
+        """Handle run workflow request."""
+        client = self._get_catalog_client()
+        if not client:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": "Not authenticated. Please run vra_authenticate first."
+                }],
+                isError=True
+            )
+        
+        try:
+            workflow_id = arguments["workflow_id"]
+            inputs = arguments.get("inputs", {})
+            
+            workflow_run = client.run_workflow(workflow_id, inputs)
+            
+            response_text = f"▶️ Workflow Execution Started\n\n"
+            response_text += f"• Workflow ID: {workflow_id}\n"
+            response_text += f"• Execution ID: {workflow_run.id}\n"
+            response_text += f"• Name: {workflow_run.name}\n"
+            response_text += f"• State: {workflow_run.state}\n"
+            if workflow_run.start_date:
+                response_text += f"• Start Date: {workflow_run.start_date}\n"
+            response_text += f"• Input Parameters: {len(inputs)} provided\n\n"
+            
+            response_text += f"🔍 Execution Details:\n"
+            response_text += f"ID: {workflow_run.id}\n"
+            response_text += f"State: {workflow_run.state}\n"
+            if workflow_run.input_parameters:
+                response_text += f"Inputs: {json.dumps(workflow_run.input_parameters, indent=2)}\n"
+            
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": response_text
+                }]
+            )
+            
+        except Exception as e:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": f"Failed to run workflow: {str(e)}"
+                }],
+                isError=True
+            )
+    
+    async def _handle_get_workflow_run(self, arguments: Dict[str, Any]) -> ToolResult:
+        """Handle get workflow run request."""
+        client = self._get_catalog_client()
+        if not client:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": "Not authenticated. Please run vra_authenticate first."
+                }],
+                isError=True
+            )
+        
+        try:
+            workflow_id = arguments["workflow_id"]
+            execution_id = arguments["execution_id"]
+            
+            workflow_run = client.get_workflow_run(workflow_id, execution_id)
+            
+            response_text = f"📊 Workflow Execution Details\n\n"
+            response_text += f"• Workflow ID: {workflow_id}\n"
+            response_text += f"• Execution ID: {execution_id}\n"
+            response_text += f"• Name: {workflow_run.name}\n"
+            response_text += f"• State: {workflow_run.state}\n"
+            if workflow_run.start_date:
+                response_text += f"• Start Date: {workflow_run.start_date}\n"
+            if workflow_run.end_date:
+                response_text += f"• End Date: {workflow_run.end_date}\n"
+            
+            # Add state-specific information
+            if workflow_run.state == "completed":
+                response_text += "\n✅ Workflow completed successfully!\n"
+            elif workflow_run.state == "failed":
+                response_text += "\n❌ Workflow execution failed.\n"
+            elif workflow_run.state == "running":
+                response_text += "\n🔄 Workflow is currently running...\n"
+            elif workflow_run.state == "canceled":
+                response_text += "\n🚫 Workflow execution was canceled.\n"
+            
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": response_text
+                }]
+            )
+            
+        except Exception as e:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": f"Failed to get workflow run: {str(e)}"
+                }],
+                isError=True
+            )
+    
+    async def _handle_cancel_workflow_run(self, arguments: Dict[str, Any]) -> ToolResult:
+        """Handle cancel workflow run request."""
+        client = self._get_catalog_client()
+        if not client:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": "Not authenticated. Please run vra_authenticate first."
+                }],
+                isError=True
+            )
+        
+        try:
+            workflow_id = arguments["workflow_id"]
+            execution_id = arguments["execution_id"]
+            
+            result = client.cancel_workflow_run(workflow_id, execution_id)
+            
+            if result:
+                response_text = f"🚫 Workflow Execution Canceled\n\n"
+                response_text += f"• Workflow ID: {workflow_id}\n"
+                response_text += f"• Execution ID: {execution_id}\n"
+                response_text += f"• Status: Cancellation requested\n\n"
+                response_text += "ℹ️ The workflow execution has been requested to cancel. "
+                response_text += "Check the execution status to confirm cancellation."
+            else:
+                response_text = f"❌ Failed to cancel workflow execution\n\n"
+                response_text += f"• Workflow ID: {workflow_id}\n"
+                response_text += f"• Execution ID: {execution_id}\n"
+                response_text += "The workflow might already be completed or in a non-cancelable state."
+            
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": response_text
+                }],
+                isError=not result
+            )
+            
+        except Exception as e:
+            return ToolResult(
+                content=[{
+                    "type": "text",
+                    "text": f"Failed to cancel workflow run: {str(e)}"
                 }],
                 isError=True
             )
