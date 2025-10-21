@@ -44,6 +44,7 @@ import { useQuery } from '@tanstack/react-query';
 import { deploymentsService } from '@/services/deployments';
 import { useSettingsStore } from '@/store/settingsStore';
 import { exportDeploymentData } from '../utils/exportUtils';
+import { useProjects } from '../hooks/useProjects';
 
 interface Deployment {
   id: string;
@@ -92,6 +93,9 @@ export const DeploymentsPage: React.FC = () => {
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  // Get projects for filtering
+  const { data: projects } = useProjects();
 
   const {
     data: deploymentsResponse,
@@ -315,7 +319,11 @@ export const DeploymentsPage: React.FC = () => {
                   onChange={(e) => setProjectFilter(e.target.value)}
                 >
                   <MenuItem value="">All Projects</MenuItem>
-                  {/* Add project options dynamically */}
+                  {projects?.map((project) => (
+                    <MenuItem key={project.id} value={project.id}>
+                      {project.name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>

@@ -43,26 +43,7 @@ import {
 import { useSettingsStore } from '@/store/settingsStore';
 import { AnalyticsChart, ResourceUsageChart } from '@/components/charts/AnalyticsChart';
 import { exportAnalyticsData } from '../utils/exportUtils';
-
-// Mock data - replace with real data from API
-const mockStats = {
-  totalDeployments: 142,
-  activeDeployments: 89,
-  failedDeployments: 8,
-  totalUsers: 23,
-  recentActivity: [
-    { id: '1', type: 'deployment', action: 'Created', resource: 'Web Server VM', user: 'John Doe', time: '2 minutes ago' },
-    { id: '2', type: 'failure', action: 'Failed', resource: 'Database Cluster', user: 'Jane Smith', time: '15 minutes ago' },
-    { id: '3', type: 'success', action: 'Completed', resource: 'Load Balancer', user: 'Bob Johnson', time: '1 hour ago' },
-    { id: '4', type: 'deployment', action: 'Started', resource: 'Cache Server', user: 'Alice Brown', time: '2 hours ago' },
-    { id: '5', type: 'success', action: 'Deployed', resource: 'Monitoring Stack', user: 'Charlie Wilson', time: '3 hours ago' },
-  ],
-  monthlyTrends: {
-    deployments: [45, 52, 38, 61, 42, 58, 72, 68, 45, 52, 61, 89],
-    successes: [42, 48, 35, 58, 39, 55, 69, 64, 43, 49, 58, 81],
-    failures: [3, 4, 3, 3, 3, 3, 3, 4, 2, 3, 3, 8]
-  },
-};
+import { useAnalyticsStats, useActivityTimeline, useResourceUsage } from '../hooks/useAnalytics';
 
 const getActivityIcon = (type: string) => {
   switch (type) {
@@ -85,6 +66,22 @@ export const ReportsPage: React.FC = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
+  // Real data hooks
+  const { data: analyticsStats, isLoading: statsLoading, error: statsError } = useAnalyticsStats({
+    timeRange,
+    projectId: settings.defaultProject
+  });
+  
+  const { data: activityData, isLoading: activityLoading } = useActivityTimeline({
+    timeRange,
+    projectId: settings.defaultProject,
+    limit: 5
+  });
+  
+  const { data: resourceUsage, isLoading: resourceLoading } = useResourceUsage({
+    projectId: settings.defaultProject
+  });
+
   const handleExportClick = (event: React.MouseEvent<HTMLElement>) => {
     setExportAnchorEl(event.currentTarget);
   };
@@ -95,11 +92,18 @@ export const ReportsPage: React.FC = () => {
 
   const handleExport = (format: 'csv' | 'json' | 'pdf') => {
     try {
+      if (!analyticsStats) {
+        setSnackbarMessage('No data available for export');
+        setSnackbarOpen(true);
+        handleExportClose();
+        return;
+      }
+
       const stats = {
-        totalDeployments: mockStats.totalDeployments,
-        activeDeployments: mockStats.activeDeployments,
-        failedDeployments: mockStats.failedDeployments,
-        totalUsers: mockStats.totalUsers,
+        totalDeployments: analyticsStats.totalDeployments,
+        activeDeployments: analyticsStats.activeDeployments,
+        failedDeployments: analyticsStats.failedDeployments,
+        totalUsers: analyticsStats.totalUsers,
       };
 
       exportAnalyticsData(stats, timeRange, format);
@@ -131,6 +135,25 @@ export const ReportsPage: React.FC = () => {
           >
             Go to Settings
           </Button>
+        </Alert>
+      </Box>
+    );
+  }
+
+  // Error state
+  if (statsError) {
+    return (
+      <Box sx={{ flexGrow: 1, p: 3 }}>
+        <Alert severity="error">
+          <Typography variant="h6" gutterBottom>
+            Failed to Load Analytics
+          </Typography>
+          <Typography variant="body2">
+            Unable to fetch analytics data. Please check your connection and try again.
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 1, fontFamily: 'monospace', fontSize: '0.8rem' }}>
+            Error: {statsError.message}
+          </Typography>
         </Alert>
       </Box>
     );
@@ -211,7 +234,7 @@ export const ReportsPage: React.FC = () => {
                     Total Deployments
                   </Typography>
                   <Typography variant="h4" component="div">
-                    {mockStats.totalDeployments}
+                    {statsLoading ? '...' : (analyticsStats?.totalDeployments || 0)}
                   </Typography>
                 </Box>
                 <DeployIcon sx={{ fontSize: 40, color: 'primary.main' }} />
@@ -232,7 +255,7 @@ export const ReportsPage: React.FC = () => {
                     Active Deployments
                   </Typography>
                   <Typography variant="h4" component="div">
-                    {mockStats.activeDeployments}
+                    {statsLoading ? '...' : (analyticsStats?.activeDeployments || 0)}
                   </Typography>
                 </Box>
                 <SuccessIcon sx={{ fontSize: 40, color: 'success.main' }} />
@@ -253,13 +276,17 @@ export const ReportsPage: React.FC = () => {
                     Failed Deployments
                   </Typography>
                   <Typography variant="h4" component="div">
-                    {mockStats.failedDeployments}
+                    {statsLoading ? '...' : (analyticsStats?.failedDeployments || 0)}
                   </Typography>
                 </Box>
                 <ErrorIcon sx={{ fontSize: 40, color: 'error.main' }} />
               </Box>
               <Box sx={{ mt: 1 }}>
-                <Chip label="5.6% failure rate" size="small" color="warning" />
+                <Chip 
+                  label={`${analyticsStats?.successRate?.toFixed(1) || 0}% success rate`} 
+                  size="small" 
+                  color={!analyticsStats || analyticsStats.successRate > 80 ? "success" : "warning"} 
+                />
               </Box>
             </CardContent>
           </Card>
@@ -274,7 +301,7 @@ export const ReportsPage: React.FC = () => {
                     Active Users
                   </Typography>
                   <Typography variant="h4" component="div">
-                    {mockStats.totalUsers}
+                    {statsLoading ? '...' : (analyticsStats?.totalUsers || 0)}
                   </Typography>
                 </Box>
                 <PeopleIcon sx={{ fontSize: 40, color: 'info.main' }} />
@@ -328,20 +355,44 @@ export const ReportsPage: React.FC = () => {
             <CardHeader title="Recent Activity" />
             <CardContent sx={{ pt: 0 }}>
               <List dense>
-                {mockStats.recentActivity.map((activity, index) => (
-                  <React.Fragment key={activity.id}>
-                    <ListItem sx={{ px: 0 }}>
-                      <ListItemIcon>
-                        {getActivityIcon(activity.type)}
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={`${activity.action} ${activity.resource}`}
-                        secondary={`${activity.user} • ${activity.time}`}
-                      />
-                    </ListItem>
-                    {index < mockStats.recentActivity.length - 1 && <Divider />}
-                  </React.Fragment>
-                ))}
+                {activityLoading ? (
+                  Array.from({ length: 5 }).map((_, index) => (
+                    <React.Fragment key={index}>
+                      <ListItem sx={{ px: 0 }}>
+                        <ListItemIcon>
+                          <ScheduleIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Loading..."
+                          secondary="Please wait"
+                        />
+                      </ListItem>
+                      {index < 4 && <Divider />}
+                    </React.Fragment>
+                  ))
+                ) : activityData && activityData.length > 0 ? (
+                  activityData.map((activity, index) => (
+                    <React.Fragment key={activity.id}>
+                      <ListItem sx={{ px: 0 }}>
+                        <ListItemIcon>
+                          {getActivityIcon(activity.type)}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={`${activity.action} ${activity.resource}`}
+                          secondary={`${activity.user} • ${activity.time}`}
+                        />
+                      </ListItem>
+                      {index < activityData.length - 1 && <Divider />}
+                    </React.Fragment>
+                  ))
+                ) : (
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemText
+                      primary="No recent activity"
+                      secondary="No deployments found"
+                    />
+                  </ListItem>
+                )}
               </List>
               <Button fullWidth size="small" sx={{ mt: 2 }}>
                 View All Activity
@@ -362,12 +413,18 @@ export const ReportsPage: React.FC = () => {
                 <Grid item xs={12} md={4}>
                   <Box sx={{ textAlign: 'center', p: 2 }}>
                     <StorageIcon sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
-                    <Typography variant="h6">1.2 TB</Typography>
+                    <Typography variant="h6">
+                      {resourceLoading ? '...' : `${resourceUsage?.totalStorage || 0} GB`}
+                    </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Total Storage Used
+                      Total Storage Allocated
                     </Typography>
                     <Box sx={{ mt: 1 }}>
-                      <Chip label="73% utilized" size="small" color="warning" />
+                      <Chip 
+                        label={resourceLoading ? 'Loading...' : `${resourceUsage?.storageUtilization?.toFixed(1) || 0}% utilized`} 
+                        size="small" 
+                        color={!resourceUsage || resourceUsage.storageUtilization < 80 ? "success" : "warning"} 
+                      />
                     </Box>
                   </Box>
                 </Grid>
@@ -389,12 +446,18 @@ export const ReportsPage: React.FC = () => {
                         CPU
                       </Typography>
                     </Box>
-                    <Typography variant="h6">342 vCPUs</Typography>
+                    <Typography variant="h6">
+                      {resourceLoading ? '...' : `${resourceUsage?.totalCpu || 0} vCPUs`}
+                    </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Total CPU Allocated
                     </Typography>
                     <Box sx={{ mt: 1 }}>
-                      <Chip label="68% average usage" size="small" color="success" />
+                      <Chip 
+                        label={resourceLoading ? 'Loading...' : `${resourceUsage?.cpuUtilization?.toFixed(1) || 0}% usage`} 
+                        size="small" 
+                        color={!resourceUsage || resourceUsage.cpuUtilization < 80 ? "success" : "warning"} 
+                      />
                     </Box>
                   </Box>
                 </Grid>
@@ -416,12 +479,18 @@ export const ReportsPage: React.FC = () => {
                         RAM
                       </Typography>
                     </Box>
-                    <Typography variant="h6">896 GB</Typography>
+                    <Typography variant="h6">
+                      {resourceLoading ? '...' : `${Math.round((resourceUsage?.totalMemory || 0) / 1024)} GB`}
+                    </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Total Memory Allocated
                     </Typography>
                     <Box sx={{ mt: 1 }}>
-                      <Chip label="82% average usage" size="small" color="warning" />
+                      <Chip 
+                        label={resourceLoading ? 'Loading...' : `${resourceUsage?.memoryUtilization?.toFixed(1) || 0}% usage`} 
+                        size="small" 
+                        color={!resourceUsage || resourceUsage.memoryUtilization < 80 ? "success" : "warning"} 
+                      />
                     </Box>
                   </Box>
                 </Grid>

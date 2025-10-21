@@ -200,6 +200,73 @@ class TagRemoveRequest(BaseModel):
     confirm: bool = False
 
 
+# Analytics Models
+class AnalyticsStats(BaseModel):
+    """Analytics statistics model."""
+    totalDeployments: int
+    activeDeployments: int
+    failedDeployments: int
+    totalUsers: int
+    successRate: float = 0.0
+
+
+class ActivityItem(BaseModel):
+    """Activity timeline item model."""
+    id: str
+    type: str  # deployment, success, failure, deletion
+    action: str  # Created, Failed, Deleted, etc.
+    resource: str
+    user: str
+    time: str  # Human readable time ago
+    timestamp: Optional[str] = None  # ISO timestamp
+
+
+class ChartData(BaseModel):
+    """Chart data model for trends."""
+    labels: List[str]
+    deployments: List[int]
+    successes: List[int]
+    failures: List[int]
+
+
+class ResourceUsage(BaseModel):
+    """Resource usage statistics model."""
+    totalCpu: int  # Total vCPUs
+    totalMemory: int  # Total memory in MB
+    totalStorage: int  # Total storage in GB
+    vmCount: int  # Number of VMs
+    cpuUtilization: float  # CPU utilization percentage
+    memoryUtilization: float  # Memory utilization percentage
+    storageUtilization: float  # Storage utilization percentage
+
+
+class AnalyticsRequest(BaseModel):
+    """Request model for analytics data."""
+    time_range: str = Field(default="30d", pattern="^(7d|30d|90d|1y)$")
+    project_id: Optional[str] = None
+
+
+class ActivityTimelineRequest(BaseModel):
+    """Request model for activity timeline."""
+    time_range: str = Field(default="30d", pattern="^(7d|30d|90d|1y)$")
+    project_id: Optional[str] = None
+    limit: int = Field(default=50, ge=1, le=1000)
+
+
+class ProjectInfo(BaseModel):
+    """Project information model."""
+    id: str
+    name: str
+    description: Optional[str] = None
+    organizationId: Optional[str] = None
+    
+
+class ProjectsResponse(BaseResponse):
+    """Response model for projects list."""
+    projects: List[ProjectInfo]
+    total_count: int
+
+
 class ResourceTagsRequest(BaseModel):
     """Request model for getting resource tags."""
     resource_id: str
