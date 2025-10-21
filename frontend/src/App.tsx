@@ -8,6 +8,7 @@ import { DashboardPage } from '@/pages/DashboardPage'
 import { CatalogPage } from '@/pages/CatalogPage'
 import { DeploymentsPage } from '@/pages/DeploymentsPage'
 import { ReportsPage } from '@/pages/ReportsPage'
+import { SettingsPage } from '@/pages/SettingsPage'
 import { Layout } from '@/components/common/Layout'
 import { NotificationSnackbar } from '@/components/common/NotificationSnackbar'
 
@@ -49,6 +50,14 @@ function App() {
               element={
                 <AuthGuard>
                   <ReportsPage />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <AuthGuard>
+                  <SettingsPage />
                 </AuthGuard>
               }
             />

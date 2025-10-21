@@ -181,7 +181,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               </Typography>
             </MenuItem>
             <Divider />
-            <MenuItem onClick={handleProfileMenuClose}>
+            <MenuItem onClick={() => { handleProfileMenuClose(); navigate('/settings'); }}>
               <ListItemIcon>
                 <Settings fontSize="small" />
               </ListItemIcon>
