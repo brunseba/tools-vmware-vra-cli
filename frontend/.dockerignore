@@ -13,3 +13,17 @@ coverage
 .cache
 .temp
 .tmp
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+**/tests/**
+**/__tests__/**
+.git
+.vscode
+.idea
+Dockerfile*
+docker-compose*
+*.md
+README*
+LICENSE

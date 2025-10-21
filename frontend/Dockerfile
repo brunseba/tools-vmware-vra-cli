@@ -43,8 +43,13 @@ LABEL org.opencontainers.image.vendor="VMware vRA CLI Team"
 # Install system dependencies for airgap environment
 RUN apk add --no-cache wget
 
-# Set working directory
+# Set working directory and configure Node.js for Docker
 WORKDIR /app
+
+# Configure Node.js environment for Docker containers
+ENV NODE_OPTIONS="--max-old-space-size=2048" \
+    CHOKIDAR_USEPOLLING=true \
+    CHOKIDAR_INTERVAL=1000
 
 # Copy and install dependencies (for airgap compatibility)
 COPY package.json ./

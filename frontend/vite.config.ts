@@ -13,6 +13,10 @@ export default defineConfig({
   server: {
     port: 5173, // Use standard Vite port
     host: true, // Listen on all addresses
+    watch: {
+      usePolling: true, // Use polling instead of native file watching
+      interval: 1000,   // Poll every 1 second
+    },
     proxy: {
       '/api': {
         target: 'http://backend:3000', // Use docker service name
