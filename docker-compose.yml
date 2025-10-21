@@ -5,10 +5,10 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3000:8000"
     environment:
       - NODE_ENV=development
-      - PORT=3000
+      - UVICORN_PORT=8000
       - VRA_API_URL=${VRA_API_URL:-https://vra.example.com}
       - VRA_API_TOKEN=${VRA_API_TOKEN}
       - JWT_SECRET=${JWT_SECRET:-dev-jwt-secret}
@@ -24,7 +24,7 @@ services:
     depends_on:
       - redis
     healthcheck:
-      test: ["CMD", "curl", "--connect-timeout", "5", "--max-time", "10", "-f", "http://localhost:3000/health"]
+      test: ["CMD", "curl", "--connect-timeout", "5", "--max-time", "10", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
