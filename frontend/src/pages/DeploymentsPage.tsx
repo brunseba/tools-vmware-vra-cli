@@ -20,6 +20,8 @@ import {
   Alert,
   LinearProgress,
   Tooltip,
+  MenuItem as MenuOption,
+  Snackbar,
 } from '@mui/material';
 import {
   Inventory as InventoryIcon,
@@ -33,20 +35,25 @@ import {
   PlayArrow as StartIcon,
   Visibility as ViewIcon,
   Warning as WarningIcon,
-} from '@mui/material';
+  Download as DownloadIcon,
+  FileDownload as FileDownloadIcon,
+  GetApp as GetAppIcon,
+  PictureAsPdf as PictureAsPdfIcon,
+} from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import { deploymentsService } from '@/services/deployments';
 import { useSettingsStore } from '@/store/settingsStore';
+import { exportDeploymentData } from '../utils/exportUtils';
 
 interface Deployment {
   id: string;
   name: string;
   status: string;
   projectId: string;
-  catalogItemId: string;
+  catalogItemId?: string;
   createdAt: string;
-  lastUpdated: string;
-  ownerName: string;
+  completedAt?: string;
+  inputs?: Record<string, any>;
 }
 
 const getStatusColor = (status: string) => {
@@ -82,9 +89,12 @@ export const DeploymentsPage: React.FC = () => {
   const [projectFilter, setProjectFilter] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedDeployment, setSelectedDeployment] = useState<string | null>(null);
+  const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const {
-    data: deployments = [],
+    data: deploymentsResponse,
     isLoading,
     isError,
     error,
@@ -92,13 +102,15 @@ export const DeploymentsPage: React.FC = () => {
   } = useQuery({
     queryKey: ['deployments', settings.defaultProject, searchQuery, statusFilter],
     queryFn: () => deploymentsService.listDeployments({
-      projectId: settings.defaultProject,
-      pageSize: settings.pageSize,
-      searchQuery: searchQuery || undefined,
+      project_id: settings.defaultProject,
+      page_size: settings.pageSize,
+      // Note: searchQuery filtering will be handled client-side
       status: statusFilter || undefined,
     }),
     refetchInterval: settings.autoRefresh ? settings.refreshInterval : false,
   });
+
+  const deployments = deploymentsResponse?.deployments || [];
 
   const handleActionClick = (event: React.MouseEvent<HTMLElement>, deploymentId: string) => {
     setAnchorEl(event.currentTarget);
@@ -154,6 +166,27 @@ export const DeploymentsPage: React.FC = () => {
     handleActionClose();
   };
 
+  const handleExportClick = (event: React.MouseEvent<HTMLElement>) => {
+    setExportAnchorEl(event.currentTarget);
+  };
+
+  const handleExportClose = () => {
+    setExportAnchorEl(null);
+  };
+
+  const handleExport = (format: 'csv' | 'json' | 'pdf') => {
+    try {
+      exportDeploymentData(filteredDeployments, format);
+      setSnackbarMessage(`Deployments exported successfully as ${format.toUpperCase()}`);
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('Export failed:', error);
+      setSnackbarMessage('Failed to export deployments. Please try again.');
+      setSnackbarOpen(true);
+    }
+    handleExportClose();
+  };
+
   const filteredDeployments = deployments.filter((deployment: Deployment) => {
     const matchesSearch = !searchQuery || 
       deployment.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -202,6 +235,18 @@ export const DeploymentsPage: React.FC = () => {
         </Box>
         
         <Box sx={{ display: 'flex', gap: 1 }}>
+          <Tooltip title="Export deployments">
+            <Button
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              size="small"
+              onClick={handleExportClick}
+              disabled={filteredDeployments.length === 0}
+            >
+              Export
+            </Button>
+          </Tooltip>
+          
           <Tooltip title="Refresh deployments">
             <IconButton onClick={() => refetch()} disabled={isLoading}>
               <RefreshIcon />
@@ -334,17 +379,19 @@ export const DeploymentsPage: React.FC = () => {
                     ID: {deployment.id}
                   </Typography>
                   
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Owner: {deployment.ownerName}
-                  </Typography>
+                  {deployment.inputs?.owner && (
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      Owner: {deployment.inputs.owner}
+                    </Typography>
+                  )}
                   
                   <Typography variant="body2" color="text.secondary" gutterBottom>
                     Created: {new Date(deployment.createdAt).toLocaleDateString()}
                   </Typography>
                   
-                  {deployment.lastUpdated !== deployment.createdAt && (
+                  {deployment.completedAt && deployment.completedAt !== deployment.createdAt && (
                     <Typography variant="body2" color="text.secondary">
-                      Updated: {new Date(deployment.lastUpdated).toLocaleDateString()}
+                      Completed: {new Date(deployment.completedAt).toLocaleDateString()}
                     </Typography>
                   )}
                 </CardContent>
@@ -388,6 +435,41 @@ export const DeploymentsPage: React.FC = () => {
           <ListItemText>Delete</ListItemText>
         </MenuItem>
       </Menu>
+      
+      {/* Export Menu */}
+      <Menu
+        anchorEl={exportAnchorEl}
+        open={Boolean(exportAnchorEl)}
+        onClose={handleExportClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <MenuOption onClick={() => handleExport('csv')}>
+          <FileDownloadIcon sx={{ mr: 1 }} />
+          Export as CSV
+        </MenuOption>
+        <MenuOption onClick={() => handleExport('json')}>
+          <GetAppIcon sx={{ mr: 1 }} />
+          Export as JSON
+        </MenuOption>
+        <MenuOption onClick={() => handleExport('pdf')}>
+          <PictureAsPdfIcon sx={{ mr: 1 }} />
+          Export as PDF
+        </MenuOption>
+      </Menu>
+      
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
     </Box>
   );
 };

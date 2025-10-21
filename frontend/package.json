@@ -21,8 +21,9 @@
     "@tanstack/react-query-devtools": "^5.17.1",
     "axios": "^1.6.2",
     "chart.js": "^4.4.1",
-    "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
+    "date-fns": "^3.0.6",
+    "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.1",
     "zustand": "^4.4.7"

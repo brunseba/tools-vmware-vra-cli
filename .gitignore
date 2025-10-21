@@ -142,5 +142,19 @@ Thumbs.db
 build/
 *.egg-info/
 
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log*
+
+# Frontend build artifacts
+frontend/dist/
+frontend/build/
+frontend/.vite/
+
 # Workspace root folder exclusion
 vmware-vra-cli/

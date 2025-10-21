@@ -19,6 +19,11 @@ import {
   ListItemText,
   ListItemIcon,
   Divider,
+  ButtonGroup,
+  Menu,
+  MenuItem as MenuOption,
+  IconButton,
+  Snackbar,
 } from '@mui/material';
 import {
   Analytics as AnalyticsIcon,
@@ -31,8 +36,13 @@ import {
   Storage as StorageIcon,
   Download as DownloadIcon,
   DateRange as DateRangeIcon,
+  FileDownload as FileDownloadIcon,
+  GetApp as GetAppIcon,
+  PictureAsPdf as PictureAsPdfIcon,
 } from '@mui/icons-material';
 import { useSettingsStore } from '@/store/settingsStore';
+import { AnalyticsChart, ResourceUsageChart } from '@/components/charts/AnalyticsChart';
+import { exportAnalyticsData } from '../utils/exportUtils';
 
 // Mock data - replace with real data from API
 const mockStats = {
@@ -71,6 +81,38 @@ export const ReportsPage: React.FC = () => {
   const { settings, featureFlags } = useSettingsStore();
   const [timeRange, setTimeRange] = useState('30d');
   const [selectedMetric, setSelectedMetric] = useState('deployments');
+  const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  const handleExportClick = (event: React.MouseEvent<HTMLElement>) => {
+    setExportAnchorEl(event.currentTarget);
+  };
+
+  const handleExportClose = () => {
+    setExportAnchorEl(null);
+  };
+
+  const handleExport = (format: 'csv' | 'json' | 'pdf') => {
+    try {
+      const stats = {
+        totalDeployments: mockStats.totalDeployments,
+        activeDeployments: mockStats.activeDeployments,
+        failedDeployments: mockStats.failedDeployments,
+        totalUsers: mockStats.totalUsers,
+      };
+
+      exportAnalyticsData(stats, timeRange, format);
+      
+      setSnackbarMessage(`Report exported successfully as ${format.toUpperCase()}`);
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('Export failed:', error);
+      setSnackbarMessage('Failed to export report. Please try again.');
+      setSnackbarOpen(true);
+    }
+    handleExportClose();
+  };
 
   if (!featureFlags.enableReports) {
     return (
@@ -124,9 +166,37 @@ export const ReportsPage: React.FC = () => {
             variant="outlined"
             startIcon={<DownloadIcon />}
             size="small"
+            onClick={handleExportClick}
           >
             Export Report
           </Button>
+          
+          <Menu
+            anchorEl={exportAnchorEl}
+            open={Boolean(exportAnchorEl)}
+            onClose={handleExportClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            <MenuOption onClick={() => handleExport('csv')}>
+              <FileDownloadIcon sx={{ mr: 1 }} />
+              Export as CSV
+            </MenuOption>
+            <MenuOption onClick={() => handleExport('json')}>
+              <GetAppIcon sx={{ mr: 1 }} />
+              Export as JSON
+            </MenuOption>
+            <MenuOption onClick={() => handleExport('pdf')}>
+              <PictureAsPdfIcon sx={{ mr: 1 }} />
+              Export as PDF
+            </MenuOption>
+          </Menu>
         </Box>
       </Box>
 
@@ -238,29 +308,16 @@ export const ReportsPage: React.FC = () => {
               }
             />
             <CardContent>
-              <Box sx={{ 
-                height: 300, 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                border: '2px dashed',
-                borderColor: 'divider',
-                borderRadius: 1,
-                bgcolor: 'background.paper'
-              }}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <TrendingUpIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
-                  <Typography variant="h6" color="text.secondary">
-                    Chart Component
-                  </Typography>
-                  <Typography variant="body2" color="text.disabled">
-                    Interactive charts will be displayed here
-                  </Typography>
-                  <Typography variant="caption" color="text.disabled" sx={{ mt: 1, display: 'block' }}>
-                    Showing {selectedMetric} for {timeRange}
-                  </Typography>
-                </Box>
-              </Box>
+              {selectedMetric === 'resources' ? (
+                <ResourceUsageChart timeRange={timeRange} />
+              ) : (
+                <AnalyticsChart 
+                  type={selectedMetric === 'successes' ? 'doughnut' : 'line'}
+                  data={null}
+                  timeRange={timeRange}
+                  height={300}
+                />
+              )}
             </CardContent>
           </Card>
         </Grid>
@@ -373,6 +430,13 @@ export const ReportsPage: React.FC = () => {
           </Card>
         </Grid>
       </Grid>
+      
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
     </Box>
   );
 };
