@@ -27,6 +27,20 @@ class VRAAuthenticator:
             base_url: Base URL of the vRA instance (e.g., https://vra.company.com)
             verify_ssl: Whether to verify SSL certificates
         """
+        # Validate and normalize base URL
+        if not base_url:
+            raise ValueError("Base URL cannot be empty")
+        
+        # Ensure proper protocol
+        if not base_url.startswith(('http://', 'https://')):
+            base_url = f'https://{base_url}'
+        
+        # Fix common URL malformations
+        if base_url.startswith('https:/') and not base_url.startswith('https://'):
+            base_url = base_url.replace('https:/', 'https://')
+        elif base_url.startswith('http:/') and not base_url.startswith('http://'):
+            base_url = base_url.replace('http:/', 'http://')
+        
         self.base_url = base_url.rstrip('/')
         self.verify_ssl = verify_ssl
     

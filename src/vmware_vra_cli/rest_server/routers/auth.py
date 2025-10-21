@@ -76,7 +76,7 @@ async def logout():
 
 
 @router.get("/status", response_model=BaseResponse)
-async def status():
+async def auth_status():
     """Check authentication status."""
     try:
         access_token = TokenManager.get_access_token()
