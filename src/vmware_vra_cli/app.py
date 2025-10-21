@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from vmware_vra_cli.rest_server.models import HealthResponse, ErrorResponse
-from vmware_vra_cli.rest_server.routers import auth, catalog, deployments, reports, workflows
+from vmware_vra_cli.rest_server.routers import auth, catalog, deployments, reports, workflows, analytics, projects
 
 import uvicorn
 import time
@@ -18,6 +18,8 @@ app.include_router(catalog.router)
 app.include_router(deployments.router)
 app.include_router(reports.router)
 app.include_router(workflows.router)
+app.include_router(analytics.router)
+app.include_router(projects.router)
 uptime_start = time.time()
 
 # Middleware for CORS

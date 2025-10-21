@@ -5,12 +5,11 @@ from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, HTTPException, Query, Depends
 from pydantic import BaseModel, Field
 
-from ...api.client import VRAClient
 from ..models import (
     BaseResponse, AnalyticsStats, ActivityItem, ChartData, ResourceUsage,
     AnalyticsRequest, ActivityTimelineRequest
 )
-from ..utils import get_vra_client
+from ..utils import get_catalog_client, handle_client_error
 
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
@@ -41,7 +40,7 @@ class ResourceUsageResponse(BaseResponse):
 async def get_analytics_stats(
     time_range: str = Query("30d", description="Time range: 7d, 30d, 90d, 1y"),
     project_id: Optional[str] = Query(None, description="Filter by project ID"),
-    vra_client: VRAClient = Depends(get_vra_client),
+    verbose: bool = Query(False, description="Enable verbose HTTP logging"),
 ):
     """Get overall analytics statistics."""
     try:
@@ -59,15 +58,11 @@ async def get_analytics_stats(
             start_date = end_date - timedelta(days=30)
 
         # Get deployments with date filtering
-        deployments_response = await vra_client.list_deployments(
+        client = get_catalog_client(verbose=verbose)
+        deployments = client.list_deployments(
             project_id=project_id,
-            verbose=True
+            fetch_all=True
         )
-        
-        if not deployments_response.get("success", False):
-            raise HTTPException(status_code=500, detail="Failed to retrieve deployments")
-
-        deployments = deployments_response.get("deployments", [])
         
         # Filter deployments by date range
         filtered_deployments = []
@@ -114,8 +109,10 @@ async def get_analytics_stats(
             stats=stats
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve analytics: {str(e)}")
+        raise handle_client_error("get analytics stats", e)
 
 
 @router.get("/timeline", response_model=ActivityTimelineResponse)
@@ -123,20 +120,16 @@ async def get_activity_timeline(
     time_range: str = Query("30d", description="Time range: 7d, 30d, 90d, 1y"),
     project_id: Optional[str] = Query(None, description="Filter by project ID"),
     limit: int = Query(50, description="Maximum number of activities"),
-    vra_client: VRAClient = Depends(get_vra_client),
+    verbose: bool = Query(False, description="Enable verbose HTTP logging"),
 ):
     """Get activity timeline for recent deployments and operations."""
     try:
         # Get deployments
-        deployments_response = await vra_client.list_deployments(
+        client = get_catalog_client(verbose=verbose)
+        deployments = client.list_deployments(
             project_id=project_id,
-            verbose=True
+            fetch_all=True
         )
-        
-        if not deployments_response.get("success", False):
-            raise HTTPException(status_code=500, detail="Failed to retrieve deployments")
-
-        deployments = deployments_response.get("deployments", [])
         
         # Convert deployments to activity items
         activities = []
@@ -200,28 +193,26 @@ async def get_activity_timeline(
             total_count=len(activities)
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve timeline: {str(e)}")
+        raise handle_client_error("get activity timeline", e)
 
 
 @router.get("/charts", response_model=ChartDataResponse)
 async def get_chart_data(
     time_range: str = Query("30d", description="Time range: 7d, 30d, 90d, 1y"),
     project_id: Optional[str] = Query(None, description="Filter by project ID"),
-    vra_client: VRAClient = Depends(get_vra_client),
+    verbose: bool = Query(False, description="Enable verbose HTTP logging"),
 ):
     """Get chart data for deployment trends and metrics."""
     try:
         # Get deployments
-        deployments_response = await vra_client.list_deployments(
+        client = get_catalog_client(verbose=verbose)
+        deployments = client.list_deployments(
             project_id=project_id,
-            verbose=True
+            fetch_all=True
         )
-        
-        if not deployments_response.get("success", False):
-            raise HTTPException(status_code=500, detail="Failed to retrieve deployments")
-
-        deployments = deployments_response.get("deployments", [])
         
         # Process deployments by time periods
         end_date = datetime.utcnow()
@@ -289,27 +280,25 @@ async def get_chart_data(
             chart_data=chart_data
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve chart data: {str(e)}")
+        raise handle_client_error("get chart data", e)
 
 
 @router.get("/usage", response_model=ResourceUsageResponse)
 async def get_resource_usage(
     project_id: Optional[str] = Query(None, description="Filter by project ID"),
-    vra_client: VRAClient = Depends(get_vra_client),
+    verbose: bool = Query(False, description="Enable verbose HTTP logging"),
 ):
     """Get resource usage statistics."""
     try:
         # Get deployments with resources
-        deployments_response = await vra_client.list_deployments(
+        client = get_catalog_client(verbose=verbose)
+        deployments = client.list_deployments(
             project_id=project_id,
-            verbose=True
+            fetch_all=True
         )
-        
-        if not deployments_response.get("success", False):
-            raise HTTPException(status_code=500, detail="Failed to retrieve deployments")
-
-        deployments = deployments_response.get("deployments", [])
         
         # Aggregate resource usage (this is a simplified calculation)
         total_cpu = 0
@@ -343,8 +332,10 @@ async def get_resource_usage(
             usage=usage
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve resource usage: {str(e)}")
+        raise handle_client_error("get resource usage", e)
 
 
 def _format_time_ago(timestamp: datetime) -> str:
