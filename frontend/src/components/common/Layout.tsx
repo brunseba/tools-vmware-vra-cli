@@ -91,7 +91,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Toolbar>
         <Cloud sx={{ mr: 2, color: 'primary.main' }} />
         <Typography variant="h6" noWrap component="div">
-          vRA WebUI
+          My WebUI
         </Typography>
       </Toolbar>
       <Divider />
@@ -137,7 +137,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </IconButton>
           
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            VMware vRealize Automation
+            My WebUI
           </Typography>
 
           {/* Theme Toggle */}

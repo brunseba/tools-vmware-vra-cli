@@ -189,6 +189,94 @@ export interface UnsyncReportResponse {
   unsync_data: UnsyncReportData;
 }
 
+// Types for Dependencies Report
+export interface DependenciesReportParams {
+  projectId?: string;
+  deploymentId?: string;
+}
+
+export interface ResourceDependency {
+  type: string;
+  description: string;
+  target_id?: string;
+  target_name?: string;
+  target_type?: string;
+  details?: Record<string, any>;
+}
+
+export interface InputDependency {
+  source_type: string;
+  source_name: string;
+  input_name: string;
+  depends_on: ResourceDependency[];
+}
+
+export interface ResourceWithDependencies {
+  id: string;
+  name: string;
+  type: string;
+  deployment_id: string;
+  deployment_name: string;
+  dependencies?: ResourceDependency[];
+}
+
+export interface DeploymentDependencyInfo {
+  deployment_id: string;
+  deployment_name: string;
+  resource_count: number;
+  resources: ResourceWithDependencies[];
+  dependency_count: number;
+  dependencies: Array<{
+    resource_id: string;
+    resource_name: string;
+    resource_type: string;
+    depends_on: ResourceDependency[];
+  }>;
+  input_dependencies: InputDependency[];
+}
+
+export interface CrossResourceLink {
+  source_id: string;
+  source_name: string;
+  source_type: string;
+  source_deployment_id: string;
+  source_deployment_name: string;
+  target_id: string;
+  target_name: string;
+  target_type: string;
+  target_deployment_id: string;
+  target_deployment_name: string;
+  is_cross_deployment: boolean;
+}
+
+export interface DependenciesReportData {
+  summary: {
+    total_deployments: number;
+    total_resources: number;
+    resources_with_dependencies: number;
+    standalone_resources: number;
+    unique_resource_types: number;
+    dependency_types: Record<string, number>;
+    resource_types: Record<string, number>;
+    cross_resource_links_count: number;
+    cross_deployment_links_count: number;
+    same_deployment_links_count: number;
+    deployments_with_input_dependencies: number;
+    total_input_dependencies: number;
+  };
+  deployments: DeploymentDependencyInfo[];
+  all_resources: ResourceWithDependencies[];
+  cross_resource_links: CrossResourceLink[];
+  cross_deployment_links: CrossResourceLink[];
+  same_deployment_links: CrossResourceLink[];
+}
+
+export interface DependenciesReportResponse {
+  success: boolean;
+  message: string;
+  dependencies_data: DependenciesReportData;
+}
+
 class ReportService {
   /**
    * Get activity timeline report
@@ -276,6 +364,26 @@ class ReportService {
       );
       
       return handleApiResponse(response).unsync_data;
+    } catch (error) {
+      return handleApiError(error as AxiosError);
+    }
+  }
+
+  /**
+   * Get dependencies report
+   */
+  async getDependencies(params: DependenciesReportParams = {}): Promise<DependenciesReportData> {
+    try {
+      const queryParams = new URLSearchParams();
+      
+      if (params.projectId) queryParams.append('project_id', params.projectId);
+      if (params.deploymentId) queryParams.append('deployment_id', params.deploymentId);
+      
+      const response = await apiClient.get<DependenciesReportResponse>(
+        `/reports/dependencies?${queryParams.toString()}`
+      );
+      
+      return handleApiResponse(response).dependencies_data;
     } catch (error) {
       return handleApiError(error as AxiosError);
     }

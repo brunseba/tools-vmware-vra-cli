@@ -93,10 +93,10 @@ export const LoginForm: React.FC = () => {
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Cloud sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
             <Typography variant="h4" component="h1" gutterBottom>
-              VMware vRA
+              My WebUI
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              Sign in to access your vRealize Automation environment
+              Sign in to access your automation environment
             </Typography>
           </Box>
 

@@ -47,6 +47,9 @@ import {
   OpenInNew as OpenInNewIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon,
+  MoreVert as MoreVertIcon,
+  Info as InfoIcon,
+  AccountTree as AccountTreeIcon,
 } from '@mui/icons-material';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useNavigate } from 'react-router-dom';
@@ -55,6 +58,7 @@ import {
   useCatalogUsageReport,
   useResourcesUsageReport,
   useUnsyncReport,
+  useDependenciesReport,
 } from '../hooks/useReports';
 
 interface TabPanelProps {
@@ -85,6 +89,8 @@ export const ReportsPage: React.FC = () => {
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info'>('info');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Activity Timeline state
   const [daysBack, setDaysBack] = useState(30);
@@ -103,6 +109,11 @@ export const ReportsPage: React.FC = () => {
 
   // Unsync Report state
   const [reasonFilter, setReasonFilter] = useState<string>('');
+
+  // Resource Type detail menu state
+  const [resourceTypeMenuAnchor, setResourceTypeMenuAnchor] = useState<null | HTMLElement>(null);
+  const [selectedResourceType, setSelectedResourceType] = useState<string | null>(null);
+  const [expandedResourceTypes, setExpandedResourceTypes] = useState<Set<string>>(new Set());
 
   // Data hooks
   const { data: activityTimeline, isLoading: activityLoading, error: activityError, refetch: refetchActivity } = useActivityTimelineReport({
@@ -130,6 +141,10 @@ export const ReportsPage: React.FC = () => {
     detailedResources: false,
     reasonFilter: reasonFilter || undefined,
   }, { enabled: activeTab === 3 });
+
+  const { data: dependenciesReport, isLoading: dependenciesLoading, error: dependenciesError, refetch: refetchDependencies } = useDependenciesReport({
+    projectId: settings.defaultProject,
+  }, { enabled: activeTab === 4 });
 
   const handleExportClick = (event: React.MouseEvent<HTMLElement>) => {
     setExportAnchorEl(event.currentTarget);
@@ -161,10 +176,15 @@ export const ReportsPage: React.FC = () => {
           data = unsyncReport;
           reportName = 'unsync-report';
           break;
+        case 4:
+          data = dependenciesReport;
+          reportName = 'dependencies-report';
+          break;
       }
 
       if (!data) {
         setSnackbarMessage('No data available for export');
+        setSnackbarSeverity('error');
         setSnackbarOpen(true);
         handleExportClose();
         return;
@@ -182,40 +202,64 @@ export const ReportsPage: React.FC = () => {
       } else if (format === 'csv') {
         // Simple CSV export - would need more sophisticated handling for nested data
         setSnackbarMessage('CSV export coming soon');
+        setSnackbarSeverity('info');
         setSnackbarOpen(true);
         handleExportClose();
         return;
       } else if (format === 'pdf') {
         setSnackbarMessage('PDF export coming soon');
+        setSnackbarSeverity('info');
         setSnackbarOpen(true);
         handleExportClose();
         return;
       }
 
       setSnackbarMessage(`Report exported successfully as ${format.toUpperCase()}`);
+      setSnackbarSeverity('success');
       setSnackbarOpen(true);
     } catch (error) {
       console.error('Export failed:', error);
       setSnackbarMessage('Failed to export report. Please try again.');
+      setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
     handleExportClose();
   };
 
-  const handleRefresh = () => {
-    switch (activeTab) {
-      case 0:
-        refetchActivity();
-        break;
-      case 1:
-        refetchCatalog();
-        break;
-      case 2:
-        refetchResources();
-        break;
-      case 3:
-        refetchUnsync();
-        break;
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      switch (activeTab) {
+        case 0:
+          await refetchActivity();
+          setSnackbarMessage('Activity Timeline refreshed successfully');
+          break;
+        case 1:
+          await refetchCatalog();
+          setSnackbarMessage('Catalog Usage refreshed successfully');
+          break;
+        case 2:
+          await refetchResources();
+          setSnackbarMessage('Resources Usage refreshed successfully');
+          break;
+        case 3:
+          await refetchUnsync();
+          setSnackbarMessage('Unsync Report refreshed successfully');
+          break;
+        case 4:
+          await refetchDependencies();
+          setSnackbarMessage('Dependencies Report refreshed successfully');
+          break;
+      }
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('Refresh failed:', error);
+      setSnackbarMessage('Failed to refresh report. Please try again.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -229,6 +273,30 @@ export const ReportsPage: React.FC = () => {
       }
       return newSet;
     });
+  };
+
+  const handleResourceTypeMenuOpen = (event: React.MouseEvent<HTMLElement>, resourceType: string) => {
+    event.stopPropagation();
+    setResourceTypeMenuAnchor(event.currentTarget);
+    setSelectedResourceType(resourceType);
+  };
+
+  const handleResourceTypeMenuClose = () => {
+    setResourceTypeMenuAnchor(null);
+    setSelectedResourceType(null);
+  };
+
+  const toggleResourceTypeExpansion = (resourceType: string) => {
+    setExpandedResourceTypes((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(resourceType)) {
+        newSet.delete(resourceType);
+      } else {
+        newSet.add(resourceType);
+      }
+      return newSet;
+    });
+    handleResourceTypeMenuClose();
   };
 
   if (!featureFlags.enableReports) {
@@ -253,7 +321,7 @@ export const ReportsPage: React.FC = () => {
     );
   }
 
-  const currentError = [activityError, catalogError, resourcesError, unsyncError][activeTab];
+  const currentError = [activityError, catalogError, resourcesError, unsyncError, dependenciesError][activeTab];
 
   return (
     <Box sx={{ flexGrow: 1, p: 3 }}>
@@ -269,11 +337,12 @@ export const ReportsPage: React.FC = () => {
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button
             variant="outlined"
-            startIcon={<RefreshIcon />}
+            startIcon={isRefreshing ? <CircularProgress size={16} /> : <RefreshIcon />}
             size="small"
             onClick={handleRefresh}
+            disabled={isRefreshing}
           >
-            Refresh
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
           </Button>
           
           <Button
@@ -322,6 +391,7 @@ export const ReportsPage: React.FC = () => {
           <Tab icon={<AssessmentIcon />} label="Catalog Usage" />
           <Tab icon={<StorageIcon />} label="Resources Usage" />
           <Tab icon={<SyncProblemIcon />} label="Unsync Report" />
+          <Tab icon={<AccountTreeIcon />} label="Dependencies" />
         </Tabs>
       </Box>
 
@@ -723,25 +793,205 @@ export const ReportsPage: React.FC = () => {
                       </Grid>
                     </Grid>
 
-                    {/* Resource Types */}
+                    {/* Resource Types - Detailed Breakdown */}
                     {resourcesUsage.summary.resource_types && (
                       <Card sx={{ mb: 3 }}>
-                        <CardHeader title="Resource Types" />
+                        <CardHeader 
+                          title="Resource Types Breakdown" 
+                          subheader={`${Object.keys(resourcesUsage.summary.resource_types).length} different resource types`}
+                        />
+                        <CardContent>
+                          <TableContainer>
+                            <Table>
+                              <TableHead>
+                                <TableRow>
+                                  <TableCell width="40px"></TableCell>
+                                  <TableCell>Resource Type</TableCell>
+                                  <TableCell align="right">Count</TableCell>
+                                  <TableCell align="right">Percentage</TableCell>
+                                  <TableCell align="right">Avg per Deployment</TableCell>
+                                  <TableCell align="right" width="50px">Actions</TableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {Object.entries(resourcesUsage.summary.resource_types)
+                                  .sort(([, a], [, b]) => b - a)
+                                  .map(([type, count]) => {
+                                    const percentage = (count / resourcesUsage.summary.total_resources) * 100
+                                    const avgPerDeployment = count / resourcesUsage.summary.total_deployments
+                                    const isExpanded = expandedResourceTypes.has(type)
+                                    const deploymentsWithType = resourcesUsage.deployments.filter(
+                                      dep => dep.resource_breakdown && dep.resource_breakdown[type] > 0
+                                    )
+                                    return (
+                                      <React.Fragment key={type}>
+                                        <TableRow hover>
+                                          <TableCell>
+                                            <IconButton
+                                              size="small"
+                                              onClick={() => toggleResourceTypeExpansion(type)}
+                                            >
+                                              {isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                                            </IconButton>
+                                          </TableCell>
+                                          <TableCell>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                              <Chip 
+                                                label={type} 
+                                                size="small" 
+                                                variant="outlined"
+                                                color="primary"
+                                              />
+                                            </Box>
+                                          </TableCell>
+                                          <TableCell align="right">
+                                            <Typography variant="body1" fontWeight="bold">
+                                              {count}
+                                            </Typography>
+                                          </TableCell>
+                                          <TableCell align="right">
+                                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
+                                              <Box 
+                                                sx={{ 
+                                                  width: 100, 
+                                                  height: 8, 
+                                                  bgcolor: 'grey.200', 
+                                                  borderRadius: 1,
+                                                  overflow: 'hidden'
+                                                }}
+                                              >
+                                                <Box 
+                                                  sx={{ 
+                                                    width: `${percentage}%`, 
+                                                    height: '100%', 
+                                                    bgcolor: 'primary.main',
+                                                    transition: 'width 0.3s'
+                                                  }} 
+                                                />
+                                              </Box>
+                                              <Typography variant="body2">
+                                                {percentage.toFixed(1)}%
+                                              </Typography>
+                                            </Box>
+                                          </TableCell>
+                                          <TableCell align="right">
+                                            <Typography variant="body2" color="text.secondary">
+                                              {avgPerDeployment.toFixed(2)}
+                                            </Typography>
+                                          </TableCell>
+                                          <TableCell align="right">
+                                            <IconButton
+                                              size="small"
+                                              onClick={(e) => handleResourceTypeMenuOpen(e, type)}
+                                            >
+                                              <MoreVertIcon />
+                                            </IconButton>
+                                          </TableCell>
+                                        </TableRow>
+                                        {isExpanded && (
+                                          <TableRow>
+                                            <TableCell colSpan={6} sx={{ bgcolor: 'grey.50', py: 2 }}>
+                                              <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
+                                                Deployments using {type} ({deploymentsWithType.length})
+                                              </Typography>
+                                              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1 }}>
+                                                {deploymentsWithType.slice(0, 10).map((dep) => {
+                                                  const resourceCount = dep.resource_breakdown?.[type] || 0
+                                                  return (
+                                                    <Paper key={dep.id} sx={{ p: 1.5, bgcolor: 'background.paper' }}>
+                                                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                        <Box>
+                                                          <Typography variant="body2" fontWeight="bold">
+                                                            {dep.name}
+                                                          </Typography>
+                                                          <Typography variant="caption" color="text.secondary">
+                                                            {resourceCount} resource{resourceCount !== 1 ? 's' : ''} of this type
+                                                          </Typography>
+                                                        </Box>
+                                                        <Chip 
+                                                          label={dep.catalog_item_info?.name || 'No Catalog Item'} 
+                                                          size="small" 
+                                                          variant="outlined" 
+                                                        />
+                                                      </Box>
+                                                    </Paper>
+                                                  )
+                                                })}
+                                                {deploymentsWithType.length > 10 && (
+                                                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
+                                                    ... and {deploymentsWithType.length - 10} more deployments
+                                                  </Typography>
+                                                )}
+                                              </Box>
+                                            </TableCell>
+                                          </TableRow>
+                                        )}
+                                      </React.Fragment>
+                                    )
+                                  })}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Resource States Breakdown */}
+                    {resourcesUsage.summary.resource_states && Object.keys(resourcesUsage.summary.resource_states).length > 0 && (
+                      <Card sx={{ mb: 3 }}>
+                        <CardHeader 
+                          title="Resource States" 
+                          subheader="Current state of all resources"
+                        />
                         <CardContent>
                           <Grid container spacing={2}>
-                            {Object.entries(resourcesUsage.summary.resource_types)
+                            {Object.entries(resourcesUsage.summary.resource_states)
                               .sort(([, a], [, b]) => b - a)
-                              .slice(0, 6)
-                              .map(([type, count]) => (
-                                <Grid item xs={6} sm={4} md={2} key={type}>
-                                  <Paper sx={{ p: 2, textAlign: 'center' }}>
-                                    <Typography variant="h6">{count}</Typography>
-                                    <Typography variant="caption" color="text.secondary">
-                                      {type}
-                                    </Typography>
-                                  </Paper>
-                                </Grid>
-                              ))}
+                              .map(([state, count]) => {
+                                const percentage = (count / resourcesUsage.summary.total_resources) * 100
+                                const getStateColor = (state: string) => {
+                                  if (state.includes('SUCCESSFUL') || state === 'ACTIVE') return 'success'
+                                  if (state.includes('FAILED') || state === 'ERROR') return 'error'
+                                  if (state === 'TAINTED') return 'warning'
+                                  if (state.includes('PROGRESS')) return 'info'
+                                  return 'default'
+                                }
+                                return (
+                                  <Grid item xs={12} sm={6} md={4} key={state}>
+                                    <Paper sx={{ p: 2 }}>
+                                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                        <Chip 
+                                          label={state} 
+                                          size="small"
+                                          color={getStateColor(state) as any}
+                                        />
+                                        <Typography variant="h6">{count}</Typography>
+                                      </Box>
+                                      <Box 
+                                        sx={{ 
+                                          width: '100%', 
+                                          height: 6, 
+                                          bgcolor: 'grey.200', 
+                                          borderRadius: 1,
+                                          overflow: 'hidden'
+                                        }}
+                                      >
+                                        <Box 
+                                          sx={{ 
+                                            width: `${percentage}%`, 
+                                            height: '100%', 
+                                            bgcolor: `${getStateColor(state)}.main`,
+                                            transition: 'width 0.3s'
+                                          }} 
+                                        />
+                                      </Box>
+                                      <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                                        {percentage.toFixed(1)}% of total resources
+                                      </Typography>
+                                    </Paper>
+                                  </Grid>
+                                )
+                              })}
                           </Grid>
                         </CardContent>
                       </Card>
@@ -899,12 +1149,373 @@ export const ReportsPage: React.FC = () => {
         </Grid>
       </TabPanel>
 
+      {/* Dependencies Report Tab */}
+      <TabPanel value={activeTab} index={4}>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Card>
+              <CardHeader title="Resource Dependencies" />
+              <CardContent>
+                {dependenciesLoading ? (
+                  <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                    <CircularProgress />
+                  </Box>
+                ) : dependenciesReport ? (
+                  <>
+                    {/* Summary */}
+                    <Grid container spacing={2} sx={{ mb: 3 }}>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <Paper sx={{ p: 2, textAlign: 'center' }}>
+                          <Typography variant="h4">{dependenciesReport.summary.total_deployments}</Typography>
+                          <Typography variant="body2" color="text.secondary">Total Deployments</Typography>
+                        </Paper>
+                      </Grid>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <Paper sx={{ p: 2, textAlign: 'center' }}>
+                          <Typography variant="h4">{dependenciesReport.summary.total_resources}</Typography>
+                          <Typography variant="body2" color="text.secondary">Total Resources</Typography>
+                        </Paper>
+                      </Grid>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <Paper sx={{ p: 2, textAlign: 'center' }}>
+                          <Typography variant="h4" color="primary.main">
+                            {dependenciesReport.summary.resources_with_dependencies}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">With Dependencies</Typography>
+                        </Paper>
+                      </Grid>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <Paper sx={{ p: 2, textAlign: 'center' }}>
+                          <Typography variant="h4">{dependenciesReport.summary.standalone_resources}</Typography>
+                          <Typography variant="body2" color="text.secondary">Standalone</Typography>
+                        </Paper>
+                      </Grid>
+                      {dependenciesReport.summary.deployments_with_input_dependencies > 0 && (
+                        <>
+                          <Grid item xs={12} sm={6} md={3}>
+                            <Paper sx={{ p: 2, textAlign: 'center', border: 1, borderColor: 'info.main' }}>
+                              <Typography variant="h4" color="info.main">
+                                {dependenciesReport.summary.deployments_with_input_dependencies}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">With Input Deps</Typography>
+                            </Paper>
+                          </Grid>
+                          <Grid item xs={12} sm={6} md={3}>
+                            <Paper sx={{ p: 2, textAlign: 'center', border: 1, borderColor: 'info.main' }}>
+                              <Typography variant="h4" color="info.main">
+                                {dependenciesReport.summary.total_input_dependencies}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">Total Input Deps</Typography>
+                            </Paper>
+                          </Grid>
+                        </>
+                      )}
+                    </Grid>
+
+                    {/* Cross-Deployment Links Alert */}
+                    {dependenciesReport.summary.cross_deployment_links_count > 0 ? (
+                      <Alert severity="warning" sx={{ mb: 3 }}>
+                        <Typography variant="body1" fontWeight="bold" gutterBottom>
+                          ⚠️ {dependenciesReport.summary.cross_deployment_links_count} Cross-Deployment Dependencies Found
+                        </Typography>
+                        <Typography variant="body2">
+                          Resources in different deployments are depending on each other. This may impact deployment lifecycle management.
+                          {dependenciesReport.summary.same_deployment_links_count > 0 && 
+                            ` (Plus ${dependenciesReport.summary.same_deployment_links_count} same-deployment links)`}
+                        </Typography>
+                      </Alert>
+                    ) : dependenciesReport.summary.same_deployment_links_count > 0 ? (
+                      <Alert severity="info" sx={{ mb: 3 }}>
+                        <Typography variant="body2">
+                          No cross-deployment dependencies found. {dependenciesReport.summary.same_deployment_links_count} same-deployment resource links detected.
+                        </Typography>
+                      </Alert>
+                    ) : null}
+
+                    {/* Dependency Types Breakdown */}
+                    {dependenciesReport.summary.dependency_types && Object.keys(dependenciesReport.summary.dependency_types).length > 0 && (
+                      <Card sx={{ mb: 3 }}>
+                        <CardHeader title="Dependency Types" subheader="Distribution of dependency types across resources" />
+                        <CardContent>
+                          <Grid container spacing={2}>
+                            {Object.entries(dependenciesReport.summary.dependency_types)
+                              .sort(([, a], [, b]) => b - a)
+                              .map(([type, count]) => {
+                                const percentage = (count / dependenciesReport.summary.resources_with_dependencies) * 100
+                                const getTypeColor = (type: string) => {
+                                  if (type === 'network') return 'info'
+                                  if (type === 'storage') return 'warning'
+                                  if (type === 'security') return 'success'
+                                  if (type === 'load_balancer') return 'primary'
+                                  if (type === 'cross_resource') return 'secondary'
+                                  return 'default'
+                                }
+                                return (
+                                  <Grid item xs={12} sm={6} md={3} key={type}>
+                                    <Paper sx={{ p: 2 }}>
+                                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                        <Chip 
+                                          label={type.replace(/_/g, ' ').toUpperCase()} 
+                                          size="small"
+                                          color={getTypeColor(type) as any}
+                                        />
+                                        <Typography variant="h6">{count}</Typography>
+                                      </Box>
+                                      <Typography variant="caption" color="text.secondary">
+                                        {percentage.toFixed(1)}% of resources with dependencies
+                                      </Typography>
+                                    </Paper>
+                                  </Grid>
+                                )
+                              })}
+                          </Grid>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Cross-Deployment Dependencies - Highlight these prominently */}
+                    {dependenciesReport.cross_deployment_links && dependenciesReport.cross_deployment_links.length > 0 && (
+                      <Card sx={{ mb: 3, border: 2, borderColor: 'warning.main' }}>
+                        <CardHeader 
+                          title="🔗 Cross-Deployment Dependencies" 
+                          subheader={`${dependenciesReport.cross_deployment_links.length} resources depending on resources in other deployments`}
+                          sx={{ bgcolor: 'warning.light' }}
+                        />
+                        <CardContent>
+                          <TableContainer>
+                            <Table size="small">
+                              <TableHead>
+                                <TableRow>
+                                  <TableCell>Source Resource (Deployment)</TableCell>
+                                  <TableCell align="center">→</TableCell>
+                                  <TableCell>Target Resource (Deployment)</TableCell>
+                                  <TableCell>Type</TableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {dependenciesReport.cross_deployment_links.slice(0, 20).map((link, idx) => (
+                                  <TableRow key={idx} hover sx={{ bgcolor: link.is_cross_deployment ? 'warning.lighter' : 'inherit' }}>
+                                    <TableCell>
+                                      <Box>
+                                        <Typography variant="body2" fontWeight="bold">
+                                          {link.source_name}
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5 }}>
+                                          <Chip 
+                                            label={link.source_type} 
+                                            size="small" 
+                                            variant="outlined"
+                                            sx={{ fontSize: '0.65rem' }}
+                                          />
+                                          <Chip 
+                                            label={link.source_deployment_name} 
+                                            size="small" 
+                                            color="primary"
+                                            sx={{ fontSize: '0.65rem' }}
+                                          />
+                                        </Box>
+                                      </Box>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                      <Typography variant="h6" color="warning.main">→</Typography>
+                                    </TableCell>
+                                    <TableCell>
+                                      <Box>
+                                        <Typography variant="body2" fontWeight="bold">
+                                          {link.target_name}
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5 }}>
+                                          <Chip 
+                                            label={link.target_type} 
+                                            size="small" 
+                                            variant="outlined"
+                                            sx={{ fontSize: '0.65rem' }}
+                                          />
+                                          <Chip 
+                                            label={link.target_deployment_name} 
+                                            size="small" 
+                                            color="secondary"
+                                            sx={{ fontSize: '0.65rem' }}
+                                          />
+                                        </Box>
+                                      </Box>
+                                    </TableCell>
+                                    <TableCell>
+                                      <Chip 
+                                        label="Cross-Deployment" 
+                                        size="small" 
+                                        color="warning"
+                                        icon={<AccountTreeIcon />}
+                                      />
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                          {dependenciesReport.cross_deployment_links.length > 20 && (
+                            <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block', textAlign: 'center' }}>
+                              Showing 20 of {dependenciesReport.cross_deployment_links.length} cross-deployment links
+                            </Typography>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Deployments with Dependencies */}
+                    {dependenciesReport.deployments && dependenciesReport.deployments.length > 0 && (
+                      <Card sx={{ mb: 3 }}>
+                        <CardHeader 
+                          title="Deployment Dependencies" 
+                          subheader={`${dependenciesReport.deployments.length} deployment(s) analyzed`}
+                        />
+                        <CardContent>
+                          {dependenciesReport.deployments.map((deployment) => (
+                            <Paper key={deployment.deployment_id} sx={{ p: 2, mb: 2 }}>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                <Box>
+                                  <Typography variant="h6">{deployment.deployment_name}</Typography>
+                                  <Typography variant="caption" color="text.secondary">
+                                    {deployment.resource_count} resources • {deployment.dependency_count} dependencies
+                                  </Typography>
+                                </Box>
+                                <Button
+                                  size="small"
+                                  startIcon={<OpenInNewIcon />}
+                                  onClick={() => navigate(`/deployments/${deployment.deployment_id}`)}
+                                  variant="outlined"
+                                >
+                                  View Details
+                                </Button>
+                              </Box>
+                              
+                              {deployment.dependencies.length > 0 && (
+                                <TableContainer>
+                                  <Table size="small">
+                                    <TableHead>
+                                      <TableRow>
+                                        <TableCell>Resource</TableCell>
+                                        <TableCell>Type</TableCell>
+                                        <TableCell>Dependencies</TableCell>
+                                      </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                      {deployment.dependencies.map((dep, idx) => (
+                                        <TableRow key={idx}>
+                                          <TableCell>{dep.resource_name}</TableCell>
+                                          <TableCell>
+                                            <Chip label={dep.resource_type} size="small" variant="outlined" />
+                                          </TableCell>
+                                          <TableCell>
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                              {dep.depends_on.map((dependency, depIdx) => (
+                                                <Box key={depIdx} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                  <Chip 
+                                                    label={dependency.type.replace(/_/g, ' ')}
+                                                    size="small"
+                                                    color={
+                                                      dependency.type === 'network' ? 'info' :
+                                                      dependency.type === 'storage' ? 'warning' :
+                                                      dependency.type === 'security' ? 'success' :
+                                                      dependency.type === 'cross_resource' ? 'secondary' :
+                                                      'default'
+                                                    }
+                                                    sx={{ fontSize: '0.7rem' }}
+                                                  />
+                                                  {dependency.target_name && (
+                                                    <Typography variant="caption" color="text.secondary">
+                                                      → {dependency.target_name}
+                                                      {dependency.target_type && ` (${dependency.target_type})`}
+                                                    </Typography>
+                                                  )}
+                                                  {dependency.details && Object.keys(dependency.details).length > 0 && (
+                                                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                                      {Object.entries(dependency.details).slice(0, 2).map(([k, v]) => `${k}: ${v}`).join(', ')}
+                                                    </Typography>
+                                                  )}
+                                                </Box>
+                                              ))}
+                                            </Box>
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </TableContainer>
+                              )}
+
+                              {/* Display Input Dependencies */}
+                              {deployment.input_dependencies && deployment.input_dependencies.length > 0 && (
+                                <Box sx={{ mt: 2, pt: 2, borderTop: 1, borderColor: 'divider' }}>
+                                  <Typography variant="subtitle2" gutterBottom color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <InfoIcon fontSize="small" />
+                                    Input Dependencies ({deployment.input_dependencies.length})
+                                  </Typography>
+                                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    {deployment.input_dependencies.map((inputDep, idx) => (
+                                      <Paper key={idx} sx={{ p: 1.5, bgcolor: 'info.lighter', border: 1, borderColor: 'info.light' }}>
+                                        <Typography variant="caption" fontWeight="bold" color="info.dark">
+                                          Input: {inputDep.input_name}
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                                          {inputDep.depends_on.map((dep, depIdx) => (
+                                            <Chip 
+                                              key={depIdx}
+                                              label={`${dep.type.replace(/_/g, ' ')}: ${dep.target_name || dep.target_id || 'unknown'}`}
+                                              size="small"
+                                              color="info"
+                                              variant="outlined"
+                                              sx={{ fontSize: '0.65rem' }}
+                                            />
+                                          ))}
+                                        </Box>
+                                      </Paper>
+                                    ))}
+                                  </Box>
+                                </Box>
+                              )}
+                            </Paper>
+                          ))}
+                        </CardContent>
+                      </Card>
+                    )}
+                  </>
+                ) : (
+                  <Typography>No data available</Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </TabPanel>
+
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={6000}
+        autoHideDuration={snackbarSeverity === 'success' ? 3000 : 6000}
         onClose={() => setSnackbarOpen(false)}
-        message={snackbarMessage}
-      />
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={() => setSnackbarOpen(false)} 
+          severity={snackbarSeverity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
+      {/* Resource Type Context Menu */}
+      <Menu
+        anchorEl={resourceTypeMenuAnchor}
+        open={Boolean(resourceTypeMenuAnchor)}
+        onClose={handleResourceTypeMenuClose}
+      >
+        <MenuItem onClick={() => selectedResourceType && toggleResourceTypeExpansion(selectedResourceType)}>
+          <InfoIcon fontSize="small" sx={{ mr: 1 }} />
+          {selectedResourceType && expandedResourceTypes.has(selectedResourceType) ? 'Hide' : 'Show'} Details
+        </MenuItem>
+      </Menu>
     </Box>
   );
 };

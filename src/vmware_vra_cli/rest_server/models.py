@@ -347,6 +347,17 @@ class ResourcesUsageResponse(BaseResponse):
     report_data: Dict[str, Any]
 
 
+class DependenciesReportRequest(BaseModel):
+    """Request model for dependencies report."""
+    project_id: Optional[str] = None
+    deployment_id: Optional[str] = None
+
+
+class DependenciesReportResponse(BaseResponse):
+    """Response model for dependencies report."""
+    dependencies_data: Dict[str, Any]
+
+
 class HealthResponse(BaseResponse):
     """Health check response model."""
     status: str = "healthy"

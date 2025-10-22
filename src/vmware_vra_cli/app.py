@@ -51,10 +51,38 @@ async def root():
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
     uptime_seconds = time.time() - uptime_start
+    vra_status = "unknown"
+    
+    # Try to check VRA connection
+    try:
+        from vmware_vra_cli.auth import TokenManager
+        from vmware_vra_cli.config import get_config
+        
+        config = get_config()
+        if config and config.get('api_url'):
+            try:
+                # Check if we have tokens stored
+                access_token = TokenManager.get_access_token()
+                if access_token:
+                    vra_status = "connected"
+                else:
+                    refresh_token = TokenManager.get_refresh_token()
+                    if refresh_token:
+                        vra_status = "refresh_token_available"
+                    else:
+                        vra_status = "not_authenticated"
+            except Exception as e:
+                vra_status = f"error: {str(e)[:50]}"
+        else:
+            vra_status = "not_configured"
+    except Exception as e:
+        vra_status = f"check_failed: {str(e)[:50]}"
+    
     return HealthResponse(
         status="healthy",
         version=app.version,
         uptime=f"{uptime_seconds:.2f} seconds",
+        vra_connection=vra_status,
     )
 
 # Run the server

@@ -5,10 +5,12 @@ import type {
   CatalogUsageData,
   ResourcesUsageData,
   UnsyncReportData,
+  DependenciesReportData,
   ActivityTimelineParams,
   CatalogUsageParams,
   ResourcesUsageParams,
   UnsyncReportParams,
+  DependenciesReportParams,
 } from '../services/reports';
 
 /**
@@ -81,6 +83,25 @@ export const useUnsyncReport = (
   return useQuery({
     queryKey: ['reports', 'unsync', params.projectId, params.detailedResources, params.reasonFilter],
     queryFn: () => reportService.getUnsyncReport(params),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: options?.enabled ?? true,
+    refetchInterval: options?.refetchInterval,
+  });
+};
+
+/**
+ * Hook to fetch dependencies report
+ */
+export const useDependenciesReport = (
+  params: DependenciesReportParams = {},
+  options?: {
+    enabled?: boolean;
+    refetchInterval?: number;
+  }
+): UseQueryResult<DependenciesReportData, Error> => {
+  return useQuery({
+    queryKey: ['reports', 'dependencies', params.projectId, params.deploymentId],
+    queryFn: () => reportService.getDependencies(params),
     staleTime: 5 * 60 * 1000, // 5 minutes
     enabled: options?.enabled ?? true,
     refetchInterval: options?.refetchInterval,
