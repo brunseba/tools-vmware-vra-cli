@@ -80,7 +80,7 @@ async def get_analytics_stats(
         # Calculate statistics
         total_deployments = len(filtered_deployments)
         active_deployments = len([d for d in filtered_deployments 
-                                 if d.get("status") == "CREATE_SUCCESSFUL"])
+                                 if "SUCCESSFUL" in d.get("status", "")])
         failed_deployments = len([d for d in filtered_deployments 
                                  if "FAILED" in d.get("status", "")])
         

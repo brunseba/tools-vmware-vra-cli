@@ -11,9 +11,18 @@ export const authService = {
    */
   async login(credentials: AuthRequest): Promise<AuthResponse> {
     try {
+      console.log('Auth Service: Attempting login with:', {
+        username: credentials.username,
+        url: credentials.url,
+        tenant: credentials.tenant,
+        domain: credentials.domain,
+        passwordProvided: !!credentials.password
+      });
       const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
+      console.log('Auth Service: Login response received:', response.status);
       return handleApiResponse(response);
     } catch (error: any) {
+      console.error('Auth Service: Login failed:', error.response?.status, error.response?.data);
       return handleApiError(error);
     }
   },

@@ -7,6 +7,7 @@ import { LoginPage } from '@/pages/LoginPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { CatalogPage } from '@/pages/CatalogPage'
 import { DeploymentsPage } from '@/pages/DeploymentsPage'
+import { DeploymentDetailPage } from '@/pages/DeploymentDetailPage'
 import { ReportsPage } from '@/pages/ReportsPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { Layout } from '@/components/common/Layout'
@@ -42,6 +43,14 @@ function App() {
               element={
                 <AuthGuard>
                   <DeploymentsPage />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/deployments/:deploymentId"
+              element={
+                <AuthGuard>
+                  <DeploymentDetailPage />
                 </AuthGuard>
               }
             />

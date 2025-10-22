@@ -23,17 +23,32 @@ async def list_catalog_items(
     verbose: bool = Query(False, description="Enable verbose HTTP logging")
 ):
     """List available catalog items."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     try:
+        logger.info(f"Catalog items request - project_id: {project_id}, page_size: {page_size}")
         client = get_catalog_client(verbose=verbose)
+        logger.info(f"Client obtained: {type(client).__name__}")
         
-        items = client.list_catalog_items(
-            project_id=project_id,
-            page_size=page_size,
-            fetch_all=not first_page_only
-        )
+        items = client.list_catalog_items(project_id=project_id)
+        logger.info(f"Catalog items retrieved: {len(items)} items")
         
-        # Convert Pydantic models to dictionaries
-        items_data = [item.dict() for item in items]
+        # Convert Pydantic objects to dictionaries
+        items_data = []
+        for item in items:
+            if hasattr(item, 'dict'):
+                # It's a Pydantic object, convert to dict
+                items_data.append(item.dict())
+            elif isinstance(item, dict):
+                # It's already a dict (from mock data)
+                items_data.append(item)
+            else:
+                # Unknown type, try to convert
+                logger.warning(f"Unknown item type: {type(item)}")
+                items_data.append(item if isinstance(item, dict) else {})
+        
+        logger.info(f"Catalog items converted to {len(items_data)} dictionaries")
         
         return CatalogItemsResponse(
             success=True,
@@ -50,6 +65,9 @@ async def list_catalog_items(
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Error listing catalog items: {type(e).__name__}: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
         raise handle_client_error("list catalog items", e)
 
 

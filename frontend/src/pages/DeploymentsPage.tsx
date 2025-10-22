@@ -45,6 +45,7 @@ import { deploymentsService } from '@/services/deployments';
 import { useSettingsStore } from '@/store/settingsStore';
 import { exportDeploymentData } from '../utils/exportUtils';
 import { useProjects } from '../hooks/useProjects';
+import { useNavigate } from 'react-router-dom';
 
 interface Deployment {
   id: string;
@@ -84,6 +85,7 @@ const getStatusLabel = (status: string) => {
 };
 
 export const DeploymentsPage: React.FC = () => {
+  const navigate = useNavigate();
   const { settings, addNotification } = useSettingsStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -362,7 +364,20 @@ export const DeploymentsPage: React.FC = () => {
         <Grid container spacing={2}>
           {filteredDeployments.map((deployment: Deployment) => (
             <Grid item xs={12} md={6} lg={4} key={deployment.id}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <Card 
+                sx={{ 
+                  height: '100%', 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    boxShadow: 4,
+                    transform: 'translateY(-2px)',
+                    transition: 'all 0.2s ease-in-out'
+                  }
+                }}
+                onClick={() => navigate(`/deployments/${deployment.id}`)}
+              >
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                     <Typography variant="h6" component="h3" noWrap sx={{ flexGrow: 1, mr: 1 }}>

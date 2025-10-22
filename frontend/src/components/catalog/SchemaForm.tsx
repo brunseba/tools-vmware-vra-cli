@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   Box,
   TextField,
@@ -19,6 +19,7 @@ import {
   FormHelperText,
   InputAdornment,
   Chip,
+  CircularProgress,
 } from '@mui/material'
 import {
   ExpandMore,
@@ -30,6 +31,7 @@ import {
 import { CatalogItem, CatalogSchema } from '@/types/api'
 import { useRequestCatalogItem } from '@/hooks/useCatalog'
 import { useSettingsStore } from '@/store/settingsStore'
+import { apiClient } from '@/services/api'
 
 interface SchemaFormProps {
   item: CatalogItem
@@ -51,6 +53,8 @@ interface FormField {
   maxLength?: number
   pattern?: string
   properties?: Record<string, any>
+  $data?: string // Dynamic URL for fetching enum values
+  $dynamicDefault?: string // Dynamic URL for fetching default value
 }
 
 export const SchemaForm: React.FC<SchemaFormProps> = ({
@@ -63,6 +67,8 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const [deploymentName, setDeploymentName] = useState('')
   const [reason, setReason] = useState('')
+  const [dynamicEnums, setDynamicEnums] = useState<Record<string, string[]>>({})
+  const [loadingFields, setLoadingFields] = useState<Set<string>>(new Set())
   
   const requestCatalogItemMutation = useRequestCatalogItem()
 
@@ -84,8 +90,68 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({
       maxLength: prop.maxLength,
       pattern: prop.pattern,
       properties: prop.properties,
+      $data: prop.$data,
+      $dynamicDefault: prop.$dynamicDefault,
     }))
   }, [schema])
+
+  // Substitute variables in URL template
+  const substituteVariables = (template: string, values: Record<string, any>): string => {
+    return template.replace(/\{\{(\w+)\}\}/g, (_, varName) => {
+      return values[varName] !== undefined ? String(values[varName]) : ''
+    })
+  }
+
+  // Fetch dynamic enum values from URL
+  const fetchDynamicEnum = async (fieldName: string, url: string) => {
+    try {
+      setLoadingFields(prev => new Set(prev).add(fieldName))
+      
+      // Substitute variables in URL
+      const resolvedUrl = substituteVariables(url, formData)
+      
+      // Only fetch if all variables are resolved (no empty {{}})
+      if (resolvedUrl.includes('{{') || resolvedUrl.includes('}}')) {
+        console.log(`Skipping fetch for ${fieldName}: unresolved variables in URL`)
+        return
+      }
+      
+      // Fetch from API
+      const response = await apiClient.get(resolvedUrl)
+      
+      // Extract array of values from response
+      let values: string[] = []
+      if (Array.isArray(response.data)) {
+        values = response.data
+      } else if (response.data.values && Array.isArray(response.data.values)) {
+        values = response.data.values
+      } else if (response.data.data && Array.isArray(response.data.data)) {
+        values = response.data.data
+      }
+      
+      setDynamicEnums(prev => ({
+        ...prev,
+        [fieldName]: values
+      }))
+    } catch (error) {
+      console.error(`Failed to fetch dynamic values for ${fieldName}:`, error)
+    } finally {
+      setLoadingFields(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(fieldName)
+        return newSet
+      })
+    }
+  }
+
+  // Watch for form data changes and fetch dynamic enums
+  useEffect(() => {
+    formFields.forEach(field => {
+      if (field.$data) {
+        fetchDynamicEnum(field.name, field.$data)
+      }
+    })
+  }, [formData, formFields])
 
   // Initialize form data with defaults
   React.useEffect(() => {
@@ -201,6 +267,11 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({
   const renderFormField = (field: FormField) => {
     const value = formData[field.name] ?? ''
     const hasError = !!validationErrors[field.name]
+    const isLoading = loadingFields.has(field.name)
+    
+    // Use dynamic enum if available, otherwise use static enum
+    const enumValues = dynamicEnums[field.name] || field.enum
+    const hasDynamicData = Boolean(field.$data)
     
     const commonProps = {
       fullWidth: true,
@@ -208,6 +279,7 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({
       error: hasError,
       helperText: validationErrors[field.name] || field.description,
       required: field.required,
+      disabled: isLoading,
     }
 
     switch (field.type) {
@@ -219,6 +291,7 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({
               <Switch
                 checked={Boolean(value)}
                 onChange={(e) => handleFieldChange(field.name, e.target.checked)}
+                disabled={isLoading}
               />
             }
             label={field.title}
@@ -243,12 +316,20 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({
               max: field.maximum,
               step: field.type === 'integer' ? 1 : 'any',
             }}
+            InputProps={{
+              endAdornment: isLoading && (
+                <InputAdornment position="end">
+                  <CircularProgress size={20} />
+                </InputAdornment>
+              ),
+            }}
             {...commonProps}
           />
         )
 
       default:
-        if (field.enum && field.enum.length > 0) {
+        // Dynamic dropdown or static enum
+        if ((enumValues && enumValues.length > 0) || hasDynamicData) {
           return (
             <FormControl key={field.name} {...commonProps}>
               <InputLabel>{field.title}</InputLabel>
@@ -256,22 +337,39 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({
                 value={value}
                 label={field.title}
                 onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                disabled={isLoading || commonProps.disabled}
+                endAdornment={
+                  isLoading ? (
+                    <InputAdornment position="end" sx={{ mr: 2 }}>
+                      <CircularProgress size={20} />
+                    </InputAdornment>
+                  ) : undefined
+                }
               >
-                {field.enum.map((option) => (
+                {!isLoading && enumValues && enumValues.length === 0 && (
+                  <MenuItem disabled value="">
+                    <em>No options available</em>
+                  </MenuItem>
+                )}
+                {enumValues && enumValues.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
                 ))}
               </Select>
-              {(validationErrors[field.name] || field.description) && (
+              {(validationErrors[field.name] || field.description || hasDynamicData) && (
                 <FormHelperText error={hasError}>
                   {validationErrors[field.name] || field.description}
+                  {hasDynamicData && !isLoading && enumValues && enumValues.length === 0 && (
+                    <> (Waiting for dependent fields)</>  
+                  )}
                 </FormHelperText>
               )}
             </FormControl>
           )
         }
 
+        // Regular text field
         return (
           <TextField
             key={field.name}
@@ -283,6 +381,13 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({
             inputProps={{
               minLength: field.minLength,
               maxLength: field.maxLength,
+            }}
+            InputProps={{
+              endAdornment: isLoading && (
+                <InputAdornment position="end">
+                  <CircularProgress size={20} />
+                </InputAdornment>
+              ),
             }}
             {...commonProps}
           />

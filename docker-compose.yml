@@ -17,6 +17,7 @@ services:
       - OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET}
       - REDIS_URL=redis://redis:6379
       - LOG_LEVEL=${LOG_LEVEL:-info}
+      - VRA_DEV_MODE=${VRA_DEV_MODE:-false}
     volumes:
       - ./src:/app/src
       - ./pyproject.toml:/app/pyproject.toml
