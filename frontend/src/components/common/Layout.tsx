@@ -18,6 +18,7 @@ import {
   Divider,
   useTheme,
   useMediaQuery,
+  Collapse,
 } from '@mui/material'
 import {
   Menu as MenuIcon,
@@ -31,6 +32,11 @@ import {
   DarkMode,
   LightMode,
   Cloud,
+  Computer,
+  ExpandLess,
+  ExpandMore,
+  PlayArrow,
+  Description,
 } from '@mui/icons-material'
 import { useAuthStore } from '@/store/authStore'
 import { useSettingsStore } from '@/store/settingsStore'
@@ -45,6 +51,16 @@ const DRAWER_WIDTH = 240
 const navigationItems = [
   { id: 'dashboard', label: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
   { id: 'catalog', label: 'Service Catalog', icon: <StoreMallDirectory />, path: '/catalog' },
+  { 
+    id: 'virtual-machines', 
+    label: 'Virtual Machine', 
+    icon: <Computer />, 
+    path: '/virtual-machines',
+    subItems: [
+      { id: 'vm-actions', label: 'Actions', icon: <PlayArrow />, path: '/catalog?filter=Virtual%20Machine' },
+      { id: 'vm-templates', label: 'Template', icon: <Description />, path: '/vm-templates' },
+    ]
+  },
   { id: 'deployments', label: 'My Deployments', icon: <Inventory />, path: '/deployments' },
   { id: 'reports', label: 'Reports', icon: <Analytics />, path: '/reports' },
 ]
@@ -61,6 +77,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   
   const [drawerOpen, setDrawerOpen] = useState(!isMobile)
   const [profileMenuAnchor, setProfileMenuAnchor] = useState<null | HTMLElement>(null)
+  const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set())
 
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen)
@@ -86,6 +103,18 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   }
 
+  const handleMenuToggle = (itemId: string) => {
+    setExpandedMenus(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId)
+      } else {
+        newSet.add(itemId)
+      }
+      return newSet
+    })
+  }
+
   const drawer = (
     <Box>
       <Toolbar>
@@ -97,15 +126,44 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Divider />
       <List>
         {navigationItems.map((item) => (
-          <ListItem key={item.id} disablePadding>
-            <ListItemButton
-              selected={location.pathname === item.path}
-              onClick={() => handleNavigation(item.path)}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.label} />
-            </ListItemButton>
-          </ListItem>
+          <React.Fragment key={item.id}>
+            <ListItem disablePadding>
+              <ListItemButton
+                selected={!item.subItems && location.pathname === item.path}
+                onClick={() => {
+                  if (item.subItems) {
+                    handleMenuToggle(item.id)
+                  } else {
+                    handleNavigation(item.path)
+                  }
+                }}
+              >
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.label} />
+                {item.subItems && (
+                  expandedMenus.has(item.id) ? <ExpandLess /> : <ExpandMore />
+                )}
+              </ListItemButton>
+            </ListItem>
+            {item.subItems && (
+              <Collapse in={expandedMenus.has(item.id)} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {item.subItems.map((subItem) => (
+                    <ListItem key={subItem.id} disablePadding>
+                      <ListItemButton
+                        sx={{ pl: 4 }}
+                        selected={location.pathname === subItem.path}
+                        onClick={() => handleNavigation(subItem.path)}
+                      >
+                        <ListItemIcon>{subItem.icon}</ListItemIcon>
+                        <ListItemText primary={subItem.label} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Collapse>
+            )}
+          </React.Fragment>
         ))}
       </List>
     </Box>

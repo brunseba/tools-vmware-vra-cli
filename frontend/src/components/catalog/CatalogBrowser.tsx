@@ -35,14 +35,16 @@ import { CatalogItemDialog } from './CatalogItemDialog'
 interface CatalogBrowserProps {
   projectId?: string
   onItemSelect?: (item: CatalogItem) => void
+  initialFilter?: string
 }
 
 export const CatalogBrowser: React.FC<CatalogBrowserProps> = ({
   projectId,
   onItemSelect,
+  initialFilter = '',
 }) => {
   const { settings } = useSettingsStore()
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState(initialFilter)
   const [selectedType, setSelectedType] = useState<string>('all')
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [page, setPage] = useState(1)

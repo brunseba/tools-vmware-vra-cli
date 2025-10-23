@@ -10,6 +10,7 @@ import { DeploymentsPage } from '@/pages/DeploymentsPage'
 import { DeploymentDetailPage } from '@/pages/DeploymentDetailPage'
 import { ReportsPage } from '@/pages/ReportsPage'
 import { SettingsPage } from '@/pages/SettingsPage'
+import { VMTemplatesPage } from '@/pages/VMTemplatesPage'
 import { Layout } from '@/components/common/Layout'
 import { NotificationSnackbar } from '@/components/common/NotificationSnackbar'
 
@@ -59,6 +60,14 @@ function App() {
               element={
                 <AuthGuard>
                   <ReportsPage />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/vm-templates"
+              element={
+                <AuthGuard>
+                  <VMTemplatesPage />
                 </AuthGuard>
               }
             />

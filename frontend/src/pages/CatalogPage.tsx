@@ -3,9 +3,12 @@ import { Box, Typography } from '@mui/material'
 import { StoreMallDirectory } from '@mui/icons-material'
 import { CatalogBrowser } from '@/components/catalog/CatalogBrowser'
 import { useSettingsStore } from '@/store/settingsStore'
+import { useSearchParams } from 'react-router-dom'
 
 export const CatalogPage: React.FC = () => {
   const { settings } = useSettingsStore()
+  const [searchParams] = useSearchParams()
+  const filterParam = searchParams.get('filter') || ''
 
   return (
     <Box sx={{ flexGrow: 1, p: 3 }}>
@@ -18,6 +21,7 @@ export const CatalogPage: React.FC = () => {
 
       <CatalogBrowser 
         projectId={settings.defaultProject}
+        initialFilter={filterParam}
       />
     </Box>
   )
