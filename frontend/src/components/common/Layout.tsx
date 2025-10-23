@@ -37,6 +37,8 @@ import {
   ExpandMore,
   PlayArrow,
   Description,
+  List as ListIcon,
+  Delete,
 } from '@mui/icons-material'
 import { useAuthStore } from '@/store/authStore'
 import { useSettingsStore } from '@/store/settingsStore'
@@ -62,7 +64,16 @@ const navigationItems = [
       { id: 'vm-inventory', label: 'Inventory', icon: <Inventory />, path: '/vm-inventory' },
     ]
   },
-  { id: 'deployments', label: 'My Deployments', icon: <Inventory />, path: '/deployments' },
+  { 
+    id: 'deployments', 
+    label: 'My Deployments', 
+    icon: <Inventory />, 
+    path: '/deployments',
+    subItems: [
+      { id: 'deployments-all', label: 'All Deployments', icon: <ListIcon />, path: '/deployments' },
+      { id: 'deployments-deleted', label: 'Deleted Only', icon: <Delete />, path: '/deployments?deleted=true' },
+    ]
+  },
   { id: 'reports', label: 'Reports', icon: <Analytics />, path: '/reports' },
 ]
 
@@ -149,18 +160,26 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             {item.subItems && (
               <Collapse in={expandedMenus.has(item.id)} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {item.subItems.map((subItem) => (
-                    <ListItem key={subItem.id} disablePadding>
-                      <ListItemButton
-                        sx={{ pl: 4 }}
-                        selected={location.pathname === subItem.path}
-                        onClick={() => handleNavigation(subItem.path)}
-                      >
-                        <ListItemIcon>{subItem.icon}</ListItemIcon>
-                        <ListItemText primary={subItem.label} />
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
+                  {item.subItems.map((subItem) => {
+                    // Check if current location matches this subItem's path (including query params)
+                    const currentPath = location.pathname + location.search;
+                    const isSelected = currentPath === subItem.path || 
+                                     (location.pathname === subItem.path.split('?')[0] && 
+                                      location.search === (subItem.path.includes('?') ? '?' + subItem.path.split('?')[1] : ''));
+                    
+                    return (
+                      <ListItem key={subItem.id} disablePadding>
+                        <ListItemButton
+                          sx={{ pl: 4 }}
+                          selected={isSelected}
+                          onClick={() => handleNavigation(subItem.path)}
+                        >
+                          <ListItemIcon>{subItem.icon}</ListItemIcon>
+                          <ListItemText primary={subItem.label} />
+                        </ListItemButton>
+                      </ListItem>
+                    );
+                  })}
                 </List>
               </Collapse>
             )}

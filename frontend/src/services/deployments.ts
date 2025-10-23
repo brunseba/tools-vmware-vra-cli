@@ -9,6 +9,7 @@ import {
 export interface DeploymentListParams {
   project_id?: string
   status?: string
+  deleted?: boolean
   page_size?: number
   first_page_only?: boolean
   verbose?: boolean
@@ -66,6 +67,24 @@ export const deploymentsService = {
         params: { verbose }
       })
       return handleApiResponse(response)
+    } catch (error: any) {
+      return handleApiError(error)
+    }
+  },
+
+  /**
+   * Get all resources across all deployments (optimized bulk endpoint)
+   */
+  async getAllResources(projectId?: string, resourceType?: string, verbose = false): Promise<any> {
+    try {
+      const response = await apiClient.get<any>('/deployments/resources/all', {
+        params: { 
+          project_id: projectId,
+          resource_type: resourceType,
+          verbose 
+        }
+      })
+      return response.data
     } catch (error: any) {
       return handleApiError(error)
     }

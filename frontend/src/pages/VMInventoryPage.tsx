@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   Box,
   Typography,
@@ -25,6 +25,7 @@ import {
   Button,
   Divider,
   Grid,
+  LinearProgress,
 } from '@mui/material'
 import {
   Computer,
@@ -33,6 +34,7 @@ import {
   OpenInNew,
   Info,
 } from '@mui/icons-material'
+import { useQuery } from '@tanstack/react-query'
 import { useDeployments } from '@/hooks/useDeployments'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useNavigate } from 'react-router-dom'
@@ -49,75 +51,64 @@ interface VMResource {
   properties?: Record<string, any>
 }
 
+// Fetch VM resources using optimized bulk endpoint
+const fetchAllVMResources = async (projectId?: string) => {
+  try {
+    console.log('[VM Inventory] Fetching resources for project:', projectId)
+    const response = await deploymentsService.getAllResources(
+      projectId,
+      'Cloud.vSphere.Machine',
+      false
+    )
+    
+    console.log('[VM Inventory] Response:', response)
+    
+    if (!response.resources || !Array.isArray(response.resources)) {
+      console.warn('[VM Inventory] No resources array in response')
+      return []
+    }
+    
+    console.log('[VM Inventory] Found', response.resources.length, 'resources')
+    
+    // Transform to VMResource format
+    const vms: VMResource[] = response.resources.map((resource: any) => ({
+      id: resource.id,
+      name: resource.name,
+      deploymentId: resource.deploymentId,
+      deploymentName: resource.deploymentName,
+      status: resource.status,
+      type: resource.type,
+      properties: resource.properties,
+    }))
+    
+    console.log('[VM Inventory] Transformed to', vms.length, 'VMs')
+    return vms
+  } catch (error) {
+    console.error('[VM Inventory] Error fetching VM resources:', error)
+    return []
+  }
+}
+
 export const VMInventoryPage: React.FC = () => {
   const navigate = useNavigate()
   const { settings } = useSettingsStore()
   const [searchQuery, setSearchQuery] = useState('')
-  const [vmResources, setVmResources] = useState<VMResource[]>([])
-  const [isLoadingResources, setIsLoadingResources] = useState(false)
   const [selectedVM, setSelectedVM] = useState<VMResource | null>(null)
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
 
-  // Fetch all deployments
-  const { data: deploymentsData, isLoading: isLoadingDeployments, refetch, isRefetching } = useDeployments({
-    projectId: settings.defaultProject,
-    pageSize: 1000,
+  // Fetch VM resources with React Query caching - using optimized bulk endpoint
+  const {
+    data: vmResources = [],
+    isLoading,
+    refetch,
+    isFetching,
+  } = useQuery({
+    queryKey: ['vm-inventory', settings.defaultProject],
+    queryFn: () => fetchAllVMResources(settings.defaultProject),
+    staleTime: 2 * 60 * 1000, // Cache for 2 minutes
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
+    retry: 1,
   })
-
-  // Fetch resources for all deployments and filter for vSphere machines
-  useEffect(() => {
-    const fetchAllVMResources = async () => {
-      if (!deploymentsData?.deployments || deploymentsData.deployments.length === 0) {
-        setVmResources([])
-        return
-      }
-
-      setIsLoadingResources(true)
-      const vms: VMResource[] = []
-
-      try {
-        // Fetch resources for each deployment in parallel
-        const resourcePromises = deploymentsData.deployments.map(async (deployment) => {
-          try {
-            const resourcesResponse = await deploymentsService.getDeploymentResources(
-              deployment.id,
-              false
-            )
-            
-            // Filter for Cloud.vSphere.Machine resources
-            if (resourcesResponse.resources) {
-              resourcesResponse.resources.forEach((resource: DeploymentResource) => {
-                if (resource.type === 'Cloud.vSphere.Machine') {
-                  vms.push({
-                    id: resource.id,
-                    name: resource.name,
-                    deploymentId: deployment.id,
-                    deploymentName: deployment.name,
-                    status: resource.status || deployment.status,
-                    type: resource.type,
-                    properties: resource.properties,
-                  })
-                }
-              })
-            }
-          } catch (error) {
-            console.error(`Failed to fetch resources for deployment ${deployment.id}:`, error)
-          }
-        })
-
-        await Promise.all(resourcePromises)
-        setVmResources(vms)
-      } catch (error) {
-        console.error('Error fetching VM resources:', error)
-      } finally {
-        setIsLoadingResources(false)
-      }
-    }
-
-    fetchAllVMResources()
-  }, [deploymentsData])
-
-  const isLoading = isLoadingDeployments || isLoadingResources
 
   // Filter VMs based on search query
   const filteredVMs = useMemo(() => {
@@ -133,7 +124,8 @@ export const VMInventoryPage: React.FC = () => {
   }, [vmResources, searchQuery])
 
   // Get status color
-  const getStatusColor = (status: string): 'success' | 'error' | 'warning' | 'default' => {
+  const getStatusColor = (status?: string): 'success' | 'error' | 'warning' | 'default' => {
+    if (!status) return 'default'
     if (status.includes('SUCCESS')) return 'success'
     if (status.includes('FAILED')) return 'error'
     if (status.includes('INPROGRESS')) return 'warning'
@@ -178,17 +170,27 @@ export const VMInventoryPage: React.FC = () => {
         </Box>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <Tooltip title="Refresh">
-            <IconButton onClick={() => refetch()} disabled={isRefetching}>
-              {isRefetching ? <CircularProgress size={24} /> : <Refresh />}
-            </IconButton>
+            <span>
+              <IconButton onClick={() => refetch()} disabled={isFetching}>
+                {isFetching ? <CircularProgress size={24} /> : <Refresh />}
+              </IconButton>
+            </span>
           </Tooltip>
         </Box>
       </Box>
+
+      {/* Loading Progress */}
+      {isFetching && !isLoading && (
+        <Box sx={{ width: '100%', mb: 2 }}>
+          <LinearProgress />
+        </Box>
+      )}
 
       {/* Info Alert */}
       <Alert severity="info" sx={{ mb: 3 }}>
         Showing all virtual machines of type <strong>Cloud.vSphere.Machine</strong> across all deployments in the current project.
         {vmResources.length > 0 && ` Found ${vmResources.length} VM${vmResources.length !== 1 ? 's' : ''}.`}
+        {isFetching && ' Updating...'}
       </Alert>
 
       {/* Search Bar */}
@@ -217,7 +219,6 @@ export const VMInventoryPage: React.FC = () => {
                 <TableRow>
                   <TableCell>VM Name</TableCell>
                   <TableCell>Deployment</TableCell>
-                  <TableCell>Status</TableCell>
                   <TableCell>CPU / Memory</TableCell>
                   <TableCell>Power State</TableCell>
                   <TableCell>IP Address</TableCell>
@@ -228,13 +229,13 @@ export const VMInventoryPage: React.FC = () => {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                       <CircularProgress />
                     </TableCell>
                   </TableRow>
                 ) : filteredVMs.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                       <Typography variant="body2" color="text.secondary">
                         {searchQuery
                           ? 'No VMs found matching your search.'
@@ -260,13 +261,6 @@ export const VMInventoryPage: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2">{vm.deploymentName}</Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={vm.status}
-                            size="small"
-                            color={getStatusColor(vm.status)}
-                          />
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2">
@@ -359,7 +353,7 @@ export const VMInventoryPage: React.FC = () => {
                   </Typography>
                   <Box>
                     <Chip
-                      label={selectedVM.status}
+                      label={selectedVM.status || 'Unknown'}
                       size="small"
                       color={getStatusColor(selectedVM.status)}
                     />

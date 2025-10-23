@@ -285,12 +285,14 @@ class CatalogClient:
         return response.json()
     
     def list_deployments(self, project_id: Optional[str] = None, 
-                        status: Optional[str] = None, page_size: int = 100, fetch_all: bool = True) -> List[Dict[str, Any]]:
+                        status: Optional[str] = None, deleted: Optional[bool] = None,
+                        page_size: int = 100, fetch_all: bool = True) -> List[Dict[str, Any]]:
         """List deployments.
         
         Args:
             project_id: Optional project ID to filter deployments
             status: Optional status to filter deployments
+            deleted: Optional filter for deleted deployments (True=only deleted, False=only active)
             page_size: Number of items per page (default: 100, max: 2000)
             fetch_all: Whether to fetch all pages or just the first page (default: True)
             
@@ -311,6 +313,9 @@ class CatalogClient:
                 params['projects'] = project_id
             if status:
                 params['status'] = status
+            if deleted is not None:
+                # vRA API expects the format: deleted=[true] or deleted=[false]
+                params['deleted'] = '[true]' if deleted else '[false]'
                 
             response = self.session.get(url, params=params)
             response.raise_for_status()

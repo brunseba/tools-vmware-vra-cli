@@ -45,7 +45,7 @@ import { deploymentsService } from '@/services/deployments';
 import { useSettingsStore } from '@/store/settingsStore';
 import { exportDeploymentData } from '../utils/exportUtils';
 import { useProjects } from '../hooks/useProjects';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 interface Deployment {
   id: string;
@@ -64,6 +64,7 @@ const getStatusColor = (status: string) => {
     'CREATE_IN_PROGRESS': 'info',
     'CREATE_FAILED': 'error',
     'DELETE_IN_PROGRESS': 'warning',
+    'DELETE_SUCCESSFUL': 'default',
     'DELETE_FAILED': 'error',
     'RUNNING': 'success',
     'STOPPED': 'default',
@@ -77,6 +78,7 @@ const getStatusLabel = (status: string) => {
     'CREATE_IN_PROGRESS': 'Creating',
     'CREATE_FAILED': 'Failed',
     'DELETE_IN_PROGRESS': 'Deleting',
+    'DELETE_SUCCESSFUL': 'Deleted',
     'DELETE_FAILED': 'Delete Failed',
     'RUNNING': 'Running',
     'STOPPED': 'Stopped',
@@ -86,15 +88,29 @@ const getStatusLabel = (status: string) => {
 
 export const DeploymentsPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { settings, addNotification } = useSettingsStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
   const [projectFilter, setProjectFilter] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedDeployment, setSelectedDeployment] = useState<string | null>(null);
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  
+  // Get filters from URL query parameters
+  const statusFromUrl = searchParams.get('status') || '';
+  const deletedFromUrl = searchParams.get('deleted');
+  const [statusFilter, setStatusFilter] = useState(statusFromUrl);
+
+  // Update filters when URL changes
+  useEffect(() => {
+    const urlStatus = searchParams.get('status') || '';
+    setStatusFilter(urlStatus);
+  }, [searchParams]);
+  
+  // Determine if showing deleted deployments from URL
+  const showDeleted = deletedFromUrl === 'true';
 
   // Get projects for filtering
   const { data: projects } = useProjects();
@@ -110,8 +126,9 @@ export const DeploymentsPage: React.FC = () => {
     queryFn: () => deploymentsService.listDeployments({
       project_id: settings.defaultProject,
       page_size: settings.pageSize,
-      // Note: searchQuery filtering will be handled client-side
       status: statusFilter || undefined,
+      // Note: deleted parameter disabled - filtering on frontend instead
+      // deleted: showDeleted ? true : undefined,
     }),
     refetchInterval: settings.autoRefresh ? settings.refreshInterval : false,
   });
@@ -198,9 +215,14 @@ export const DeploymentsPage: React.FC = () => {
       deployment.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       deployment.id.toLowerCase().includes(searchQuery.toLowerCase());
     
+    // Filter deleted deployments if requested
+    const matchesDeleted = !showDeleted || 
+      deployment.status?.includes('DELETE_SUCCESSFUL') ||
+      deployment.status?.includes('DELETE_FAILED');
+    
     const matchesProject = !projectFilter || deployment.projectId === projectFilter;
     
-    return matchesSearch && matchesProject;
+    return matchesSearch && matchesDeleted && matchesProject;
   });
 
   if (isError) {
@@ -308,6 +330,8 @@ export const DeploymentsPage: React.FC = () => {
                   <MenuItem value="CREATE_IN_PROGRESS">Creating</MenuItem>
                   <MenuItem value="CREATE_FAILED">Failed</MenuItem>
                   <MenuItem value="DELETE_IN_PROGRESS">Deleting</MenuItem>
+                  <MenuItem value="DELETE_SUCCESSFUL">Deleted</MenuItem>
+                  <MenuItem value="DELETE_FAILED">Delete Failed</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
