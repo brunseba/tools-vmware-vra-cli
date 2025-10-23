@@ -11,6 +11,7 @@ import { DeploymentDetailPage } from '@/pages/DeploymentDetailPage'
 import { ReportsPage } from '@/pages/ReportsPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { VMTemplatesPage } from '@/pages/VMTemplatesPage'
+import { VMInventoryPage } from '@/pages/VMInventoryPage'
 import { Layout } from '@/components/common/Layout'
 import { NotificationSnackbar } from '@/components/common/NotificationSnackbar'
 
@@ -68,6 +69,14 @@ function App() {
               element={
                 <AuthGuard>
                   <VMTemplatesPage />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/vm-inventory"
+              element={
+                <AuthGuard>
+                  <VMInventoryPage />
                 </AuthGuard>
               }
             />

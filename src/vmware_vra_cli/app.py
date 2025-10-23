@@ -5,12 +5,23 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from vmware_vra_cli.rest_server.models import HealthResponse, ErrorResponse
-from vmware_vra_cli.rest_server.routers import auth, catalog, deployments, reports, workflows, analytics, projects
+from vmware_vra_cli.rest_server.routers import auth, catalog, deployments, reports, workflows, analytics, projects, vm_templates
+from vmware_vra_cli.rest_server.database import init_db
 
 import uvicorn
 import time
 
 app = FastAPI(title="VMware vRA REST API Server", version="0.1.0")
+
+# Initialize database on startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database tables on application startup."""
+    try:
+        init_db()
+    except Exception as e:
+        print(f"Warning: Database initialization failed: {e}")
+        # Don't fail the app startup if DB is not available
 
 # Include routers
 app.include_router(auth.router)
@@ -20,6 +31,7 @@ app.include_router(reports.router)
 app.include_router(workflows.router)
 app.include_router(analytics.router)
 app.include_router(projects.router)
+app.include_router(vm_templates.router)
 uptime_start = time.time()
 
 # Middleware for CORS

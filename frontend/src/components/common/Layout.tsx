@@ -59,6 +59,7 @@ const navigationItems = [
     subItems: [
       { id: 'vm-actions', label: 'Actions', icon: <PlayArrow />, path: '/catalog?filter=Virtual%20Machine' },
       { id: 'vm-templates', label: 'Template', icon: <Description />, path: '/vm-templates' },
+      { id: 'vm-inventory', label: 'Inventory', icon: <Inventory />, path: '/vm-inventory' },
     ]
   },
   { id: 'deployments', label: 'My Deployments', icon: <Inventory />, path: '/deployments' },

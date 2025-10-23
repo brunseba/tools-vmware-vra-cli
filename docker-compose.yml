@@ -16,6 +16,7 @@ services:
       - OIDC_CLIENT_ID=${OIDC_CLIENT_ID}
       - OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET}
       - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://vra:vra_password@postgres:5432/vra_templates
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - VRA_DEV_MODE=${VRA_DEV_MODE:-false}
     volumes:
@@ -23,7 +24,12 @@ services:
       - ./pyproject.toml:/app/pyproject.toml
       - ./uv.lock:/app/uv.lock
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - vra-network
     healthcheck:
       test: ["CMD", "curl", "--connect-timeout", "5", "--max-time", "10", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -55,6 +61,29 @@ services:
       # - ./frontend/index.html:/app/index.html
     depends_on:
       - backend
+    networks:
+      - vra-network
+
+  # PostgreSQL database for VM templates
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=vra
+      - POSTGRES_PASSWORD=vra_password
+      - POSTGRES_DB=vra_templates
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - vra-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vra -d vra_templates"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   # Redis for caching and session storage
   redis:
@@ -63,6 +92,8 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    networks:
+      - vra-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
@@ -101,6 +132,12 @@ services:
       - "org.opencontainers.image.description=Log aggregator for vRA CLI development"
       - "org.opencontainers.image.vendor=VMware"
 
+networks:
+  vra-network:
+    driver: bridge
+
 volumes:
+  postgres-data:
+    driver: local
   redis-data:
     driver: local

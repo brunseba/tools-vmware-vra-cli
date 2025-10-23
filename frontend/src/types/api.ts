@@ -82,9 +82,11 @@ export interface Deployment {
   status: string;
   projectId: string;
   catalogItemId?: string;
+  catalogItemName?: string;
   createdAt: string;
   completedAt?: string;
   inputs?: Record<string, any>;
+  resources?: DeploymentResource[];
 }
 
 export interface DeploymentsResponse extends BaseResponse {
