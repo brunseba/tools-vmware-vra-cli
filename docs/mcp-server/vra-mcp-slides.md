@@ -3,6 +3,31 @@ marp: true
 theme: default
 class: invert
 paginate: true
+style: |
+  section {
+    font-size: 20px;
+  }
+  h1 {
+    font-size: 36px;
+  }
+  h2 {
+    font-size: 28px;
+  }
+  h3 {
+    font-size: 24px;
+  }
+  code {
+    font-size: 16px;
+  }
+  pre {
+    font-size: 14px;
+  }
+  ul, ol {
+    font-size: 18px;
+  }
+  table {
+    font-size: 16px;
+  }
 ---
 
 # VMware vRA MCP Tools
@@ -77,7 +102,7 @@ Request a catalog item deployment.
 
 ---
 
-## Schema Catalog (1/2)
+## Schema Catalog (1/3)
 
 ### `vraschemaloadschemas`
 Load catalog schemas from JSON files into persistent cache.
@@ -97,7 +122,7 @@ Show detailed schema information for a catalog item.
 
 ---
 
-## Schema Catalog (2/2)
+## Schema Catalog (2/3)
 
 ### `vraschemaexecuteschema`
 Execute a catalog item using its schema with AI-guided input collection.
@@ -107,6 +132,9 @@ Execute a catalog item using its schema with AI-guided input collection.
 ### `vraschemageneratetemplate`
 Generate input template for a catalog item.
 - **Required:** `catalogitemid`, `projectid`
+
+---
+## Schema Catalog (3/3)
 
 ### `vraschemaclearcache`
 Clear the persistent schema registry cache.
@@ -167,7 +195,7 @@ Generate report of deployments not linked to catalog items.
 
 ---
 
-## Workflow Management (1/2)
+## Workflow Management (1/3)
 
 ### `vralistworkflows`
 List available vRealize Orchestrator workflows.
@@ -179,7 +207,7 @@ Get workflow input/output schema.
 
 ---
 
-## Workflow Management (2/2)
+## Workflow Management (2/3)
 
 ### `vrarunworkflow`
 Execute a workflow with given inputs.
@@ -190,11 +218,17 @@ Execute a workflow with given inputs.
 Get workflow execution details.
 - **Required:** `workflowid`, `executionid`
 
+---
+
+## Workflow Management (3/3)
+
+
 ### `vracancelworkflowrun`
 Cancel a running workflow execution.
 - **Required:** `workflowid`, `executionid`
 
 ---
+
 
 ## Typical Flow: New Deployment
 
@@ -242,35 +276,6 @@ All tools return consistent error response format:
 - `Not authenticated` – Run `vraauthenticate` first
 - `Invalid Parameters` – Check parameter names and types
 - `API Errors` – Check vRA server connectivity
-
----
-
-## Integration Examples
-
-### Claude Desktop
-```json
-{
-  "mcpServers": {
-    "vmware-vra": {
-      "command": "vra-mcp-server",
-      "env": {
-        "VRA_URL": "https://vra.company.com"
-      }
-    }
-  }
-}
-```
-
-### VS Code Continue
-```json
-{
-  "mcp_servers": {
-    "vmware-vra": {
-      "command": "vra-mcp-server"
-    }
-  }
-}
-```
 
 ---
 
