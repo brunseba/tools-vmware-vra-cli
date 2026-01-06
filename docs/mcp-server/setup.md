@@ -93,11 +93,8 @@ Expected response includes:
 
 The MCP server provides 26 specialized tools:
 
-### Authentication (4 tools)
-- `vra_auth_login` - Authenticate with vRA
-- `vra_auth_logout` - Clear authentication tokens
-- `vra_auth_status` - Check authentication status
-- `vra_auth_refresh` - Refresh access tokens
+### Authentication (1 tool)
+- `vra_authenticate` - Authenticate with vRA and store credentials securely
 
 ### Catalog Management (4 tools)
 - `vra_list_catalog_items` - List available catalog items
@@ -105,12 +102,21 @@ The MCP server provides 26 specialized tools:
 - `vra_get_catalog_item_schema` - Get item request schema
 - `vra_request_catalog_item` - Request catalog item deployment
 
-### Deployment Management (5 tools)
+### Schema Catalog (8 tools)
+- `vra_schema_load_schemas` - Load catalog schemas from JSON files into persistent cache
+- `vra_schema_list_schemas` - List available catalog schemas from cache
+- `vra_schema_search_schemas` - Search catalog schemas by name or description
+- `vra_schema_show_schema` - Show detailed schema information for a catalog item
+- `vra_schema_execute_schema` - Execute a catalog item using its schema with AI-guided input collection
+- `vra_schema_generate_template` - Generate input template for a catalog item
+- `vra_schema_clear_cache` - Clear the persistent schema registry cache
+- `vra_schema_registry_status` - Show schema registry status and statistics
+
+### Deployment Management (4 tools)
 - `vra_list_deployments` - List deployments with filtering
 - `vra_get_deployment` - Get deployment details
 - `vra_delete_deployment` - Delete deployment
 - `vra_get_deployment_resources` - Get deployment resources
-- `vra_export_deployments` - Export deployments data
 
 ### Advanced Reporting (4 tools)
 - `vra_report_activity_timeline` - Generate activity timeline reports
@@ -124,12 +130,6 @@ The MCP server provides 26 specialized tools:
 - `vra_run_workflow` - Execute workflow with inputs
 - `vra_get_workflow_run` - Get workflow execution status
 - `vra_cancel_workflow_run` - Cancel running workflow
-
-### Tag Management (4 tools)
-- `vra_list_tags` - List available tags
-- `vra_create_tag` - Create new tags
-- `vra_assign_tag` - Assign tags to resources
-- `vra_get_tag_assignments` - Get resource tag assignments
 
 ## Troubleshooting
 

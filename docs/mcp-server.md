@@ -92,7 +92,16 @@ asyncio.run(test_vra_mcp())
 
 ## Available Tools
 
-The MCP server provides the following tools for vRA operations:
+The MCP server provides **26 specialized tools** organized into 6 categories:
+
+- **Authentication** (1 tool): Secure authentication to vRA
+- **Catalog Management** (4 tools): Browse and request catalog items
+- **Schema Catalog** (8 tools): Advanced schema-driven operations with persistent cache
+- **Deployment Management** (4 tools): Manage and monitor deployments
+- **Advanced Reporting** (4 tools): Generate comprehensive reports and analytics
+- **Workflow Management** (5 tools): Execute and monitor vRO workflows
+
+For complete tool reference, see [Tools Reference](mcp-server/tools-reference.md).
 
 ### Authentication Tools
 

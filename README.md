@@ -44,10 +44,12 @@ A comprehensive Python toolkit for VMware vRealize Automation 8 automation, feat
 - Programmatic access for automation pipelines
 
 🤖 **MCP Server (NEW!)**
-- True Model Context Protocol (MCP) compliant server
-- LLM integration for AI-powered infrastructure management
+- True Model Context Protocol (MCP) compliant server (v2025-06-18)
+- **26 specialized tools** for AI-powered infrastructure management
+- Tools organized into 6 categories: Authentication, Catalog, Schema Catalog, Deployments, Reporting, Workflows
 - JSON-RPC 2.0 over stdio transport
 - Compatible with Claude Desktop, VS Code Continue, and custom MCP clients
+- Advanced features: Schema-driven operations, comprehensive reporting, workflow execution
 
 ## Quick Start
 
