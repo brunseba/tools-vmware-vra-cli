@@ -1,0 +1,29 @@
+{
+  "catalog_item_info": {
+    "id": "9ff6f2c8-d276-39ef-96a6-56aaeddf5f60",
+    "name": "Public IP Addresses - Remove a set of 5",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "region": {
+        "type": "string",
+        "title": "region"
+      },
+      "removeSet": {
+        "type": "string",
+        "title": "removeSet"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName"
+      }
+    },
+    "required": []
+  }
+}

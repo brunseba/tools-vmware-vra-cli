@@ -1,0 +1,29 @@
+{
+  "catalog_item_info": {
+    "id": "eb9ef7bc-f65e-3e3b-929b-3478ee099ef7",
+    "name": "Report - Generate onDemand performance summary",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "title": "email"
+      },
+      "region": {
+        "type": "string",
+        "title": "region"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      }
+    },
+    "required": []
+  }
+}

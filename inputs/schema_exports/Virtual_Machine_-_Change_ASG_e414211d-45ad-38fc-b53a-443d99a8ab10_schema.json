@@ -1,0 +1,37 @@
+{
+  "catalog_item_info": {
+    "id": "e414211d-45ad-38fc-b53a-443d99a8ab10",
+    "name": "Virtual Machine - Change ASG",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmId": {
+        "type": "string",
+        "title": "vmId"
+      },
+      "curAsgId": {
+        "type": "string",
+        "title": "curAsgId"
+      },
+      "newAsgId": {
+        "type": "string",
+        "title": "newAsgId"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      }
+    },
+    "required": []
+  }
+}

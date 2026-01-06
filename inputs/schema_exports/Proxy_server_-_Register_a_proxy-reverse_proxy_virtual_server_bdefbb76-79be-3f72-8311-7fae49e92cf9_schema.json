@@ -1,0 +1,29 @@
+{
+  "catalog_item_info": {
+    "id": "bdefbb76-79be-3f72-8311-7fae49e92cf9",
+    "name": "Proxy server - Register a proxy-reverse proxy virtual server",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmName": {
+        "type": "string",
+        "title": "vmName"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName"
+      }
+    },
+    "required": []
+  }
+}

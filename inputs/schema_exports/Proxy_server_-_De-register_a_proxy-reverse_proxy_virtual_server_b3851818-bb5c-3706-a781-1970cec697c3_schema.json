@@ -1,0 +1,29 @@
+{
+  "catalog_item_info": {
+    "id": "b3851818-bb5c-3706-a781-1970cec697c3",
+    "name": "Proxy server - De-register a proxy-reverse proxy virtual server",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmName": {
+        "type": "string",
+        "title": "vmName"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName"
+      }
+    },
+    "required": []
+  }
+}

@@ -1,0 +1,394 @@
+{
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "export_parameters": {
+    "project_id": null,
+    "output_dir": "./schema_exports",
+    "format_type": "json"
+  },
+  "statistics": {
+    "total_catalog_items": 47,
+    "successful_exports": 47,
+    "failed_exports": 0,
+    "items_without_schema": 0
+  },
+  "exported_files": [
+    {
+      "filename": "Network_Security_Group_-_Create_07d316c8-f09b-3a9f-b48a-6f655888708c_schema.json",
+      "filepath": "./schema_exports/Network_Security_Group_-_Create_07d316c8-f09b-3a9f-b48a-6f655888708c_schema.json",
+      "catalog_item_id": "07d316c8-f09b-3a9f-b48a-6f655888708c",
+      "catalog_item_name": "Network Security Group - Create",
+      "catalog_item_type": "VMware Aria Automation Templates",
+      "schema_size": 1598
+    },
+    {
+      "filename": "Routing_Zone_-_Create_20ad7aaf-8838-3339-979f-39486ed37682_schema.json",
+      "filepath": "./schema_exports/Routing_Zone_-_Create_20ad7aaf-8838-3339-979f-39486ed37682_schema.json",
+      "catalog_item_id": "20ad7aaf-8838-3339-979f-39486ed37682",
+      "catalog_item_name": "Routing Zone - Create",
+      "catalog_item_type": "VMware Aria Automation Templates",
+      "schema_size": 610
+    },
+    {
+      "filename": "Application_Security_Group_-_Create_f2f10f4b-451b-387f-8f14-9d713726bd81_schema.json",
+      "filepath": "./schema_exports/Application_Security_Group_-_Create_f2f10f4b-451b-387f-8f14-9d713726bd81_schema.json",
+      "catalog_item_id": "f2f10f4b-451b-387f-8f14-9d713726bd81",
+      "catalog_item_name": "Application Security Group - Create",
+      "catalog_item_type": "VMware Aria Automation Templates",
+      "schema_size": 944
+    },
+    {
+      "filename": "AZ_Affinity_Rule_-_Create_3fda80a2-ac58-3a6b-95d6-0ff4de7374c3_schema.json",
+      "filepath": "./schema_exports/AZ_Affinity_Rule_-_Create_3fda80a2-ac58-3a6b-95d6-0ff4de7374c3_schema.json",
+      "catalog_item_id": "3fda80a2-ac58-3a6b-95d6-0ff4de7374c3",
+      "catalog_item_name": "AZ Affinity Rule - Create",
+      "catalog_item_type": "VMware Aria Automation Templates",
+      "schema_size": 1245
+    },
+    {
+      "filename": "Virtual_Machine_-_Change_ASG_e414211d-45ad-38fc-b53a-443d99a8ab10_schema.json",
+      "filepath": "./schema_exports/Virtual_Machine_-_Change_ASG_e414211d-45ad-38fc-b53a-443d99a8ab10_schema.json",
+      "catalog_item_id": "e414211d-45ad-38fc-b53a-443d99a8ab10",
+      "catalog_item_name": "Virtual Machine - Change ASG",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 309
+    },
+    {
+      "filename": "VM_Snapshot_-_Revert_d8838676-9b9b-3f2f-a43a-2fe0c5360c66_schema.json",
+      "filepath": "./schema_exports/VM_Snapshot_-_Revert_d8838676-9b9b-3f2f-a43a-2fe0c5360c66_schema.json",
+      "catalog_item_id": "d8838676-9b9b-3f2f-a43a-2fe0c5360c66",
+      "catalog_item_name": "VM Snapshot - Revert",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 260
+    },
+    {
+      "filename": "Data_Disk_-_Change_Performance_d18b428d-50e8-32b8-88e5-6290facd09b1_schema.json",
+      "filepath": "./schema_exports/Data_Disk_-_Change_Performance_d18b428d-50e8-32b8-88e5-6290facd09b1_schema.json",
+      "catalog_item_id": "d18b428d-50e8-32b8-88e5-6290facd09b1",
+      "catalog_item_name": "Data Disk - Change Performance",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 422
+    },
+    {
+      "filename": "Backup_Policy_-_Associate_VMs_9252e8d9-07ce-36e2-bf32-8821b8ce6f30_schema.json",
+      "filepath": "./schema_exports/Backup_Policy_-_Associate_VMs_9252e8d9-07ce-36e2-bf32-8821b8ce6f30_schema.json",
+      "catalog_item_id": "9252e8d9-07ce-36e2-bf32-8821b8ce6f30",
+      "catalog_item_name": "Backup Policy - Associate VMs",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 503
+    },
+    {
+      "filename": "Data_disk_-_Add_2445d114-df1b-3bf5-9015-55d4110e939e_schema.json",
+      "filepath": "./schema_exports/Data_disk_-_Add_2445d114-df1b-3bf5-9015-55d4110e939e_schema.json",
+      "catalog_item_id": "2445d114-df1b-3bf5-9015-55d4110e939e",
+      "catalog_item_name": "Data disk - Add",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 503
+    },
+    {
+      "filename": "Data_disk_-_Delete_366125f3-7f43-3973-a24f-bb02dc88a311_schema.json",
+      "filepath": "./schema_exports/Data_disk_-_Delete_366125f3-7f43-3973-a24f-bb02dc88a311_schema.json",
+      "catalog_item_id": "366125f3-7f43-3973-a24f-bb02dc88a311",
+      "catalog_item_name": "Data disk - Delete",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 262
+    },
+    {
+      "filename": "VM_Image_-_Publish_4e24439f-4320-33b5-a56f-1fa6628bb574_schema.json",
+      "filepath": "./schema_exports/VM_Image_-_Publish_4e24439f-4320-33b5-a56f-1fa6628bb574_schema.json",
+      "catalog_item_id": "4e24439f-4320-33b5-a56f-1fa6628bb574",
+      "catalog_item_name": "VM Image - Publish",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 160
+    },
+    {
+      "filename": "VM_Image_-_Register_89ef8ac3-82b4-3720-9ede-2a5c1c782aec_schema.json",
+      "filepath": "./schema_exports/VM_Image_-_Register_89ef8ac3-82b4-3720-9ede-2a5c1c782aec_schema.json",
+      "catalog_item_id": "89ef8ac3-82b4-3720-9ede-2a5c1c782aec",
+      "catalog_item_name": "VM Image - Register",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 500
+    },
+    {
+      "filename": "Virtual_Machine_-_Change_CPU_RAM_and_Restart_ee49fc93-8c33-3900-9492-3fcad34cf2c2_schema.json",
+      "filepath": "./schema_exports/Virtual_Machine_-_Change_CPU_RAM_and_Restart_ee49fc93-8c33-3900-9492-3fcad34cf2c2_schema.json",
+      "catalog_item_id": "ee49fc93-8c33-3900-9492-3fcad34cf2c2",
+      "catalog_item_name": "Virtual Machine - Change CPU, RAM and Restart",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 350
+    },
+    {
+      "filename": "Virtual_Machine_-_Create_99abceaf-1da3-3fad-aae7-b55b5084112e_schema.json",
+      "filepath": "./schema_exports/Virtual_Machine_-_Create_99abceaf-1da3-3fad-aae7-b55b5084112e_schema.json",
+      "catalog_item_id": "99abceaf-1da3-3fad-aae7-b55b5084112e",
+      "catalog_item_name": "Virtual Machine - Create",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 1975
+    },
+    {
+      "filename": "AZ_Affinity_Rule_-_Modify_d436248d-ec95-3490-b451-8175ebb4cd1d_schema.json",
+      "filepath": "./schema_exports/AZ_Affinity_Rule_-_Modify_d436248d-ec95-3490-b451-8175ebb4cd1d_schema.json",
+      "catalog_item_id": "d436248d-ec95-3490-b451-8175ebb4cd1d",
+      "catalog_item_name": "AZ Affinity Rule - Modify",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 535
+    },
+    {
+      "filename": "Application_Security_Group_-_Remove_0dd2244a-20a3-3678-ae5d-e6e8d7b7b746_schema.json",
+      "filepath": "./schema_exports/Application_Security_Group_-_Remove_0dd2244a-20a3-3678-ae5d-e6e8d7b7b746_schema.json",
+      "catalog_item_id": "0dd2244a-20a3-3678-ae5d-e6e8d7b7b746",
+      "catalog_item_name": "Application Security Group - Remove",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 152
+    },
+    {
+      "filename": "Network_Security_Group_-_Remove_f504bd62-f48d-3ebe-998d-23bb12942e28_schema.json",
+      "filepath": "./schema_exports/Network_Security_Group_-_Remove_f504bd62-f48d-3ebe-998d-23bb12942e28_schema.json",
+      "catalog_item_id": "f504bd62-f48d-3ebe-998d-23bb12942e28",
+      "catalog_item_name": "Network Security Group - Remove",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 152
+    },
+    {
+      "filename": "Virtual_Machine_-_Remove_e71a89ab-b7c3-342d-9ca6-3f83710f6360_schema.json",
+      "filepath": "./schema_exports/Virtual_Machine_-_Remove_e71a89ab-b7c3-342d-9ca6-3f83710f6360_schema.json",
+      "catalog_item_id": "e71a89ab-b7c3-342d-9ca6-3f83710f6360",
+      "catalog_item_name": "Virtual Machine - Remove",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 417
+    },
+    {
+      "filename": "Inter_ASG_FW_Rule_-_Remove_ef72c801-4d6c-34e5-90df-bcc791ac7973_schema.json",
+      "filepath": "./schema_exports/Inter_ASG_FW_Rule_-_Remove_ef72c801-4d6c-34e5-90df-bcc791ac7973_schema.json",
+      "catalog_item_id": "ef72c801-4d6c-34e5-90df-bcc791ac7973",
+      "catalog_item_name": "Inter ASG FW Rule - Remove",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 972
+    },
+    {
+      "filename": "Inter_ASG_FW_Rule_-_Modify_7eca91e9-62c5-3942-baa6-3df2a5d89a62_schema.json",
+      "filepath": "./schema_exports/Inter_ASG_FW_Rule_-_Modify_7eca91e9-62c5-3942-baa6-3df2a5d89a62_schema.json",
+      "catalog_item_id": "7eca91e9-62c5-3942-baa6-3df2a5d89a62",
+      "catalog_item_name": "Inter ASG FW Rule - Modify",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 1254
+    },
+    {
+      "filename": "Inter_ASG_FW_Rule_-_Create_ea117735-7f1c-3c7f-bd59-3d36bb7925fb_schema.json",
+      "filepath": "./schema_exports/Inter_ASG_FW_Rule_-_Create_ea117735-7f1c-3c7f-bd59-3d36bb7925fb_schema.json",
+      "catalog_item_id": "ea117735-7f1c-3c7f-bd59-3d36bb7925fb",
+      "catalog_item_name": "Inter ASG FW Rule - Create",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 953
+    },
+    {
+      "filename": "Disk_-_Resize_86c73043-386c-3f94-af40-7dbde006300c_schema.json",
+      "filepath": "./schema_exports/Disk_-_Resize_86c73043-386c-3f94-af40-7dbde006300c_schema.json",
+      "catalog_item_id": "86c73043-386c-3f94-af40-7dbde006300c",
+      "catalog_item_name": "Disk - Resize",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 577
+    },
+    {
+      "filename": "AZ_Affinity_Rule_-_Remove_ad53deb5-a01f-3d98-b89a-51034648e5f0_schema.json",
+      "filepath": "./schema_exports/AZ_Affinity_Rule_-_Remove_ad53deb5-a01f-3d98-b89a-51034648e5f0_schema.json",
+      "catalog_item_id": "ad53deb5-a01f-3d98-b89a-51034648e5f0",
+      "catalog_item_name": "AZ Affinity Rule - Remove",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 168
+    },
+    {
+      "filename": "Routing_Zone_-_Remove_a3de39ad-ae59-37c6-883b-571fbeb61943_schema.json",
+      "filepath": "./schema_exports/Routing_Zone_-_Remove_a3de39ad-ae59-37c6-883b-571fbeb61943_schema.json",
+      "catalog_item_id": "a3de39ad-ae59-37c6-883b-571fbeb61943",
+      "catalog_item_name": "Routing Zone - Remove",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 203
+    },
+    {
+      "filename": "VM_Snapshot_-_Create_51092305-4274-3a74-8d7d-e70d52f58f4e_schema.json",
+      "filepath": "./schema_exports/VM_Snapshot_-_Create_51092305-4274-3a74-8d7d-e70d52f58f4e_schema.json",
+      "catalog_item_id": "51092305-4274-3a74-8d7d-e70d52f58f4e",
+      "catalog_item_name": "VM Snapshot - Create",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 576
+    },
+    {
+      "filename": "VM_Snapshot_-_Remove_76e84545-82ae-3d9a-ba69-470a0d0fb826_schema.json",
+      "filepath": "./schema_exports/VM_Snapshot_-_Remove_76e84545-82ae-3d9a-ba69-470a0d0fb826_schema.json",
+      "catalog_item_id": "76e84545-82ae-3d9a-ba69-470a0d0fb826",
+      "catalog_item_name": "VM Snapshot - Remove",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 635
+    },
+    {
+      "filename": "User-_Reset_password_7a775003-e4b3-3328-b1cd-23c6c50a0023_schema.json",
+      "filepath": "./schema_exports/User-_Reset_password_7a775003-e4b3-3328-b1cd-23c6c50a0023_schema.json",
+      "catalog_item_id": "7a775003-e4b3-3328-b1cd-23c6c50a0023",
+      "catalog_item_name": "User- Reset password",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 498
+    },
+    {
+      "filename": "VM_Image_-_Remove_119e04b0-1f09-384c-b2ae-441b97f89d10_schema.json",
+      "filepath": "./schema_exports/VM_Image_-_Remove_119e04b0-1f09-384c-b2ae-441b97f89d10_schema.json",
+      "catalog_item_id": "119e04b0-1f09-384c-b2ae-441b97f89d10",
+      "catalog_item_name": "VM Image - Remove",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 215
+    },
+    {
+      "filename": "Report_-_Generate_monthly_detailed_usage_per_region_40c3a0a6-926a-306b-ab32-e5b5a5042a3e_schema.json",
+      "filepath": "./schema_exports/Report_-_Generate_monthly_detailed_usage_per_region_40c3a0a6-926a-306b-ab32-e5b5a5042a3e_schema.json",
+      "catalog_item_id": "40c3a0a6-926a-306b-ab32-e5b5a5042a3e",
+      "catalog_item_name": "Report - Generate monthly detailed usage per region",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 308
+    },
+    {
+      "filename": "Proxy_server_-_Register_a_proxy-reverse_proxy_virtual_server_bdefbb76-79be-3f72-8311-7fae49e92cf9_schema.json",
+      "filepath": "./schema_exports/Proxy_server_-_Register_a_proxy-reverse_proxy_virtual_server_bdefbb76-79be-3f72-8311-7fae49e92cf9_schema.json",
+      "catalog_item_id": "bdefbb76-79be-3f72-8311-7fae49e92cf9",
+      "catalog_item_name": "Proxy server - Register a proxy-reverse proxy virtual server",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 209
+    },
+    {
+      "filename": "Virtual_Machine_-_Start_stop_restart_520bae06-b6ac-36d7-9b50-a31086dad80c_schema.json",
+      "filepath": "./schema_exports/Virtual_Machine_-_Start_stop_restart_520bae06-b6ac-36d7-9b50-a31086dad80c_schema.json",
+      "catalog_item_id": "520bae06-b6ac-36d7-9b50-a31086dad80c",
+      "catalog_item_name": "Virtual Machine - Start, stop, restart",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 482
+    },
+    {
+      "filename": "Backup_Policy_-_Create_6d8c9189-2869-36d4-a97c-7d8b97753ccc_schema.json",
+      "filepath": "./schema_exports/Backup_Policy_-_Create_6d8c9189-2869-36d4-a97c-7d8b97753ccc_schema.json",
+      "catalog_item_id": "6d8c9189-2869-36d4-a97c-7d8b97753ccc",
+      "catalog_item_name": "Backup Policy - Create",
+      "catalog_item_type": "VMware Aria Automation Templates",
+      "schema_size": 1200
+    },
+    {
+      "filename": "Proxy_server_-_De-register_a_proxy-reverse_proxy_virtual_server_b3851818-bb5c-3706-a781-1970cec697c3_schema.json",
+      "filepath": "./schema_exports/Proxy_server_-_De-register_a_proxy-reverse_proxy_virtual_server_b3851818-bb5c-3706-a781-1970cec697c3_schema.json",
+      "catalog_item_id": "b3851818-bb5c-3706-a781-1970cec697c3",
+      "catalog_item_name": "Proxy server - De-register a proxy-reverse proxy virtual server",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 209
+    },
+    {
+      "filename": "Proxy_-_Add_or_Remove_Public_IP_071657fb-bd01-30b3-b8da-a85be6d1d41f_schema.json",
+      "filepath": "./schema_exports/Proxy_-_Add_or_Remove_Public_IP_071657fb-bd01-30b3-b8da-a85be6d1d41f_schema.json",
+      "catalog_item_id": "071657fb-bd01-30b3-b8da-a85be6d1d41f",
+      "catalog_item_name": "Proxy - Add or Remove Public IP",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 309
+    },
+    {
+      "filename": "Tenant_-_List_all_Users_fa6811f5-9e4e-3211-b1c5-596357980c82_schema.json",
+      "filepath": "./schema_exports/Tenant_-_List_all_Users_fa6811f5-9e4e-3211-b1c5-596357980c82_schema.json",
+      "catalog_item_id": "fa6811f5-9e4e-3211-b1c5-596357980c82",
+      "catalog_item_name": "Tenant - List all Users",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 213
+    },
+    {
+      "filename": "Virtual_Machine_-_Activate_Deactivate_HA_481227f8-de77-3b08-b37c-b75a7ce4cddd_schema.json",
+      "filepath": "./schema_exports/Virtual_Machine_-_Activate_Deactivate_HA_481227f8-de77-3b08-b37c-b75a7ce4cddd_schema.json",
+      "catalog_item_id": "481227f8-de77-3b08-b37c-b75a7ce4cddd",
+      "catalog_item_name": "Virtual Machine - Activate, Deactivate HA",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 249
+    },
+    {
+      "filename": "Backup_Policy_-_Modify_c4fd463f-ff81-3e71-bb7c-ee0ccae5a1a6_schema.json",
+      "filepath": "./schema_exports/Backup_Policy_-_Modify_c4fd463f-ff81-3e71-bb7c-ee0ccae5a1a6_schema.json",
+      "catalog_item_id": "c4fd463f-ff81-3e71-bb7c-ee0ccae5a1a6",
+      "catalog_item_name": "Backup Policy - Modify",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 1155
+    },
+    {
+      "filename": "Tenant_-_Delete_Failed_Deployment_9d77db62-b212-34c2-9e28-33ac77ceb7bc_schema.json",
+      "filepath": "./schema_exports/Tenant_-_Delete_Failed_Deployment_9d77db62-b212-34c2-9e28-33ac77ceb7bc_schema.json",
+      "catalog_item_id": "9d77db62-b212-34c2-9e28-33ac77ceb7bc",
+      "catalog_item_name": "Tenant - Delete Failed Deployment",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 371
+    },
+    {
+      "filename": "Tag_-_Add_Modify_Remove_6b89a61a-ba38-3153-82a0-586d6eef1912_schema.json",
+      "filepath": "./schema_exports/Tag_-_Add_Modify_Remove_6b89a61a-ba38-3153-82a0-586d6eef1912_schema.json",
+      "catalog_item_id": "6b89a61a-ba38-3153-82a0-586d6eef1912",
+      "catalog_item_name": "Tag - Add Modify Remove",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 500
+    },
+    {
+      "filename": "VM_Image_-_Change_license_origin_bea954a8-4c24-3353-9e12-5325a7cc6f15_schema.json",
+      "filepath": "./schema_exports/VM_Image_-_Change_license_origin_bea954a8-4c24-3353-9e12-5325a7cc6f15_schema.json",
+      "catalog_item_id": "bea954a8-4c24-3353-9e12-5325a7cc6f15",
+      "catalog_item_name": "VM Image - Change license origin",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 269
+    },
+    {
+      "filename": "Public_IP_addresses_-_Add_a_set_of_5_e6f00dbc-dab4-3662-8c80-ca317c492517_schema.json",
+      "filepath": "./schema_exports/Public_IP_addresses_-_Add_a_set_of_5_e6f00dbc-dab4-3662-8c80-ca317c492517_schema.json",
+      "catalog_item_id": "e6f00dbc-dab4-3662-8c80-ca317c492517",
+      "catalog_item_name": "Public IP addresses - Add a set of 5",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 252
+    },
+    {
+      "filename": "Public_IP_Addresses_-_Remove_a_set_of_5_9ff6f2c8-d276-39ef-96a6-56aaeddf5f60_schema.json",
+      "filepath": "./schema_exports/Public_IP_Addresses_-_Remove_a_set_of_5_9ff6f2c8-d276-39ef-96a6-56aaeddf5f60_schema.json",
+      "catalog_item_id": "9ff6f2c8-d276-39ef-96a6-56aaeddf5f60",
+      "catalog_item_name": "Public IP Addresses - Remove a set of 5",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 211
+    },
+    {
+      "filename": "Virtual_Machine_-_Mount-Unmount_ISO_d29f93a1-392f-38bc-b837-be52e9fceef4_schema.json",
+      "filepath": "./schema_exports/Virtual_Machine_-_Mount-Unmount_ISO_d29f93a1-392f-38bc-b837-be52e9fceef4_schema.json",
+      "catalog_item_id": "d29f93a1-392f-38bc-b837-be52e9fceef4",
+      "catalog_item_name": "Virtual Machine - Mount-Unmount ISO",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 255
+    },
+    {
+      "filename": "Backup_policy_-_Rerun_failed_Jobs_d1076e3b-9d4c-32f6-9b8e-b19d9a43795a_schema.json",
+      "filepath": "./schema_exports/Backup_policy_-_Rerun_failed_Jobs_d1076e3b-9d4c-32f6-9b8e-b19d9a43795a_schema.json",
+      "catalog_item_id": "d1076e3b-9d4c-32f6-9b8e-b19d9a43795a",
+      "catalog_item_name": "Backup policy - Rerun failed Jobs",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 383
+    },
+    {
+      "filename": "Report_-_Generate_onDemand_performance_summary_eb9ef7bc-f65e-3e3b-929b-3478ee099ef7_schema.json",
+      "filepath": "./schema_exports/Report_-_Generate_onDemand_performance_summary_eb9ef7bc-f65e-3e3b-929b-3478ee099ef7_schema.json",
+      "catalog_item_id": "eb9ef7bc-f65e-3e3b-929b-3478ee099ef7",
+      "catalog_item_name": "Report - Generate onDemand performance summary",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 201
+    },
+    {
+      "filename": "Inventory_-_List_all_resources_of_type_e8b251eb-bc4a-3dc8-88d0-5ffba48bf7c6_schema.json",
+      "filepath": "./schema_exports/Inventory_-_List_all_resources_of_type_e8b251eb-bc4a-3dc8-88d0-5ffba48bf7c6_schema.json",
+      "catalog_item_id": "e8b251eb-bc4a-3dc8-88d0-5ffba48bf7c6",
+      "catalog_item_name": "Inventory - List all resources of type",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 325
+    },
+    {
+      "filename": "Network_Security_Group_-_Reserve_IP_addresses_6df3042d-966a-3d0c-b011-6e399758c03c_schema.json",
+      "filepath": "./schema_exports/Network_Security_Group_-_Reserve_IP_addresses_6df3042d-966a-3d0c-b011-6e399758c03c_schema.json",
+      "catalog_item_id": "6df3042d-966a-3d0c-b011-6e399758c03c",
+      "catalog_item_name": "Network Security Group - Reserve IP addresses",
+      "catalog_item_type": "Automation Orchestrator Workflow",
+      "schema_size": 634
+    }
+  ],
+  "failed_items": [],
+  "items_without_schema": []
+}

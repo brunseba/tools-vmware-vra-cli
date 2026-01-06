@@ -1,0 +1,319 @@
+import React, { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import {
+  Box,
+  AppBar,
+  Toolbar,
+  Typography,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  Avatar,
+  Menu,
+  MenuItem,
+  Divider,
+  useTheme,
+  useMediaQuery,
+  Collapse,
+} from '@mui/material'
+import {
+  Menu as MenuIcon,
+  Dashboard,
+  StoreMallDirectory,
+  Inventory,
+  Analytics,
+  AccountCircle,
+  Settings,
+  Logout,
+  DarkMode,
+  LightMode,
+  Cloud,
+  Computer,
+  ExpandLess,
+  ExpandMore,
+  PlayArrow,
+  Description,
+  List as ListIcon,
+  Delete,
+} from '@mui/icons-material'
+import { useAuthStore } from '@/store/authStore'
+import { useSettingsStore } from '@/store/settingsStore'
+import { useLogout } from '@/hooks/useAuth'
+
+interface LayoutProps {
+  children: React.ReactNode
+}
+
+const DRAWER_WIDTH = 240
+
+const navigationItems = [
+  { id: 'dashboard', label: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
+  { id: 'catalog', label: 'Service Catalog', icon: <StoreMallDirectory />, path: '/catalog' },
+  { 
+    id: 'virtual-machines', 
+    label: 'Virtual Machine', 
+    icon: <Computer />, 
+    path: '/virtual-machines',
+    subItems: [
+      { id: 'vm-actions', label: 'Actions', icon: <PlayArrow />, path: '/catalog?filter=Virtual%20Machine' },
+      { id: 'vm-templates', label: 'Template', icon: <Description />, path: '/vm-templates' },
+      { id: 'vm-inventory', label: 'Inventory', icon: <Inventory />, path: '/vm-inventory' },
+    ]
+  },
+  { 
+    id: 'deployments', 
+    label: 'My Deployments', 
+    icon: <Inventory />, 
+    path: '/deployments',
+    subItems: [
+      { id: 'deployments-all', label: 'All Deployments', icon: <ListIcon />, path: '/deployments' },
+      { id: 'deployments-deleted', label: 'Deleted Only', icon: <Delete />, path: '/deployments?deleted=true' },
+    ]
+  },
+  { id: 'reports', label: 'Reports', icon: <Analytics />, path: '/reports' },
+]
+
+export const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  
+  const { user } = useAuthStore()
+  const { toggleDarkMode, theme: appTheme } = useSettingsStore()
+  const logoutMutation = useLogout()
+  
+  const [drawerOpen, setDrawerOpen] = useState(!isMobile)
+  const [profileMenuAnchor, setProfileMenuAnchor] = useState<null | HTMLElement>(null)
+  const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set())
+
+  const handleDrawerToggle = () => {
+    setDrawerOpen(!drawerOpen)
+  }
+
+  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setProfileMenuAnchor(event.currentTarget)
+  }
+
+  const handleProfileMenuClose = () => {
+    setProfileMenuAnchor(null)
+  }
+
+  const handleLogout = async () => {
+    handleProfileMenuClose()
+    await logoutMutation.mutateAsync()
+  }
+
+  const handleNavigation = (path: string) => {
+    navigate(path)
+    if (isMobile) {
+      setDrawerOpen(false)
+    }
+  }
+
+  const handleMenuToggle = (itemId: string) => {
+    setExpandedMenus(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId)
+      } else {
+        newSet.add(itemId)
+      }
+      return newSet
+    })
+  }
+
+  const drawer = (
+    <Box>
+      <Toolbar>
+        <Cloud sx={{ mr: 2, color: 'primary.main' }} />
+        <Typography variant="h6" noWrap component="div">
+          My WebUI
+        </Typography>
+      </Toolbar>
+      <Divider />
+      <List>
+        {navigationItems.map((item) => (
+          <React.Fragment key={item.id}>
+            <ListItem disablePadding>
+              <ListItemButton
+                selected={!item.subItems && location.pathname === item.path}
+                onClick={() => {
+                  if (item.subItems) {
+                    handleMenuToggle(item.id)
+                  } else {
+                    handleNavigation(item.path)
+                  }
+                }}
+              >
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.label} />
+                {item.subItems && (
+                  expandedMenus.has(item.id) ? <ExpandLess /> : <ExpandMore />
+                )}
+              </ListItemButton>
+            </ListItem>
+            {item.subItems && (
+              <Collapse in={expandedMenus.has(item.id)} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {item.subItems.map((subItem) => {
+                    // Check if current location matches this subItem's path (including query params)
+                    const currentPath = location.pathname + location.search;
+                    const isSelected = currentPath === subItem.path || 
+                                     (location.pathname === subItem.path.split('?')[0] && 
+                                      location.search === (subItem.path.includes('?') ? '?' + subItem.path.split('?')[1] : ''));
+                    
+                    return (
+                      <ListItem key={subItem.id} disablePadding>
+                        <ListItemButton
+                          sx={{ pl: 4 }}
+                          selected={isSelected}
+                          onClick={() => handleNavigation(subItem.path)}
+                        >
+                          <ListItemIcon>{subItem.icon}</ListItemIcon>
+                          <ListItemText primary={subItem.label} />
+                        </ListItemButton>
+                      </ListItem>
+                    );
+                  })}
+                </List>
+              </Collapse>
+            )}
+          </React.Fragment>
+        ))}
+      </List>
+    </Box>
+  )
+
+  return (
+    <Box sx={{ display: 'flex', height: '100vh' }}>
+      {/* App Bar */}
+      <AppBar
+        position="fixed"
+        sx={{
+          width: { md: `calc(100% - ${drawerOpen ? DRAWER_WIDTH : 0}px)` },
+          ml: { md: drawerOpen ? `${DRAWER_WIDTH}px` : 0 },
+          transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+          
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            My WebUI
+          </Typography>
+
+          {/* Theme Toggle */}
+          <IconButton color="inherit" onClick={toggleDarkMode} sx={{ mr: 1 }}>
+            {appTheme.mode === 'dark' ? <LightMode /> : <DarkMode />}
+          </IconButton>
+
+          {/* Profile Menu */}
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleProfileMenuOpen}
+            color="inherit"
+          >
+            <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
+              {user?.username?.charAt(0).toUpperCase() || <AccountCircle />}
+            </Avatar>
+          </IconButton>
+          
+          <Menu
+            id="menu-appbar"
+            anchorEl={profileMenuAnchor}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            open={Boolean(profileMenuAnchor)}
+            onClose={handleProfileMenuClose}
+          >
+            <MenuItem disabled>
+              <Typography variant="body2" color="text.secondary">
+                {user?.username}
+                {user?.tenant && ` @ ${user.tenant}`}
+              </Typography>
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={() => { handleProfileMenuClose(); navigate('/settings'); }}>
+              <ListItemIcon>
+                <Settings fontSize="small" />
+              </ListItemIcon>
+              Settings
+            </MenuItem>
+            <MenuItem onClick={handleLogout}>
+              <ListItemIcon>
+                <Logout fontSize="small" />
+              </ListItemIcon>
+              Logout
+            </MenuItem>
+          </Menu>
+        </Toolbar>
+      </AppBar>
+
+      {/* Navigation Drawer */}
+      <Box
+        component="nav"
+        sx={{ width: { md: drawerOpen ? DRAWER_WIDTH : 0 }, flexShrink: { md: 0 } }}
+        aria-label="navigation"
+      >
+        <Drawer
+          variant={isMobile ? 'temporary' : 'persistent'}
+          open={drawerOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
+          sx={{
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: DRAWER_WIDTH,
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
+      </Box>
+
+      {/* Main Content */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          width: { md: `calc(100% - ${drawerOpen ? DRAWER_WIDTH : 0}px)` },
+          transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
+        }}
+      >
+        <Toolbar />
+        {children}
+      </Box>
+    </Box>
+  )
+}

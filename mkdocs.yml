@@ -98,10 +98,20 @@ nav:
     - Compatibility Matrix: compatibility-matrix.md
   - MCP Server:
     - Overview: mcp-server.md
+    - Setup & Configuration: mcp-server/setup.md
+    - AI Assistant Integration:
+      - Claude Desktop: mcp-server/integrations/claude-desktop.md
+      - VS Code Continue: mcp-server/integrations/vscode-continue.md
+      - Custom Clients: mcp-server/integrations/custom-clients.md
+    - Tools Reference: mcp-server/tools-reference.md
     - Docker Deployment: mcp-server-docker.md
-    - Build & Deploy: build-deploy.md
   - REST API Server:
     - Overview: rest-api-server.md
+    - Setup & Configuration: rest-api/setup.md
+    - Authentication: rest-api/authentication.md
+    - OpenAPI Documentation: rest-api/openapi.md
+    - Integration Examples: rest-api/examples.md
+    - Complete API Reference: rest-api-comprehensive.md
     - Docker Deployment: rest-api-server-docker.md
   - CLI User Guide:
     - Authentication: user-guide/authentication.md
@@ -112,10 +122,12 @@ nav:
     - CLI Reference: user-guide/cli-reference.md
     - Practical Examples: user-guide/examples.md
     - Troubleshooting: user-guide/troubleshooting.md
+  - Migration Guide: migration-guide.md
   - Developer Guide:
     - Contributing: developer-guide/contributing.md
     - Architecture: developer-guide/architecture.md
     - Testing: developer-guide/testing.md
+    - Build & Deploy: build-deploy.md
   - Architecture & Design:
     - Overview: architecture-design/index.md
     - Context Diagram: architecture-design/context-diagram.md
@@ -133,7 +145,7 @@ extra:
     provider: mike
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/brun_s/vmware-vra-cli
+      link: https://github.com/brunseba/tools-vmware-vra-cli
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/vmware-vra-cli/
 

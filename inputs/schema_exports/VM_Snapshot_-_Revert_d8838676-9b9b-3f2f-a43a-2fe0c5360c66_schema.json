@@ -1,0 +1,33 @@
+{
+  "catalog_item_info": {
+    "id": "d8838676-9b9b-3f2f-a43a-2fe0c5360c66",
+    "name": "VM Snapshot - Revert",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmId": {
+        "type": "string",
+        "title": "vmId"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      },
+      "snapshotId": {
+        "type": "string",
+        "title": "snapshotId"
+      }
+    },
+    "required": []
+  }
+}

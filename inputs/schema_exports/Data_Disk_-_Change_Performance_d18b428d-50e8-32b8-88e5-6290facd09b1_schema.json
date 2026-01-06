@@ -1,0 +1,41 @@
+{
+  "catalog_item_info": {
+    "id": "d18b428d-50e8-32b8-88e5-6290facd09b1",
+    "name": "Data Disk - Change Performance",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmName": {
+        "type": "string",
+        "title": "vmName"
+      },
+      "diskName": {
+        "type": "string",
+        "title": "diskName"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName"
+      },
+      "storagePerformance": {
+        "type": "string",
+        "title": "storagePerformance"
+      },
+      "currentStoragePerformance": {
+        "type": "string",
+        "title": "currentStoragePerformance"
+      }
+    },
+    "required": []
+  }
+}

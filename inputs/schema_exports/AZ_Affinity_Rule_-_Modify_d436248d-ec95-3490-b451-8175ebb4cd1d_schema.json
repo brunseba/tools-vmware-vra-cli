@@ -1,0 +1,49 @@
+{
+  "catalog_item_info": {
+    "id": "d436248d-ec95-3490-b451-8175ebb4cd1d",
+    "name": "AZ Affinity Rule - Modify",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName"
+      },
+      "affinityType": {
+        "type": "string",
+        "title": "affinityType"
+      },
+      "affinityRuleId": {
+        "type": "string",
+        "title": "affinityRuleId"
+      },
+      "listOfSameAzVms": {
+        "type": "array",
+        "title": "listOfSameAzVms",
+        "items": {
+          "type": "string",
+          "title": "listOfSameAzVms"
+        }
+      },
+      "listOfOtherAzVms": {
+        "type": "array",
+        "title": "listOfOtherAzVms",
+        "items": {
+          "type": "string",
+          "title": "listOfOtherAzVms"
+        }
+      }
+    },
+    "required": []
+  }
+}

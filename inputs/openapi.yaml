@@ -1,0 +1,1514 @@
+openapi: 3.0.3
+info:
+  title: VMware vRA REST API Server
+  version: 0.1.0
+  description: |
+    REST API server for VMware vRealize Automation (vRA) operations.
+    
+    This server provides programmatic access to VMware vRA functionality including:
+    - Authentication and token management
+    - Catalog item browsing and requesting
+    - Deployment management and monitoring
+    
+    The API follows standard REST conventions and returns JSON responses.
+  contact:
+    name: VMware vRA CLI
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://api.example.com
+    description: Production server
+
+tags:
+  - name: root
+    description: Root endpoints
+  - name: authentication
+    description: Authentication and token management
+  - name: catalog
+    description: Catalog item operations
+  - name: deployments
+    description: Deployment management
+  - name: reports
+    description: Analytics and reporting
+  - name: workflows
+    description: Workflow operations
+
+paths:
+  /:
+    get:
+      tags:
+        - root
+      summary: Welcome message
+      description: Returns a welcome message for the API
+      responses:
+        '200':
+          description: Welcome message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Welcome to the VMware vRA REST API Server!"
+
+  /health:
+    get:
+      tags:
+        - root
+      summary: Health check
+      description: Returns the health status of the API server
+      responses:
+        '200':
+          description: Server health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /auth/login:
+    post:
+      tags:
+        - authentication
+      summary: Authenticate to vRA
+      description: |
+        Authenticate to VMware vRA and store access/refresh tokens securely.
+        This endpoint establishes a session for subsequent API calls.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags:
+        - authentication
+      summary: Logout and clear tokens
+      description: Clear stored authentication tokens from the server
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+
+  /auth/status:
+    get:
+      tags:
+        - authentication
+      summary: Check authentication status
+      description: Check if the current session has valid authentication tokens
+      responses:
+        '200':
+          description: Authentication status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/refresh:
+    post:
+      tags:
+        - authentication
+      summary: Refresh access token
+      description: Manually refresh the access token using the stored refresh token
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '401':
+          description: Token refresh failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /catalog/items:
+    get:
+      tags:
+        - catalog
+      summary: List catalog items
+      description: |
+        Retrieve a list of available catalog items from vRA.
+        Results can be filtered by project and paginated.
+      parameters:
+        - name: project_id
+          in: query
+          description: Filter by project ID
+          required: false
+          schema:
+            type: string
+        - name: page_size
+          in: query
+          description: Number of items per page (1-2000)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 2000
+            default: 100
+        - name: first_page_only
+          in: query
+          description: Fetch only the first page
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: List of catalog items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogItemsResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /catalog/items/{item_id}:
+    get:
+      tags:
+        - catalog
+      summary: Get catalog item details
+      description: Retrieve detailed information about a specific catalog item
+      parameters:
+        - name: item_id
+          in: path
+          description: Catalog item ID
+          required: true
+          schema:
+            type: string
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Catalog item details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogItemResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Catalog item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /catalog/items/{item_id}/schema:
+    get:
+      tags:
+        - catalog
+      summary: Get catalog item schema
+      description: Retrieve the request schema for a specific catalog item
+      parameters:
+        - name: item_id
+          in: path
+          description: Catalog item ID
+          required: true
+          schema:
+            type: string
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Catalog item schema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogSchemaResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Catalog item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /catalog/items/{item_id}/request:
+    post:
+      tags:
+        - catalog
+      summary: Request catalog item
+      description: |
+        Submit a request for a catalog item deployment.
+        This creates a new deployment from the specified catalog item.
+      parameters:
+        - name: item_id
+          in: path
+          description: Catalog item ID
+          required: true
+          schema:
+            type: string
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CatalogRequestRequest'
+      responses:
+        '200':
+          description: Catalog item request submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogRequestResponse'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Catalog item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /deployments:
+    get:
+      tags:
+        - deployments
+      summary: List deployments
+      description: |
+        Retrieve a list of deployments with optional filtering by project and status.
+        Results can be paginated for better performance.
+      parameters:
+        - name: project_id
+          in: query
+          description: Filter by project ID
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by deployment status
+          required: false
+          schema:
+            type: string
+        - name: page_size
+          in: query
+          description: Number of items per page (1-2000)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 2000
+            default: 100
+        - name: first_page_only
+          in: query
+          description: Fetch only the first page
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: List of deployments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentsResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /deployments/{deployment_id}:
+    get:
+      tags:
+        - deployments
+      summary: Get deployment details
+      description: Retrieve detailed information about a specific deployment
+      parameters:
+        - name: deployment_id
+          in: path
+          description: Deployment ID
+          required: true
+          schema:
+            type: string
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Deployment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Deployment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    delete:
+      tags:
+        - deployments
+      summary: Delete deployment
+      description: |
+        Delete a deployment. This operation requires explicit confirmation
+        via the confirm parameter to prevent accidental deletions.
+      parameters:
+        - name: deployment_id
+          in: path
+          description: Deployment ID
+          required: true
+          schema:
+            type: string
+        - name: confirm
+          in: query
+          description: Confirmation required for deletion
+          required: true
+          schema:
+            type: boolean
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Deployment deletion initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '400':
+          description: Confirmation required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Deployment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /deployments/{deployment_id}/resources:
+    get:
+      tags:
+        - deployments
+      summary: Get deployment resources
+      description: Retrieve the resources associated with a specific deployment
+      parameters:
+        - name: deployment_id
+          in: path
+          description: Deployment ID
+          required: true
+          schema:
+            type: string
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Deployment resources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentResourcesResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Deployment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /reports/activity-timeline:
+    get:
+      tags:
+        - reports
+      summary: Generate activity timeline report
+      description: |
+        Generate an activity timeline for service catalog items.
+        
+        This timeline provides a historical view of deployment activities over a specified period,
+        allowing you to see patterns, peak activity periods, and trends.
+      parameters:
+        - name: project_id
+          in: query
+          description: Filter by project ID
+          required: false
+          schema:
+            type: string
+        - name: days_back
+          in: query
+          description: Days back for activity timeline
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 365
+            default: 30
+        - name: group_by
+          in: query
+          description: Group results by time period
+          required: false
+          schema:
+            type: string
+            enum: [day, week, month, year]
+            default: day
+        - name: statuses
+          in: query
+          description: Comma-separated list of statuses to include
+          required: false
+          schema:
+            type: string
+            default: "CREATE_SUCCESSFUL,UPDATE_SUCCESSFUL,SUCCESSFUL,CREATE_FAILED,UPDATE_FAILED,FAILED,CREATE_INPROGRESS,UPDATE_INPROGRESS,INPROGRESS"
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Activity timeline data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityTimelineResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /reports/catalog-usage:
+    get:
+      tags:
+        - reports
+      summary: Generate catalog usage report
+      description: |
+        Generate a usage report for service catalog items showing deployment counts,
+        resource utilization, and success rates.
+      parameters:
+        - name: project_id
+          in: query
+          description: Filter by project ID
+          required: false
+          schema:
+            type: string
+        - name: include_zero
+          in: query
+          description: Include catalog items with zero deployments
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: sort_by
+          in: query
+          description: Sort results by field
+          required: false
+          schema:
+            type: string
+            enum: [deployments, resources, name]
+            default: deployments
+        - name: detailed_resources
+          in: query
+          description: Fetch exact resource counts (slower but more accurate)
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Catalog usage statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogUsageResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /reports/resources-usage:
+    get:
+      tags:
+        - reports
+      summary: Generate resources usage report
+      description: |
+        Generate a consolidated resources usage report across all deployments,
+        showing resource types, counts, states, and their relationship to catalog items.
+      parameters:
+        - name: project_id
+          in: query
+          description: Filter by project ID
+          required: false
+          schema:
+            type: string
+        - name: detailed_resources
+          in: query
+          description: Fetch detailed resource information
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: sort_by
+          in: query
+          description: Sort deployments by field
+          required: false
+          schema:
+            type: string
+            enum: [deployment-name, catalog-item, resource-count, status]
+            default: catalog-item
+        - name: group_by
+          in: query
+          description: Group results by field
+          required: false
+          schema:
+            type: string
+            enum: [catalog-item, resource-type, deployment-status]
+            default: catalog-item
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Resources usage report data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcesUsageResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /reports/unsync:
+    get:
+      tags:
+        - reports
+      summary: Generate unsynced deployments report
+      description: |
+        Generate a report of deployments that don't match to catalog items,
+        identifying deployment tracking issues and orphaned resources.
+      parameters:
+        - name: project_id
+          in: query
+          description: Filter by project ID
+          required: false
+          schema:
+            type: string
+        - name: detailed_resources
+          in: query
+          description: Fetch exact resource counts (slower but more accurate)
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: reason_filter
+          in: query
+          description: Filter by specific reason
+          required: false
+          schema:
+            type: string
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Unsynced deployments report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnsyncReportResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /workflows:
+    get:
+      tags:
+        - workflows
+      summary: List workflows
+      description: |
+        List available workflows from vRealize Orchestrator.
+      parameters:
+        - name: page_size
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 2000
+            default: 100
+        - name: first_page_only
+          in: query
+          description: Fetch only the first page
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: List of workflows
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowsResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /workflows/{workflow_id}:
+    get:
+      tags:
+        - workflows
+      summary: Get workflow schema
+      description: Get the input/output schema for a specific workflow
+      parameters:
+        - name: workflow_id
+          in: path
+          description: Workflow ID
+          required: true
+          schema:
+            type: string
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Workflow schema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowSchemaResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Workflow not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /workflows/{workflow_id}/run:
+    post:
+      tags:
+        - workflows
+      summary: Execute workflow
+      description: Submit inputs to run a workflow and receive execution details
+      parameters:
+        - name: workflow_id
+          in: path
+          description: Workflow ID
+          required: true
+          schema:
+            type: string
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowRunRequest'
+      responses:
+        '200':
+          description: Workflow execution started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowRunResponse'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Workflow not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /workflows/{workflow_id}/executions/{execution_id}:
+    get:
+      tags:
+        - workflows
+      summary: Get workflow execution details
+      description: Retrieve details of a specific workflow execution
+      parameters:
+        - name: workflow_id
+          in: path
+          description: Workflow ID
+          required: true
+          schema:
+            type: string
+        - name: execution_id
+          in: path
+          description: Execution ID
+          required: true
+          schema:
+            type: string
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Workflow execution details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowRunResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Workflow or execution not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /workflows/{workflow_id}/executions/{execution_id}/cancel:
+    put:
+      tags:
+        - workflows
+      summary: Cancel workflow execution
+      description: Cancel a running workflow execution
+      parameters:
+        - name: workflow_id
+          in: path
+          description: Workflow ID
+          required: true
+          schema:
+            type: string
+        - name: execution_id
+          in: path
+          description: Execution ID
+          required: true
+          schema:
+            type: string
+        - name: verbose
+          in: query
+          description: Enable verbose HTTP logging
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Cancellation requested
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '400':
+          description: Failed to cancel execution
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Workflow or execution not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    BaseResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: true
+          description: Indicates if the operation was successful
+        message:
+          type: string
+          nullable: true
+          description: Human-readable message about the operation
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO timestamp of the response
+      required:
+        - success
+        - timestamp
+
+    ErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            success:
+              type: boolean
+              default: false
+            error_code:
+              type: string
+              nullable: true
+              description: Machine-readable error code
+            error_details:
+              type: object
+              nullable: true
+              description: Additional error details
+          required:
+            - success
+
+    HealthResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            status:
+              type: string
+              default: "healthy"
+              description: Health status of the server
+            version:
+              type: string
+              description: Version of the API server
+            uptime:
+              type: string
+              description: Server uptime
+            vra_connection:
+              type: string
+              nullable: true
+              description: Status of vRA connection
+          required:
+            - status
+            - version
+            - uptime
+
+    AuthRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          description: vRA username
+          example: "admin@corp.local"
+        password:
+          type: string
+          format: password
+          description: vRA password
+        url:
+          type: string
+          format: uri
+          description: vRA API base URL
+          example: "https://vra.corp.local"
+        tenant:
+          type: string
+          nullable: true
+          description: vRA tenant (optional)
+        domain:
+          type: string
+          nullable: true
+          description: Authentication domain (optional)
+          default: "System Domain"
+      required:
+        - username
+        - password
+        - url
+
+    AuthResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            token_stored:
+              type: boolean
+              default: false
+              description: Whether tokens were stored successfully
+            config_saved:
+              type: boolean
+              default: false
+              description: Whether configuration was saved successfully
+          required:
+            - token_stored
+            - config_saved
+
+    CatalogItemsResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+                description: Catalog item data
+              description: List of catalog items
+            total_count:
+              type: integer
+              description: Total number of items returned
+            page_info:
+              type: object
+              nullable: true
+              properties:
+                page_size:
+                  type: integer
+                first_page_only:
+                  type: boolean
+                project_filter:
+                  type: string
+                  nullable: true
+              description: Pagination and filtering information
+          required:
+            - items
+            - total_count
+
+    CatalogItemResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            item:
+              type: object
+              description: Detailed catalog item information
+          required:
+            - item
+
+    CatalogSchemaResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            item_schema:
+              type: object
+              description: JSON schema defining the catalog item request structure
+          required:
+            - item_schema
+
+    CatalogRequestRequest:
+      type: object
+      properties:
+        project_id:
+          type: string
+          description: Target project ID for the deployment
+        inputs:
+          type: object
+          nullable: true
+          description: Input parameters for the catalog item
+        reason:
+          type: string
+          nullable: true
+          description: Business justification for the request
+        name:
+          type: string
+          nullable: true
+          description: Custom name for the deployment
+      required:
+        - project_id
+      example:
+        project_id: "12345678-1234-1234-1234-123456789012"
+        inputs:
+          vm_name: "web-server-01"
+          cpu_count: 2
+          memory_mb: 4096
+        reason: "Development environment setup"
+        name: "web-server-deployment"
+
+    CatalogRequestResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            deployment_id:
+              type: string
+              nullable: true
+              description: ID of the created deployment
+            request_id:
+              type: string
+              nullable: true
+              description: ID of the catalog request
+          required:
+            - deployment_id
+            - request_id
+
+    DeploymentsResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            deployments:
+              type: array
+              items:
+                type: object
+                description: Deployment data
+              description: List of deployments
+            total_count:
+              type: integer
+              description: Total number of deployments returned
+            page_info:
+              type: object
+              nullable: true
+              properties:
+                page_size:
+                  type: integer
+                first_page_only:
+                  type: boolean
+                project_filter:
+                  type: string
+                  nullable: true
+                status_filter:
+                  type: string
+                  nullable: true
+              description: Pagination and filtering information
+          required:
+            - deployments
+            - total_count
+
+    DeploymentResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            deployment:
+              type: object
+              description: Detailed deployment information
+          required:
+            - deployment
+
+    DeploymentResourcesResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            resources:
+              type: array
+              items:
+                type: object
+                description: Resource data
+              description: List of deployment resources
+          required:
+            - resources
+
+    ActivityTimelineResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            timeline_data:
+              type: object
+              description: Activity timeline data with periods and statistics
+          required:
+            - timeline_data
+
+    CatalogUsageResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            usage_stats:
+              type: array
+              items:
+                type: object
+                description: Catalog item usage statistics
+              description: List of catalog item usage data
+            summary:
+              type: object
+              description: Summary statistics
+          required:
+            - usage_stats
+            - summary
+
+    ResourcesUsageResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            report_data:
+              type: object
+              description: Comprehensive resources usage report data
+          required:
+            - report_data
+
+    UnsyncReportResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            unsync_data:
+              type: object
+              description: Unsynced deployments analysis and statistics
+          required:
+            - unsync_data
+
+    WorkflowsResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            workflows:
+              type: array
+              items:
+                type: object
+                description: Workflow data
+              description: List of available workflows
+            total_count:
+              type: integer
+              description: Total number of workflows returned
+            page_info:
+              type: object
+              nullable: true
+              properties:
+                page_size:
+                  type: integer
+                first_page_only:
+                  type: boolean
+              description: Pagination information
+          required:
+            - workflows
+            - total_count
+
+    WorkflowSchemaResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            workflow_schema:
+              type: object
+              description: Workflow input/output schema definition
+          required:
+            - workflow_schema
+
+    WorkflowRunRequest:
+      type: object
+      properties:
+        inputs:
+          type: object
+          nullable: true
+          description: Input parameters for the workflow
+      example:
+        inputs:
+          param1: "value1"
+          param2: "value2"
+
+    WorkflowRunResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            execution_id:
+              type: string
+              description: ID of the workflow execution
+            state:
+              type: string
+              description: Current state of the workflow execution
+          required:
+            - execution_id
+            - state
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        VMware vRA access token obtained via the /auth/login endpoint.
+        The token is automatically managed by the server after authentication.
+
+security:
+  - BearerAuth: []
+
+x-tagGroups:
+  - name: Core Operations
+    tags:
+      - root
+      - authentication
+  - name: VMware vRA Resources
+    tags:
+      - catalog
+      - deployments
+      - workflows
+  - name: Analytics & Reporting
+    tags:
+      - reports

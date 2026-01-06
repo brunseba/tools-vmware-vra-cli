@@ -1,0 +1,54 @@
+{
+  "catalog_item_info": {
+    "id": "f2f10f4b-451b-387f-8f14-9d713726bd81",
+    "name": "Application Security Group - Create",
+    "type": "VMware Aria Automation Templates",
+    "status": null,
+    "version": null,
+    "description": ""
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "encrypted": false,
+    "properties": {
+      "Region": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Region",
+        "description": "Enter Region of deployment",
+        "$data": "/data/vro-actions/fr.kyndryl.library.presentation/getKPCListOfRegions?projectId={{Tenant-Name}}"
+      },
+      "asgWide": {
+        "type": "boolean",
+        "encrypted": false,
+        "default": false
+      },
+      "ASG-Name": {
+        "type": "string",
+        "encrypted": false,
+        "title": "ASG Name",
+        "description": "Enter Application Security Group Name to create",
+        "pattern": "^[a-z0-9A-Z@#$_]+$"
+      },
+      "NSG-Name": {
+        "type": "string",
+        "encrypted": false,
+        "title": "NSG Name",
+        "description": "Name of NSG containing the ASG",
+        "$data": "/data/vro-actions/fr.kyndryl.library.presentation/getKPCListOfIds?type=networkSecurityGroup&projectId={{Tenant-Name}}&regionId={{Region}}"
+      },
+      "Tenant-Name": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Tenant Name",
+        "default": "testcustomer"
+      }
+    },
+    "required": [
+      "Region",
+      "ASG-Name",
+      "NSG-Name"
+    ]
+  }
+}

@@ -29,7 +29,7 @@ A comprehensive Python toolkit for VMware vRealize Automation 8 automation, feat
     - **Full MCP 2025-06-28 Compliance**: JSON-RPC 2.0 protocol implementation with stdio transport
     - **AI Assistant Integration**: Native support for Claude Desktop, VS Code Continue, and custom LLM clients
     - **Dynamic Resource Discovery**: Real-time vRA resource enumeration and metadata retrieval
-    - **Comprehensive Tool Suite**: 15+ specialized tools for VM provisioning, deployment management, and reporting
+    - **Comprehensive Tool Suite**: 26+ specialized tools for VM provisioning, deployment management, analytics, and workflow automation
     - **Secure Authentication**: Token-based authentication with automatic refresh and secure credential handling
     - **Smart Resource Context**: Intelligent resource filtering and contextual information for AI decision-making
     - **Production Ready**: Comprehensive error handling, logging, and monitoring capabilities
@@ -75,8 +75,11 @@ vra catalog request <catalog-item-id> --project <project-id> --name "dev-vm-001"
 # List deployments
 vra deployment list
 
-# Generate resource usage report
+# Generate comprehensive reports
+vra report activity-timeline --days-back 90 --group-by week
+vra report catalog-usage --detailed-resources --sort-by deployments
 vra report resources-usage --group-by resource-type
+vra report unsync --show-details
 
 # Create and assign tags
 vra tag create "environment" --value "development" --description "Dev environment"
@@ -248,7 +251,7 @@ Choose your preferred interface and get up and running in minutes:
 1. **[Installation](getting-started/installation.md)** - Install the CLI tool
 2. **[Quick Start](getting-started/quick-start.md)** - Your first VM in 5 minutes
 3. **[Configuration](getting-started/configuration.md)** - Configure for your environment
-4. **[CLI Reference](cli-reference.md)** - Complete command reference
+4. **[CLI Reference](user-guide/cli-reference.md)** - Complete command reference
 
 ### 🤖 **MCP Server for AI Assistants**
 1. **[MCP Server Setup](mcp-server/setup.md)** - Install and configure the MCP server

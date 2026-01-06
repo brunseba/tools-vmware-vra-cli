@@ -1,0 +1,38 @@
+{
+  "catalog_item_info": {
+    "id": "ee49fc93-8c33-3900-9492-3fcad34cf2c2",
+    "name": "Virtual Machine - Change CPU, RAM and Restart",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmName": {
+        "type": "string",
+        "title": "vmName",
+        "default": ""
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName"
+      },
+      "newCpuValue": {
+        "type": "number",
+        "title": "newCpuValue"
+      },
+      "newRamValueInGB": {
+        "type": "number",
+        "title": "newRamValueInGB"
+      }
+    },
+    "required": []
+  }
+}

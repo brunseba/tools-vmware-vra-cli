@@ -1,0 +1,25 @@
+{
+  "catalog_item_info": {
+    "id": "f504bd62-f48d-3ebe-998d-23bb12942e28",
+    "name": "Network Security Group - Remove",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "nsgId": {
+        "type": "string",
+        "title": "nsgId"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      }
+    },
+    "required": []
+  }
+}

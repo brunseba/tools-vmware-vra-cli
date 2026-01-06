@@ -1,0 +1,37 @@
+{
+  "catalog_item_info": {
+    "id": "76e84545-82ae-3d9a-ba69-470a0d0fb826",
+    "name": "VM Snapshot - Remove",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmId": {
+        "type": "string",
+        "title": "vmId",
+        "$data": "/data/vro-actions/fr.kyndryl.library.presentation/getKPCListOfIds?isPublished=true&regionId={{regionId}}&type=virtualMachine&projectId={{projectId}}"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId",
+        "default": "MOP"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId",
+        "default": "kpcdev-testcustomer"
+      },
+      "snapshotId": {
+        "type": "string",
+        "title": "snapshotId",
+        "$data": "/data/vro-actions/fr.kyndryl.library.presentation/getSnapshotsOfVM?vmName={{vmId}}&InputType=snapshotId&regionId={{regionId}}&projectId={{projectId}}"
+      }
+    },
+    "required": []
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "catalog_item_info": {
+    "id": "40c3a0a6-926a-306b-ab32-e5b5a5042a3e",
+    "name": "Report - Generate monthly detailed usage per region",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "title": "email"
+      },
+      "month": {
+        "type": "string",
+        "title": "month"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "tenantId": {
+        "type": "string",
+        "title": "tenantId"
+      },
+      "isInternal": {
+        "type": "boolean",
+        "title": "isInternal"
+      }
+    },
+    "required": []
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "catalog_item_info": {
+    "id": "51092305-4274-3a74-8d7d-e70d52f58f4e",
+    "name": "VM Snapshot - Create",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmName": {
+        "type": "string",
+        "title": "vmName"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "snapName": {
+        "type": "string",
+        "title": "snapName"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      },
+      "retention": {
+        "type": "number",
+        "title": "retention"
+      },
+      "existingSn": {
+        "type": "number",
+        "title": "existingSn"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName"
+      },
+      "description": {
+        "type": "string",
+        "title": "description"
+      },
+      "radio_aea55887": {
+        "type": "string",
+        "title": "Choose",
+        "enum": [
+          "Memory",
+          "Quiesce"
+        ]
+      }
+    },
+    "required": []
+  }
+}

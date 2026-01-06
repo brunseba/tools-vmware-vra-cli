@@ -1,0 +1,36 @@
+{
+  "catalog_item_info": {
+    "id": "520bae06-b6ac-36d7-9b50-a31086dad80c",
+    "name": "Virtual Machine - Start, stop, restart",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "vmName": {
+        "type": "string",
+        "title": "vmName",
+        "default": "kpc006"
+      },
+      "actionName": {
+        "type": "string",
+        "title": "actionName",
+        "$dynamicDefault": "/data/vro-actions/fr.kyndryl.library.presentation/getActionNameForPoweringVm?vmName={{vmName}}&tenantName={{tenantName}}"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName",
+        "default": "testcustomer"
+      },
+      "preventForceShutdown": {
+        "type": "boolean",
+        "title": "preventForceShutdown"
+      }
+    },
+    "required": []
+  }
+}

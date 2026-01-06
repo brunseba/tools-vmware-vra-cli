@@ -181,6 +181,185 @@ Delete a deployment.
 - `deployment_id` (string, required): Deployment ID
 - `confirm` (boolean, optional): Confirm deletion (default: true)
 
+### Schema Catalog Tools (NEW!)
+
+Advanced schema-driven catalog operations with persistent cache support.
+
+#### `vra_schema_load_schemas`
+Load catalog schemas from JSON files into persistent cache.
+
+**Parameters:**
+- `pattern` (string, optional): File pattern to match schema files (default: "*_schema.json")
+- `force_reload` (boolean, optional): Force reload even if already loaded (default: false)
+
+#### `vra_schema_list_schemas`
+List available catalog schemas from cache.
+
+**Parameters:**
+- `item_type` (string, optional): Filter by catalog item type
+- `name_filter` (string, optional): Filter by name (case-insensitive substring match)
+
+#### `vra_schema_search_schemas`
+Search catalog schemas by name or description.
+
+**Parameters:**
+- `query` (string, required): Search query (case-insensitive)
+
+#### `vra_schema_show_schema`
+Show detailed schema information for a catalog item.
+
+**Parameters:**
+- `catalog_item_id` (string, required): Catalog item ID
+
+#### `vra_schema_execute_schema`
+Execute a catalog item using its schema with AI-guided input collection.
+
+**Parameters:**
+- `catalog_item_id` (string, required): Catalog item ID
+- `project_id` (string, required): vRA project ID
+- `deployment_name` (string, optional): Custom deployment name
+- `inputs` (object, optional): Input values dictionary
+- `dry_run` (boolean, optional): Validate inputs without executing (default: false)
+
+**Example:**
+```json
+{
+  "name": "vra_schema_execute_schema",
+  "arguments": {
+    "catalog_item_id": "99abceaf-1da3-3fad-aae7-b55b5084112e",
+    "project_id": "dev-project",
+    "inputs": {
+      "vmName": "web-server-001",
+      "vCPUSize": 4,
+      "vRAMSize": 8,
+      "region": "MOP"
+    },
+    "dry_run": false
+  }
+}
+```
+
+#### `vra_schema_generate_template`
+Generate input template for a catalog item.
+
+**Parameters:**
+- `catalog_item_id` (string, required): Catalog item ID
+- `project_id` (string, required): vRA project ID
+
+#### `vra_schema_clear_cache`
+Clear the persistent schema registry cache.
+
+**Parameters:** None
+
+#### `vra_schema_registry_status`
+Show schema registry status and statistics.
+
+**Parameters:** None
+
+### Reporting Tools (NEW!)
+
+Advanced analytics and reporting tools for deployment insights.
+
+#### `vra_report_activity_timeline`
+Generate deployment activity timeline with trends and peak analysis.
+
+**Parameters:**
+- `project_id` (string, optional): Filter by project ID
+- `days_back` (integer, optional): Days back for timeline (default: 30, max: 365)
+- `group_by` (string, optional): Group by time period - `day`, `week`, `month`, `year` (default: `day`)
+- `statuses` (string, optional): Comma-separated list of statuses to include
+
+**Example:**
+```json
+{
+  "name": "vra_report_activity_timeline",
+  "arguments": {
+    "days_back": 90,
+    "group_by": "week",
+    "statuses": "CREATE_SUCCESSFUL,CREATE_FAILED"
+  }
+}
+```
+
+#### `vra_report_catalog_usage`
+Generate comprehensive catalog usage statistics with deployment counts and success rates.
+
+**Parameters:**
+- `project_id` (string, optional): Filter by project ID
+- `include_zero` (boolean, optional): Include catalog items with zero deployments (default: false)
+- `sort_by` (string, optional): Sort by field - `deployments`, `resources`, `name` (default: `deployments`)
+- `detailed_resources` (boolean, optional): Fetch exact resource counts - slower but accurate (default: false)
+
+#### `vra_report_resources_usage`
+Generate consolidated resources usage report across all deployments.
+
+**Parameters:**
+- `project_id` (string, optional): Filter by project ID
+- `detailed_resources` (boolean, optional): Fetch detailed resource information (default: true)
+- `sort_by` (string, optional): Sort deployments by field - `deployment-name`, `catalog-item`, `resource-count`, `status` (default: `catalog-item`)
+- `group_by` (string, optional): Group results by field - `catalog-item`, `resource-type`, `deployment-status` (default: `catalog-item`)
+
+#### `vra_report_unsync`
+Generate report of deployments not linked to catalog items with root cause analysis.
+
+**Parameters:**
+- `project_id` (string, optional): Filter by project ID
+- `detailed_resources` (boolean, optional): Fetch exact resource counts (default: false)
+- `reason_filter` (string, optional): Filter by specific reason (e.g., `missing_catalog_references`, `catalog_item_deleted`)
+
+### Workflow Tools (NEW!)
+
+vRealize Orchestrator workflow management and execution.
+
+#### `vra_list_workflows`
+List available vRealize Orchestrator workflows.
+
+**Parameters:**
+- `page_size` (integer, optional): Number of items per page (default: 100, max: 2000)
+- `first_page_only` (boolean, optional): Fetch only first page (default: false)
+
+#### `vra_get_workflow_schema`
+Get workflow input/output schema and parameter definitions.
+
+**Parameters:**
+- `workflow_id` (string, required): Workflow ID
+
+#### `vra_run_workflow`
+Execute a workflow with specified inputs.
+
+**Parameters:**
+- `workflow_id` (string, required): Workflow ID
+- `inputs` (object, optional): Input parameters for the workflow
+
+**Example:**
+```json
+{
+  "name": "vra_run_workflow",
+  "arguments": {
+    "workflow_id": "create-user-workflow",
+    "inputs": {
+      "username": "john.doe",
+      "department": "IT",
+      "email": "john.doe@company.com"
+    }
+  }
+}
+```
+
+#### `vra_get_workflow_run`
+Get workflow execution details and status.
+
+**Parameters:**
+- `workflow_id` (string, required): Workflow ID
+- `execution_id` (string, required): Execution ID
+
+#### `vra_cancel_workflow_run`
+Cancel a running workflow execution.
+
+**Parameters:**
+- `workflow_id` (string, required): Workflow ID
+- `execution_id` (string, required): Execution ID
+
 ## Available Resources
 
 The MCP server exposes the following resources:

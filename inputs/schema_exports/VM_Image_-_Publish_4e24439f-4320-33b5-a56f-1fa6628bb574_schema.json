@@ -1,0 +1,25 @@
+{
+  "catalog_item_info": {
+    "id": "4e24439f-4320-33b5-a56f-1fa6628bb574",
+    "name": "VM Image - Publish",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      },
+      "vmImageId": {
+        "type": "string",
+        "title": "vmImageId"
+      }
+    },
+    "required": []
+  }
+}

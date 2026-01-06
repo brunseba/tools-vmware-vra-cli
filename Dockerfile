@@ -16,7 +16,7 @@ FROM python:3.10-slim AS base
 
 # OCI Image Format Specification labels
 LABEL org.opencontainers.image.title="VMware vRA CLI MCP Server"
-LABEL org.opencontainers.image.description="VMware vRealize Automation CLI as a Model Context Protocol server providing REST API access to vRA functionality"
+LABEL org.opencontainers.image.description="VMware vRealize Automation CLI as a Model Context Protocol server providing REST API access to vRA functionality (airgap-compatible)"
 LABEL org.opencontainers.image.version="0.1.0"
 LABEL org.opencontainers.image.created="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 LABEL org.opencontainers.image.authors="Sebastien Brun <sebastien.brun@example.com>"
@@ -75,9 +75,9 @@ ENV USER_UID=1001 \
 # hadolint ignore=DL3008,DL3009
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Build tools for native extensions
-    build-essential=12.9ubuntu3 \
+    build-essential \
     # HTTP client for health checks and API calls
-    curl=7.81.0-1ubuntu1.18 \
+    curl \
     # Clean up package cache to reduce image size
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

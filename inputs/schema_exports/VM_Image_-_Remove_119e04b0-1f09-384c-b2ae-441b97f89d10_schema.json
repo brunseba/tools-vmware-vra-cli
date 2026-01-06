@@ -1,0 +1,29 @@
+{
+  "catalog_item_info": {
+    "id": "119e04b0-1f09-384c-b2ae-441b97f89d10",
+    "name": "VM Image - Remove",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "vmImageId": {
+        "type": "string",
+        "title": "vmImageId"
+      },
+      "tenantName": {
+        "type": "string",
+        "title": "tenantName"
+      }
+    },
+    "required": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "catalog_item_info": {
+    "id": "07d316c8-f09b-3a9f-b48a-6f655888708c",
+    "name": "Network Security Group - Create",
+    "type": "VMware Aria Automation Templates",
+    "status": null,
+    "version": null,
+    "description": ""
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "encrypted": false,
+    "properties": {
+      "Region": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Region",
+        "description": "Enter Region of deployment",
+        "$data": "/data/vro-actions/fr.kyndryl.library.presentation/getKPCListOfRegions?projectId={{Tenant-Name}}"
+      },
+      "NSG-Name": {
+        "type": "string",
+        "encrypted": false,
+        "title": "NSG Name",
+        "pattern": "^[a-z0-9A-Z@#$_]+$"
+      },
+      "NSG-Type": {
+        "type": "string",
+        "encrypted": false,
+        "enum": [
+          "Admin split",
+          "Simple"
+        ]
+      },
+      "RZ-Number": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Routing Zone",
+        "$data": "/data/vro-actions/fr.kyndryl.library.presentation/getKPCListOfIds?projectId={{Tenant-Name}}&type=routingZone&regionId={{Region}}"
+      },
+      "Tenant-Name": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Tenant Name",
+        "default": "testcustomer"
+      },
+      "IP-range-size": {
+        "type": "integer",
+        "encrypted": false,
+        "title": "IP Range Size",
+        "maximum": 30,
+        "minimum": 8
+      },
+      "Gateway-IP-address": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Gateway IP Address",
+        "pattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+      },
+      "Admin-IP-range-size": {
+        "type": "integer",
+        "encrypted": false,
+        "title": "Admin IP Range Size",
+        "maximum": 30,
+        "minimum": 8
+      },
+      "Admin-gateway-IP-address": {
+        "type": "string",
+        "encrypted": false,
+        "title": "Admin Gateway IP Address",
+        "pattern": "^$|^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+      }
+    },
+    "required": [
+      "Gateway-IP-address",
+      "Admin-gateway-IP-address",
+      "Admin-IP-range-size",
+      "RZ-Number",
+      "IP-range-size",
+      "Region",
+      "NSG-Name",
+      "NSG-Type"
+    ]
+  }
+}

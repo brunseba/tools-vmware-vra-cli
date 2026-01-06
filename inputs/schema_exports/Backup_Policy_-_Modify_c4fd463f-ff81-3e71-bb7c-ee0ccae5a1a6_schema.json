@@ -1,0 +1,93 @@
+{
+  "catalog_item_info": {
+    "id": "c4fd463f-ff81-3e71-bb7c-ee0ccae5a1a6",
+    "name": "Backup Policy - Modify",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "regionId": {
+        "type": "string",
+        "title": "regionId",
+        "enum": [
+          "MOP"
+        ]
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      },
+      "backupMethod": {
+        "type": "string",
+        "title": "backupMethod"
+      },
+      "backupWindow": {
+        "type": "string",
+        "title": "backupWindow"
+      },
+      "backupPolicyId": {
+        "type": "string",
+        "title": "backupPolicyId"
+      },
+      "backupFrequency": {
+        "type": "array",
+        "title": "backupFrequency",
+        "items": {
+          "type": "string",
+          "title": "backupFrequency"
+        }
+      },
+      "backupSchedules": {
+        "type": "array",
+        "title": "backupSchedules",
+        "items": {
+          "type": "object",
+          "properties": {
+            "dayOfWeek": {
+              "type": "string",
+              "title": "dayOfWeek"
+            },
+            "frequency": {
+              "type": "string",
+              "title": "frequency"
+            },
+            "startTime": {
+              "type": "string",
+              "title": "startTime"
+            },
+            "backupType": {
+              "type": "string",
+              "title": "backupType"
+            },
+            "monthOfYear": {
+              "type": "string",
+              "title": "monthOfYear"
+            },
+            "weekOfMonth": {
+              "type": "string",
+              "title": "weekOfMonth"
+            },
+            "scheduleFrequencyType": {
+              "type": "string",
+              "title": "scheduleFrequencyType"
+            }
+          }
+        }
+      },
+      "retentionPeriod": {
+        "type": "string",
+        "title": "retentionPeriod"
+      },
+      "retentionFrequency": {
+        "type": "string",
+        "title": "retentionFrequency"
+      }
+    },
+    "required": []
+  }
+}

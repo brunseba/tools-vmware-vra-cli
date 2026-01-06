@@ -1,0 +1,57 @@
+{
+  "catalog_item_info": {
+    "id": "6df3042d-966a-3d0c-b011-6e399758c03c",
+    "name": "Network Security Group - Reserve IP addresses",
+    "type": "Automation Orchestrator Workflow",
+    "status": null,
+    "version": null,
+    "description": null
+  },
+  "export_timestamp": "2025-10-17T14:32:28.340732",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "nsgId": {
+        "type": "string",
+        "title": "nsgId"
+      },
+      "nsgType": {
+        "type": "string",
+        "title": "nsgType"
+      },
+      "regionId": {
+        "type": "string",
+        "title": "regionId"
+      },
+      "projectId": {
+        "type": "string",
+        "title": "projectId"
+      },
+      "reserveIpList": {
+        "type": "array",
+        "title": "reserveIpList",
+        "items": {
+          "type": "string",
+          "title": "reserveIpList"
+        }
+      },
+      "reserveProdIpList": {
+        "type": "array",
+        "title": "reserveProdIpList",
+        "items": {
+          "type": "string",
+          "title": "reserveProdIpList"
+        }
+      },
+      "reserveAdminIpList": {
+        "type": "array",
+        "title": "reserveAdminIpList",
+        "items": {
+          "type": "string",
+          "title": "reserveAdminIpList"
+        }
+      }
+    },
+    "required": []
+  }
+}
