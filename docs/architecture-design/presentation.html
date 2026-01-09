@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VMware vRA CLI - Architecture & Design</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/monokai.css">
+    <style>
+        .reveal h1 { font-size: 2.5em; }
+        .reveal h2 { font-size: 2em; }
+        .reveal h3 { font-size: 1.5em; }
+        .reveal code { font-size: 0.9em; }
+        .reveal pre code { font-size: 0.7em; max-height: 500px; }
+        .reveal ul, .reveal ol { font-size: 0.85em; }
+        .reveal table { font-size: 0.7em; }
+        .reveal .slide-number { font-size: 18px; }
+        .reveal section img { border: none; background: none; box-shadow: none; }
+        .highlight { color: #42affa; }
+        .success { color: #4caf50; }
+        .warning { color: #ff9800; }
+        .error { color: #f44336; }
+        .small-text { font-size: 0.7em; }
+        .two-column { display: flex; gap: 2rem; }
+        .two-column > div { flex: 1; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Title Slide -->
+            <section>
+                <h1>VMware vRA CLI</h1>
+                <h3>Architecture & Design</h3>
+                <p class="small-text">A comprehensive command-line interface and MCP server<br>for VMware vRealize Automation</p>
+            </section>
+
+            <!-- Table of Contents -->
+            <section>
+                <h2>Agenda</h2>
+                <ol>
+                    <li>System Overview</li>
+                    <li>Architecture Patterns</li>
+                    <li>Core Components</li>
+                    <li>MCP Server Architecture</li>
+                    <li>Security & Compliance</li>
+                    <li>Data Models</li>
+                    <li>Requirements</li>
+                    <li>Technology Stack</li>
+                </ol>
+            </section>
+
+            <!-- System Overview -->
+            <section>
+                <section>
+                    <h2>System Overview</h2>
+                    <p>VMware vRA CLI provides comprehensive automation capabilities for VMware vRealize Automation environments</p>
+                </section>
+
+                <section>
+                    <h3>Key Features</h3>
+                    <div class="two-column">
+                        <div>
+                            <h4>CLI Interface</h4>
+                            <ul>
+                                <li>Service Catalog Management</li>
+                                <li>Deployment Operations</li>
+                                <li>Workflow Execution</li>
+                                <li>Tag Management</li>
+                                <li>Reporting & Analytics</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4>MCP Server</h4>
+                            <ul>
+                                <li>RESTful API</li>
+                                <li>OpenAPI/Swagger Docs</li>
+                                <li>26 Specialized Tools</li>
+                                <li>Docker Deployment</li>
+                                <li>Health Monitoring</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>Architectural Principles</h3>
+                    <ul>
+                        <li><span class="highlight">Modular Design</span> - Separation of concerns with distinct modules</li>
+                        <li><span class="highlight">Security First</span> - Secure credential storage and token management</li>
+                        <li><span class="highlight">Extensibility</span> - Plugin-based architecture</li>
+                        <li><span class="highlight">User Experience</span> - Rich terminal output and multiple formats</li>
+                        <li><span class="highlight">Cross-Platform</span> - Windows, macOS, and Linux support</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Architecture Patterns -->
+            <section>
+                <section>
+                    <h2>Architecture Patterns</h2>
+                    <p>Modern design patterns for maintainability and extensibility</p>
+                </section>
+
+                <section>
+                    <h3>Layered Architecture</h3>
+                    <ul>
+                        <li><strong>Presentation Layer</strong> - CLI commands, web API, output formatters</li>
+                        <li><strong>Application Layer</strong> - Command handlers, validation, business logic</li>
+                        <li><strong>Service Layer</strong> - Domain-specific services (Catalog, Deployment, etc.)</li>
+                        <li><strong>Integration Layer</strong> - API clients, token management, configuration</li>
+                        <li><strong>Infrastructure Layer</strong> - HTTP client, keyring, file system, logging</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Command Pattern</h3>
+                    <pre><code class="language-python">class CommandBase:
+    """Base class for all CLI commands"""
+    
+    def execute(self, context: CommandContext) -> CommandResult:
+        """Execute the command with given context"""
+        pass
+    
+    def validate(self, args: dict) -> ValidationResult:
+        """Validate command arguments"""
+        pass</code></pre>
+                </section>
+
+                <section>
+                    <h3>Strategy Pattern</h3>
+                    <pre><code class="language-python">class OutputStrategy:
+    """Base output formatting strategy"""
+    def format(self, data: dict) -> str:
+        pass
+
+class JSONOutputStrategy(OutputStrategy):
+    """JSON output formatting"""
+    
+class TableOutputStrategy(OutputStrategy):
+    """Table output formatting"""
+    
+class YAMLOutputStrategy(OutputStrategy):
+    """YAML output formatting"""</code></pre>
+                </section>
+
+                <section>
+                    <h3>Factory Pattern</h3>
+                    <pre><code class="language-python">class CommandFactory:
+    """Factory for creating command instances"""
+    
+    @staticmethod
+    def create_command(command_type: str) -> CommandBase:
+        """Create command instance based on type"""
+        return command_registry.get(command_type)()</code></pre>
+                </section>
+            </section>
+
+            <!-- Core Components -->
+            <section>
+                <section>
+                    <h2>Core Components</h2>
+                    <p>Six primary component groups</p>
+                </section>
+
+                <section>
+                    <h3>1. CLI Engine</h3>
+                    <ul>
+                        <li><strong>Click Framework Integration</strong> - Command parsing and help generation</li>
+                        <li><strong>Command Router</strong> - Routes commands to appropriate handlers</li>
+                        <li><strong>Context Management</strong> - Execution context across lifecycle</li>
+                        <li><strong>Error Handling</strong> - Centralized error handling</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>2. Authentication System</h3>
+                    <ul>
+                        <li><strong>Two-Phase Authentication</strong> - VMware vRA flow implementation</li>
+                        <li><strong>Token Management</strong> - Secure storage and automatic renewal</li>
+                        <li><strong>Session Management</strong> - Authentication state persistence</li>
+                        <li><strong>Credential Storage</strong> - System keyring integration</li>
+                    </ul>
+                    <p class="small-text">Tokens: Identity (initial), Access (8h), Refresh (90d)</p>
+                </section>
+
+                <section>
+                    <h3>3. API Client Layer</h3>
+                    <ul>
+                        <li><strong>RESTful Communication</strong> - HTTP/HTTPS with vRA APIs</li>
+                        <li><strong>Request/Response Handling</strong> - Standardized processing</li>
+                        <li><strong>Error Handling</strong> - API-specific error handling and retry logic</li>
+                        <li><strong>Rate Limiting</strong> - Built-in rate limiting and backoff strategies</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>4. Configuration System</h3>
+                    <ul>
+                        <li><strong>Hierarchical Configuration</strong>
+                            <p class="small-text">Environment vars > CLI args > Config file > Defaults</p>
+                        </li>
+                        <li><strong>Profile Management</strong> - Multiple configuration profiles</li>
+                        <li><strong>Persistent Storage</strong> - JSON-based persistence</li>
+                        <li><strong>Runtime Configuration</strong> - Dynamic updates during execution</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>5. Output System</h3>
+                    <ul>
+                        <li><strong>Multiple Formats</strong> - JSON, YAML, CSV, and tabular output</li>
+                        <li><strong>Rich Terminal Output</strong> - Colors, progress bars, interactive elements</li>
+                        <li><strong>Streaming Output</strong> - Large dataset streaming support</li>
+                        <li><strong>Template System</strong> - Custom output templates</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>6. MCP Server (Model Context Protocol)</h3>
+                    <ul>
+                        <li><strong>FastAPI Framework</strong> - High-performance web framework</li>
+                        <li><strong>RESTful API Design</strong> - Clean, intuitive endpoints</li>
+                        <li><strong>OpenAPI Integration</strong> - Automatic schema generation</li>
+                        <li><strong>Pydantic Models</strong> - Type-safe request/response validation</li>
+                        <li><strong>Docker Support</strong> - Containerized deployment</li>
+                        <li><strong>Health Monitoring</strong> - Built-in health checks</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- MCP Server Architecture -->
+            <section>
+                <section>
+                    <h2>MCP Server Architecture</h2>
+                    <p>Model Context Protocol compliant server with 26 specialized tools</p>
+                </section>
+
+                <section>
+                    <h3>MCP Server Components</h3>
+                    <div class="small-text">
+                        <ul>
+                            <li><strong>FastAPI Application</strong> - Core web application</li>
+                            <li><strong>API Routers</strong> - Auth, Catalog, Deployment, Health, Analytics</li>
+                            <li><strong>Pydantic Models</strong> - Type-safe data validation</li>
+                            <li><strong>Middleware</strong> - Authentication, CORS, error handling</li>
+                            <li><strong>OpenAPI Docs</strong> - Auto-generated Swagger UI</li>
+                            <li><strong>Docker Compose</strong> - Multi-service orchestration</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>26 MCP Tools (6 Categories)</h3>
+                    <table>
+                        <tr>
+                            <th>Category</th>
+                            <th>Count</th>
+                            <th>Primary Use</th>
+                        </tr>
+                        <tr>
+                            <td>Authentication</td>
+                            <td>1</td>
+                            <td>Login & credential caching</td>
+                        </tr>
+                        <tr>
+                            <td>Catalog</td>
+                            <td>4</td>
+                            <td>Browse & request deployments</td>
+                        </tr>
+                        <tr>
+                            <td>Schema</td>
+                            <td>8</td>
+                            <td>Guided deployment execution</td>
+                        </tr>
+                        <tr>
+                            <td>Deployments</td>
+                            <td>4</td>
+                            <td>Manage existing deployments</td>
+                        </tr>
+                        <tr>
+                            <td>Reporting</td>
+                            <td>4</td>
+                            <td>Environment insights & analytics</td>
+                        </tr>
+                        <tr>
+                            <td>Workflows</td>
+                            <td>5</td>
+                            <td>vRO automation execution</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Docker Deployment</h3>
+                    <ul>
+                        <li><strong>Multi-stage Builds</strong> - Optimized image sizes</li>
+                        <li><strong>Service Orchestration</strong> - Docker Compose profiles</li>
+                        <li><strong>Available Services</strong>
+                            <ul class="small-text">
+                                <li>REST API Server (port 8000)</li>
+                                <li>Swagger UI (port 8090)</li>
+                                <li>Log Viewer - Dozzle (port 8080)</li>
+                                <li>OpenAPI JSON generation</li>
+                            </ul>
+                        </li>
+                        <li><strong>Airgap Support</strong> - Offline deployment capability</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Security & Compliance -->
+            <section>
+                <section>
+                    <h2>Security & Compliance</h2>
+                    <p>Enterprise-grade security architecture</p>
+                </section>
+
+                <section>
+                    <h3>Security Zones</h3>
+                    <ul>
+                        <li><strong>Zone 1: User Space</strong> (Lowest Trust)
+                            <p class="small-text">Terminal, config files, logs, temporary data</p>
+                        </li>
+                        <li><strong>Zone 2: Application Space</strong> (Medium Trust)
+                            <p class="small-text">CLI process, in-memory processing, configuration management</p>
+                        </li>
+                        <li><strong>Zone 3: System Space</strong> (High Trust)
+                            <p class="small-text">System keyring, OS APIs, network stack</p>
+                        </li>
+                        <li><strong>Zone 4: External Services</strong> (Variable Trust)
+                            <p class="small-text">vRA APIs, IdP, Certificate authorities</p>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Authentication Flow</h3>
+                    <div class="small-text">
+                        <ol>
+                            <li>User initiates login command</li>
+                            <li>CLI requests authentication from Auth Service</li>
+                            <li>Auth Service authenticates with vRA Identity API</li>
+                            <li>vRA validates credentials with Identity Provider</li>
+                            <li>Identity token returned to Auth Service</li>
+                            <li>Auth Service requests access token from IaaS API</li>
+                            <li>Access token (8h expiry) received</li>
+                            <li>Both tokens stored securely in system keyring</li>
+                            <li>Authentication complete</li>
+                        </ol>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>Token Management</h3>
+                    <table>
+                        <tr>
+                            <th>Token Type</th>
+                            <th>Lifetime</th>
+                            <th>Purpose</th>
+                        </tr>
+                        <tr>
+                            <td>Identity Token</td>
+                            <td>Session</td>
+                            <td>Initial authentication</td>
+                        </tr>
+                        <tr>
+                            <td>Access Token</td>
+                            <td>8 hours</td>
+                            <td>API access</td>
+                        </tr>
+                        <tr>
+                            <td>Refresh Token</td>
+                            <td>90 days</td>
+                            <td>Token renewal</td>
+                        </tr>
+                    </table>
+                    <p class="small-text"><span class="success">✓</span> All tokens stored in encrypted system keyring</p>
+                </section>
+
+                <section>
+                    <h3>Data Classification</h3>
+                    <ul>
+                        <li><span class="error">Highly Sensitive</span>
+                            <p class="small-text">Credentials, tokens, private keys, PII</p>
+                        </li>
+                        <li><span class="warning">Sensitive</span>
+                            <p class="small-text">Config with connection details, API responses, audit logs</p>
+                        </li>
+                        <li><span class="highlight">Internal</span>
+                            <p class="small-text">Application logs, debug info, performance metrics</p>
+                        </li>
+                        <li><span class="success">Public</span>
+                            <p class="small-text">Help docs, error messages, version info</p>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Encryption Requirements</h3>
+                    <div class="two-column">
+                        <div>
+                            <h4>Data at Rest</h4>
+                            <ul class="small-text">
+                                <li>System keyring encryption</li>
+                                <li>AES-256 for config files</li>
+                                <li>Encrypted audit logs</li>
+                                <li>Auto-purged cache data</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4>Data in Transit</h4>
+                            <ul class="small-text">
+                                <li>TLS 1.2+ required</li>
+                                <li>Certificate validation</li>
+                                <li>Perfect Forward Secrecy</li>
+                                <li>HSTS enforcement</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>MFA Support</h3>
+                    <ul>
+                        <li><strong>Full Support</strong> - When required by vRA environment</li>
+                        <li><strong>Interactive Flow</strong> - MFA prompts during authentication</li>
+                        <li><strong>Additional Security</strong> - Extra encryption layer for MFA tokens</li>
+                        <li><strong>Validation</strong> - MFA requirements checked before authentication</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Data Models -->
+            <section>
+                <section>
+                    <h2>Data Models</h2>
+                    <p>Comprehensive data structures and schemas</p>
+                </section>
+
+                <section>
+                    <h3>Core Data Models</h3>
+                    <ul class="small-text">
+                        <li><strong>CatalogItem</strong> - Service catalog item representation</li>
+                        <li><strong>Deployment</strong> - Deployment instance and metadata</li>
+                        <li><strong>Resource</strong> - Deployed resource details</li>
+                        <li><strong>Workflow</strong> - vRO workflow definition</li>
+                        <li><strong>Tag</strong> - Resource tagging information</li>
+                        <li><strong>Project</strong> - vRA project configuration</li>
+                        <li><strong>User</strong> - User identity and permissions</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Configuration Models</h3>
+                    <ul class="small-text">
+                        <li><strong>ServerConfig</strong> - vRA server connection settings</li>
+                        <li><strong>AuthConfig</strong> - Authentication configuration</li>
+                        <li><strong>OutputConfig</strong> - Output formatting preferences</li>
+                        <li><strong>LoggingConfig</strong> - Logging settings</li>
+                        <li><strong>ProfileConfig</strong> - User profile configuration</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>API Models (Pydantic)</h3>
+                    <pre><code class="language-python">class DeploymentRequest(BaseModel):
+    catalog_item_id: str
+    project_id: str
+    name: str
+    description: Optional[str]
+    inputs: Dict[str, Any]
+    version: Optional[str]
+    
+class DeploymentResponse(BaseModel):
+    id: str
+    name: str
+    status: DeploymentStatus
+    created_at: datetime
+    resources: List[Resource]</code></pre>
+                </section>
+            </section>
+
+            <!-- Requirements -->
+            <section>
+                <section>
+                    <h2>Requirements</h2>
+                    <p>Functional and non-functional requirements</p>
+                </section>
+
+                <section>
+                    <h3>Functional Requirements (Summary)</h3>
+                    <ul class="small-text">
+                        <li><strong>FR-001 to FR-005</strong> - Authentication Management</li>
+                        <li><strong>FR-006 to FR-010</strong> - Configuration Management</li>
+                        <li><strong>FR-011 to FR-015</strong> - Service Catalog Management</li>
+                        <li><strong>FR-016 to FR-020</strong> - Deployment Management</li>
+                        <li><strong>FR-021 to FR-025</strong> - Workflow Management</li>
+                        <li><strong>FR-026 to FR-030</strong> - Tag Management</li>
+                        <li><strong>FR-031 to FR-033</strong> - Reporting and Analytics</li>
+                        <li><strong>FR-034 to FR-038</strong> - CLI Experience</li>
+                        <li><strong>FR-039 to FR-045</strong> - Error Handling & Security</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Non-Functional Requirements</h3>
+                    <ul>
+                        <li><strong>Performance</strong> - Response time < 2s for most operations</li>
+                        <li><strong>Scalability</strong> - Handle 1000+ catalog items efficiently</li>
+                        <li><strong>Reliability</strong> - 99.9% uptime for API operations</li>
+                        <li><strong>Usability</strong> - Intuitive command structure</li>
+                        <li><strong>Maintainability</strong> - Modular, testable codebase</li>
+                        <li><strong>Security</strong> - Enterprise-grade security controls</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Technology Stack -->
+            <section>
+                <section>
+                    <h2>Technology Stack</h2>
+                    <p>Modern, proven technologies</p>
+                </section>
+
+                <section>
+                    <h3>Core Technologies</h3>
+                    <table>
+                        <tr>
+                            <th>Component</th>
+                            <th>Technology</th>
+                            <th>Version</th>
+                        </tr>
+                        <tr>
+                            <td>Language</td>
+                            <td>Python</td>
+                            <td>3.10+</td>
+                        </tr>
+                        <tr>
+                            <td>CLI Framework</td>
+                            <td>Click</td>
+                            <td>Latest</td>
+                        </tr>
+                        <tr>
+                            <td>HTTP Client</td>
+                            <td>Requests</td>
+                            <td>Latest</td>
+                        </tr>
+                        <tr>
+                            <td>Security</td>
+                            <td>System Keyring</td>
+                            <td>Native</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>MCP Server Technologies</h3>
+                    <table>
+                        <tr>
+                            <th>Component</th>
+                            <th>Technology</th>
+                        </tr>
+                        <tr>
+                            <td>Web Framework</td>
+                            <td>FastAPI</td>
+                        </tr>
+                        <tr>
+                            <td>ASGI Server</td>
+                            <td>Uvicorn</td>
+                        </tr>
+                        <tr>
+                            <td>Data Validation</td>
+                            <td>Pydantic</td>
+                        </tr>
+                        <tr>
+                            <td>API Docs</td>
+                            <td>OpenAPI/Swagger</td>
+                        </tr>
+                        <tr>
+                            <td>Containerization</td>
+                            <td>Docker & Docker Compose</td>
+                        </tr>
+                        <tr>
+                            <td>Log Aggregation</td>
+                            <td>Dozzle</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Development & Deployment</h3>
+                    <table>
+                        <tr>
+                            <th>Purpose</th>
+                            <th>Technology</th>
+                        </tr>
+                        <tr>
+                            <td>Documentation</td>
+                            <td>MkDocs with Material theme</td>
+                        </tr>
+                        <tr>
+                            <td>Testing</td>
+                            <td>pytest</td>
+                        </tr>
+                        <tr>
+                            <td>Packaging</td>
+                            <td>Python wheels</td>
+                        </tr>
+                        <tr>
+                            <td>Build System</td>
+                            <td>uv</td>
+                        </tr>
+                        <tr>
+                            <td>Package Manager</td>
+                            <td>pipx (recommended)</td>
+                        </tr>
+                    </table>
+                </section>
+            </section>
+
+            <!-- Conclusion -->
+            <section>
+                <section>
+                    <h2>Key Takeaways</h2>
+                    <ul>
+                        <li><span class="success">✓</span> Layered, modular architecture</li>
+                        <li><span class="success">✓</span> Enterprise-grade security</li>
+                        <li><span class="success">✓</span> Dual interface: CLI + MCP Server</li>
+                        <li><span class="success">✓</span> 26 specialized tools for automation</li>
+                        <li><span class="success">✓</span> Docker-ready deployment</li>
+                        <li><span class="success">✓</span> Comprehensive documentation</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Questions?</h2>
+                    <p class="small-text">Documentation: <a href="https://brunseba.github.io/tools-vmware-vra-cli">https://brunseba.github.io/tools-vmware-vra-cli</a></p>
+                    <p class="small-text">Repository: <a href="https://github.com/brunseba/tools-vmware-vra-cli">https://github.com/brunseba/tools-vmware-vra-cli</a></p>
+                </section>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/notes/notes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/markdown/markdown.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/zoom/zoom.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/plugin/search/search.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            backgroundTransition: 'fade',
+            center: true,
+            progress: true,
+            controls: true,
+            controlsLayout: 'bottom-right',
+            controlsBackArrows: 'faded',
+            plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealZoom, RevealSearch ]
+        });
+    </script>
+</body>
+</html>
