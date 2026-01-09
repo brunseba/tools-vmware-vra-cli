@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VMware vRA CLI - Architecture Documentation</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reset.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/theme/black.css">
+    <style>
+        .reveal h1 { font-size: 2.5em; color: #42affa; }
+        .reveal h2 { font-size: 2em; }
+        .reveal h3 { font-size: 1.5em; }
+        .presentation-card {
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            margin: 1rem;
+            border-radius: 10px;
+            border-left: 5px solid #42affa;
+        }
+        .presentation-card h3 { margin-top: 0; color: #42affa; }
+        .presentation-card p { font-size: 0.8em; margin: 0.5rem 0; }
+        .presentation-card a {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: #42affa;
+            color: #000;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .presentation-card a:hover { background: #64b5f6; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            
+            <!-- Title -->
+            <section>
+                <h1>VMware vRA CLI</h1>
+                <h2>Architecture & Design</h2>
+                <h3>Documentation Suite</h3>
+                <p>Comprehensive technical documentation presentations</p>
+            </section>
+
+            <!-- Overview -->
+            <section>
+                <h2>Documentation Structure</h2>
+                <p>This suite contains 4 detailed presentations covering all aspects of the system architecture:</p>
+                <ul>
+                    <li>🏗️  Architecture Overview - Patterns, layers, and flows</li>
+                    <li>🔧 Components Model - Detailed component breakdown</li>
+                    <li>📊 Data Models - Schemas, validation, and serialization</li>
+                    <li>🔒 Security & Compliance - Enterprise security architecture</li>
+                </ul>
+            </section>
+
+            <!-- Presentations Grid -->
+            <section>
+                <h2>Available Presentations</h2>
+                <div class="grid">
+                    <div class="presentation-card">
+                        <h3>🏗️  Architecture Overview</h3>
+                        <p><strong>Slides:</strong> ~50 slides</p>
+                        <p><strong>Duration:</strong> 45-60 minutes</p>
+                        <p><strong>Topics:</strong> Layered architecture, design patterns, data flows, error handling, performance</p>
+                        <a href="01-architecture-overview.html">View Presentation →</a>
+                    </div>
+                    
+                    <div class="presentation-card">
+                        <h3>🔧 Components Model</h3>
+                        <p><strong>Slides:</strong> ~45 slides</p>
+                        <p><strong>Duration:</strong> 40-50 minutes</p>
+                        <p><strong>Topics:</strong> Components, interfaces, dependencies, lifecycle management</p>
+                        <a href="02-components-model.html">View Presentation →</a>
+                    </div>
+                    
+                    <div class="presentation-card">
+                        <h3>📊 Data Models</h3>
+                        <p><strong>Slides:</strong> ~40 slides</p>
+                        <p><strong>Duration:</strong> 35-45 minutes</p>
+                        <p><strong>Topics:</strong> Entity relationships, validation, schemas, serialization</p>
+                        <a href="03-data-models.html">View Presentation →</a>
+                    </div>
+                    
+                    <div class="presentation-card">
+                        <h3>🔒 Security & Compliance</h3>
+                        <p><strong>Slides:</strong> ~35 slides</p>
+                        <p><strong>Duration:</strong> 30-40 minutes</p>
+                        <p><strong>Topics:</strong> Security zones, authentication, encryption, MFA, compliance</p>
+                        <a href="04-security-compliance.html">View Presentation →</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Reference -->
+            <section>
+                <h2>Quick Reference</h2>
+                <table style="font-size: 0.7em;">
+                    <tr>
+                        <th>Topic</th>
+                        <th>Key Concepts</th>
+                        <th>Target Audience</th>
+                    </tr>
+                    <tr>
+                        <td>Architecture Overview</td>
+                        <td>Layers, Patterns, Flows</td>
+                        <td>Architects, Senior Developers</td>
+                    </tr>
+                    <tr>
+                        <td>Components Model</td>
+                        <td>Services, Interfaces, Dependencies</td>
+                        <td>Developers, Tech Leads</td>
+                    </tr>
+                    <tr>
+                        <td>Data Models</td>
+                        <td>Entities, Schemas, Validation</td>
+                        <td>Developers, QA Engineers</td>
+                    </tr>
+                    <tr>
+                        <td>Security & Compliance</td>
+                        <td>Authentication, Encryption, Compliance</td>
+                        <td>Security Teams, Compliance Officers</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Technology Stack -->
+            <section>
+                <h2>Technology Stack Overview</h2>
+                <div class="grid">
+                    <div>
+                        <h3>Core Technologies</h3>
+                        <ul style="font-size: 0.8em;">
+                            <li>Python 3.10+</li>
+                            <li>Click Framework</li>
+                            <li>Requests Library</li>
+                            <li>System Keyring</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>MCP Server</h3>
+                        <ul style="font-size: 0.8em;">
+                            <li>FastAPI</li>
+                            <li>Uvicorn</li>
+                            <li>Pydantic</li>
+                            <li>Docker</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Usage Guide -->
+            <section>
+                <h2>How to Use These Presentations</h2>
+                <ol style="text-align: left; font-size: 0.85em;">
+                    <li><strong>For Overview:</strong> Start with Architecture Overview</li>
+                    <li><strong>For Implementation:</strong> Focus on Components Model</li>
+                    <li><strong>For Data Design:</strong> Review Data Models</li>
+                    <li><strong>For Security:</strong> Study Security & Compliance</li>
+                    <li><strong>Navigation:</strong> Use arrow keys or click links</li>
+                    <li><strong>Search:</strong> Press Ctrl/Cmd + Shift + F</li>
+                    <li><strong>Overview:</strong> Press ESC for slide overview</li>
+                </ol>
+            </section>
+
+            <!-- System Overview -->
+            <section>
+                <h2>System at a Glance</h2>
+                <ul style="font-size: 0.85em;">
+                    <li><strong>Type:</strong> Command-line interface + MCP Server</li>
+                    <li><strong>Purpose:</strong> VMware vRealize Automation management</li>
+                    <li><strong>Architecture:</strong> 5-layer architecture pattern</li>
+                    <li><strong>Components:</strong> 30+ interconnected components</li>
+                    <li><strong>Security:</strong> Enterprise-grade with keyring integration</li>
+                    <li><strong>Deployment:</strong> CLI, Docker, Kubernetes-ready</li>
+                    <li><strong>API:</strong> RESTful with 26 specialized tools</li>
+                </ul>
+            </section>
+
+            <!-- Documentation Links -->
+            <section>
+                <h2>Additional Resources</h2>
+                <ul style="font-size: 0.85em;">
+                    <li>📚 <a href="https://brunseba.github.io/tools-vmware-vra-cli">Main Documentation</a></li>
+                    <li>🔗 <a href="https://github.com/brunseba/tools-vmware-vra-cli">GitHub Repository</a></li>
+                    <li>📖 <a href="../architecture-overview.md">Architecture Overview (Markdown)</a></li>
+                    <li>🔧 <a href="../components-model.md">Components Model (Markdown)</a></li>
+                    <li>📊 <a href="../data-models.md">Data Models (Markdown)</a></li>
+                    <li>🔒 <a href="../security-compliance.md">Security & Compliance (Markdown)</a></li>
+                </ul>
+            </section>
+
+            <!-- Start -->
+            <section>
+                <h2>Ready to Explore?</h2>
+                <p>Choose a presentation from the menu to begin</p>
+                <div style="margin-top: 2rem;">
+                    <a href="01-architecture-overview.html" style="display: inline-block; padding: 1rem 2rem; background: #42affa; color: #000; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 0.5rem;">Start with Architecture →</a>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.0/dist/reveal.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            transition: 'slide',
+            center: true,
+            progress: true,
+            controls: true
+        });
+    </script>
+</body>
+</html>
